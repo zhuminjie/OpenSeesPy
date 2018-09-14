@@ -1,5 +1,5 @@
 ===============
- OpenSeesPyPip
+ OpenSeesPy
 ===============
 
 Pip Package for OpenSeesPy
