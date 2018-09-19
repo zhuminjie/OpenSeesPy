@@ -17,12 +17,11 @@ setuptools.setup(
     url="https://github.com/openseespy/openseespy",
     packages=setuptools.find_packages(),
     package_data={
-        'openseespy': ['opensees.so','opensees.pyd'],
+        'openseespy': ['opensees.so','opensees.pyd','LICENSE.rst'],
     },
-    #packages=['opensees'],
+    license = 'LICENSE.rst',
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows'
     ],
