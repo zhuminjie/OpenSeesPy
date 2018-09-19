@@ -17,7 +17,7 @@ setuptools.setup(
     url="https://github.com/openseespy/openseespy",
     packages=setuptools.find_packages(),
     package_data={
-        'openseespy': ['opensees.so'],
+        'openseespy': ['opensees.so','opensees.pyd'],
     },
     #packages=['opensees'],
     classifiers=[
