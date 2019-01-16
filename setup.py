@@ -1,7 +1,7 @@
 import setuptools
 
 about = {}
-with open('openseespy/__about__.py') as fp:
+with open('openseespy/version.py') as fp:
     exec(fp.read(), about)
 
 with open("README.rst", "r") as fh:
@@ -9,7 +9,7 @@ with open("README.rst", "r") as fh:
 
 setuptools.setup(
     name="openseespy",
-    version=about['__version__'],
+    version=about['version_num'],
     author="Minjie Zhu",
     author_email="zhum@oregonstate.edu",
     description="A OpenSeesPy package",
