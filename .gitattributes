@@ -1,2 +1,0 @@
-*.so filter=lfs diff=lfs merge=lfs -text
-*.pyd filter=lfs diff=lfs merge=lfs -text

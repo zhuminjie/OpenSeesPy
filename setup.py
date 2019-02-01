@@ -9,7 +9,7 @@ with open("README.rst", "r") as fh:
 
 setuptools.setup(
     name="openseespy",
-    version=about['version_num'],
+    version=about['version'],
     author="Minjie Zhu",
     author_email="zhum@oregonstate.edu",
     description="A OpenSeesPy package",
@@ -17,15 +17,16 @@ setuptools.setup(
     url="https://github.com/openseespy/openseespy",
     packages=setuptools.find_packages(),
     package_data={
-        'openseespy': ['opensees.so','opensees.pyd','LICENSE.rst'],
+        '': ['opensees.so','opensees.pyd','LICENSE.rst'],
     },
     license = 'LICENSE.rst',
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows'
     ],
+    platforms = ["Linux",'Windows'],
     python_requires='>=3.6',
-    py_modules=['opensees'],
     zip_safe=False
 )
