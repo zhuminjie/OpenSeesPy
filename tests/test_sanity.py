@@ -1,4 +1,4 @@
-import OpenSees.opensees as ops
+import openseespy.opensees as ops
 
 def test_basic():
     ops.wipe
