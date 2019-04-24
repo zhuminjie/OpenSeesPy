@@ -1,4 +1,5 @@
-import setuptools
+from setuptools import setup, find_packages
+from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
 about = {}
 with open('openseespy/version.py') as fp:
@@ -7,7 +8,12 @@ with open('openseespy/version.py') as fp:
 with open("README.rst", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+class bdist_wheel(_bdist_wheel):
+    def finalize_options(self):
+        _bdist_wheel.finalize_options(self)
+        self.root_is_pure = False
+
+setup(
     name="openseespy",
     version=about['version'],
     author="Minjie Zhu",
@@ -15,10 +21,11 @@ setuptools.setup(
     description="A OpenSeesPy package",
     long_description=long_description,
     url="https://github.com/openseespy/openseespy",
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     package_data={
         '': ['opensees.so','opensees.pyd','LICENSE.rst','*.so','*.dll','*.so.*'],
     },
+    cmdclass={'bdist_wheel':bdist_wheel},
     license = 'LICENSE.rst',
     classifiers=[
         "Programming Language :: Python :: 3.6",
@@ -28,5 +35,5 @@ setuptools.setup(
     ],
     platforms = ["Linux",'Windows'],
     python_requires='>=3.6',
-    zip_safe=False
+    zip_safe=False,
 )
