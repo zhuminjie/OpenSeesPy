@@ -17,16 +17,22 @@ setuptools.setup(
     url="https://github.com/openseespy/openseespy",
     packages=setuptools.find_packages(),
     package_data={
-        '': ['opensees.so','opensees.pyd','LICENSE.rst','*.so','*.dll','*.so.*'],
+        '': [
+            'opensees.so',
+            'opensees.pyd',
+            'LICENSE.rst',
+            '*.so',
+            '*.dll',
+            '*.so.*'],
     },
-    license = 'LICENSE.rst',
+    license='LICENSE.rst',
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         'Operating System :: POSIX :: Linux',
-        'Operating System :: Microsoft :: Windows'
-    ],
-    platforms = ["Linux",'Windows'],
+        'Operating System :: Microsoft :: Windows'],
+    platforms=[
+        "Linux",
+        'Windows'],
     python_requires='>=3.6',
-    zip_safe=False
-)
+    zip_safe=False)

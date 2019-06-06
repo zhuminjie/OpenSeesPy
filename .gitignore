@@ -7,3 +7,4 @@ dist
 *.pyd
 *.dll
 *.so.*
+.idea
