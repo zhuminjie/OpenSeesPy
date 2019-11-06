@@ -1,5 +1,4 @@
-LICENSE
-=======
+# LICENSE
 
 Copyright (c) 2012-2017, The Regents of the University of California (Regents).
 All rights reserved.

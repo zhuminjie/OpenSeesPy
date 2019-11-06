@@ -4,7 +4,7 @@ about = {}
 with open('openseespy/version.py') as fp:
     exec(fp.read(), about)
 
-with open("README.rst", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -14,25 +14,30 @@ setuptools.setup(
     author_email="zhum@oregonstate.edu",
     description="A OpenSeesPy package",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/openseespy/openseespy",
     packages=setuptools.find_packages(),
     package_data={
         '': [
             'opensees.so',
             'opensees.pyd',
-            'LICENSE.rst',
+            'LICENSE.md',
             '*.so',
             '*.dll',
+            '*.dylib',
             '*.so.*'],
     },
-    license='LICENSE.rst',
+    license='LICENSE.md',
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         'Operating System :: POSIX :: Linux',
-        'Operating System :: Microsoft :: Windows'],
+        'Operating System :: Microsoft :: Windows',
+        "Operating System :: MacOS :: MacOS X"],
     platforms=[
         "Linux",
-        'Windows'],
+        'Windows',
+        'Mac'],
     python_requires='>=3.6',
     zip_safe=False)

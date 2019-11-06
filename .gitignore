@@ -8,3 +8,4 @@ dist
 *.dll
 *.so.*
 .idea
+*.dylib

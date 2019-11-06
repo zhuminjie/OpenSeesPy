@@ -22,13 +22,17 @@ elif sys.platform.startswith('win'):
 
         from openseespy.opensees.winpy36.opensees import *
 
-    else:
+    elif sys.version_info[1] == 7:
 
         from openseespy.opensees.winpy37.opensees import *
 
+    elif sys.version_info[1] == 8:
+
+        from openseespy.opensees.winpy38.opensees import *
+
 elif sys.platform.startswith('darwin'):
 
-    raise RuntimeError('Mac OS X is not supported yet')
+    from openseespy.opensees.mac.opensees import *
 
 
 else:
