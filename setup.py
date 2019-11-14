@@ -29,9 +29,7 @@ setuptools.setup(
     },
     license='LICENSE.md',
     classifiers=[
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows',
         "Operating System :: MacOS :: MacOS X"],
