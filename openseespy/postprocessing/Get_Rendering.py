@@ -12,11 +12,11 @@
 # sys.path.append('/home/anurag/OpenSeesPy')		# For linux Computer
 # from opensees import *
 
-from openseespy.opensees import *
-
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
+
+from openseespy.opensees import *
 
 def plot_model():
 	import matplotlib.pyplot as plt
