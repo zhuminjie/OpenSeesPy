@@ -8,10 +8,6 @@
 ## You can download more examples from https://github.com/u-anurag						##
 ##########################################################################################
 
-# import sys
-# sys.path.append('/home/anurag/OpenSeesPy')		# For linux Computer
-# from opensees import *
-
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
