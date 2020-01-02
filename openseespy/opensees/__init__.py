@@ -1,11 +1,5 @@
 import sys
 
-about = {}
-with open('../version.py') as fp:
-    exec(fp.read(), about)
-
-msg = 'OpenSeesPy '+ about['version'] + ' -- Open System For Earthquake Engineering Simulation in Python'
-
 # only work for 64 bit system
 if sys.maxsize < 2**31:
     raise RuntimeError('64 bit system is required')
