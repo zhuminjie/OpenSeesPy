@@ -105,8 +105,7 @@ for eleType in ['quad', 'SSPquad']:
             algorithm('Linear')
             numberer('RCM')
             constraints('Plain') 
-            system('SparseGeneral', '-piv')
-            #system('PFEM')
+            system("UmfPack")
             analysis('Static') 
             
             analyze(1)
@@ -185,8 +184,7 @@ for numFloor in [6,3,1]:
         algorithm('Linear')
         numberer('RCM')
         constraints('Plain') 
-        system('SparseGeneral', '-piv')
-        #system('PFEM')
+        system('UmfPack')
         analysis('Static') 
         analyze(1)
 
@@ -265,8 +263,7 @@ for eleType in ['stdBrick', 'SSPbrick']:
             algorithm('Linear')
             numberer('RCM')
             constraints('Plain') 
-            system('SparseGeneral', '-piv')
-            #system('PFEM')
+            system('UmfPack')
             analysis('Static') 
             
             analyze(1)
