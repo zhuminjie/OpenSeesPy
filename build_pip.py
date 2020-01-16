@@ -30,7 +30,7 @@ for line in p.stdout.decode('utf-8').split('\n'):
     if i < 0 or j < 0 or i >= j:
         continue
 
-    if line[i:j].find('fortran') > 0:
+    if line[i:j].find('fortran') > 0 or line[i:j].find('blas') > 0:
         print('copying '+line[i:j]+' ....')
         shutil.copy(line[i:j], linux+'lib/')
 
@@ -38,10 +38,10 @@ for line in p.stdout.decode('utf-8').split('\n'):
 subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
 # update tools
-subprocess.run(['/data2/Minjie/bin/anaconda3/bin/python3.7', '-m', 'pip', 'install', '--upgrade', 'setuptools', 'wheel', 'twine'])
+subprocess.run(['/scratch/bin/anaconda3/bin/python3.7', '-m', 'pip', 'install', '--upgrade', 'setuptools', 'wheel', 'twine'])
 
 # compile wheel
-subprocess.run(['/data2/Minjie/bin/anaconda3/bin/python3.7', 'setup.py', 'bdist_wheel'])
+subprocess.run(['/scratch/bin/anaconda3/bin/python3.7', 'setup.py', 'bdist_wheel'])
 
 # test
 sys.path.append('openseespy/opensees/linux')
@@ -74,5 +74,5 @@ print("Done with testing examples.")
 print("================================================================")
 
 # upload
-subprocess.run(['/data2/Minjie/bin/anaconda3/bin/python3.7', '-m', 'twine', 'upload', 'dist/*'])
+subprocess.run(['/scratch/bin/anaconda3/bin/python3.7', '-m', 'twine', 'upload', 'dist/*'])
 
