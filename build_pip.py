@@ -39,7 +39,7 @@ for line in p.stdout.decode('utf-8').split('\n'):
 subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
 # update tools
-subprocess.run(['python3.7', '-m', 'pip', 'install', '--upgrade', 'setuptools', 'wheel', 'twine'])
+subprocess.run(['python3.7', '-m', 'pip', 'install', '--upgrade', 'setuptools', 'wheel', 'twine', 'numpy', 'matplotlib'])
 
 # compile wheel
 subprocess.run(['python3.7', 'setup.py', 'bdist_wheel'])
