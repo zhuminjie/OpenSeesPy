@@ -18,7 +18,8 @@ if os.path.exists(win+'opensees.pyd'):
     os.remove(win+'opensees.pyd')
 
 shutil.copy(so, linux)
-shutil.copy(pyd, win)
+if os.path.exists(pyd):
+    shutil.copy(pyd, win)
 
 # get fortran library
 p = subprocess.run(
@@ -38,10 +39,10 @@ for line in p.stdout.decode('utf-8').split('\n'):
 subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
 # update tools
-subprocess.run(['/scratch/bin/anaconda3/bin/python3.7', '-m', 'pip', 'install', '--upgrade', 'setuptools', 'wheel', 'twine'])
+subprocess.run(['python3.7', '-m', 'pip', 'install', '--upgrade', 'setuptools', 'wheel', 'twine'])
 
 # compile wheel
-subprocess.run(['/scratch/bin/anaconda3/bin/python3.7', 'setup.py', 'bdist_wheel'])
+subprocess.run(['python3.7', 'setup.py', 'bdist_wheel'])
 
 # test
 sys.path.append('openseespy/opensees/linux')
@@ -74,5 +75,7 @@ print("Done with testing examples.")
 print("================================================================")
 
 # upload
-subprocess.run(['/scratch/bin/anaconda3/bin/python3.7', '-m', 'twine', 'upload', 'dist/*'])
+if os.path.exists(pyd):
+    subprocess.run(['python3.7', '-m', 'twine', 'upload', 'dist/*'])
+    subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
