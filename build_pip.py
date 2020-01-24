@@ -31,9 +31,8 @@ for line in p.stdout.decode('utf-8').split('\n'):
     if i < 0 or j < 0 or i >= j:
         continue
 
-    if line[i:j].find('fortran') > 0 or line[i:j].find('blas') > 0:
-        print('copying '+line[i:j]+' ....')
-        shutil.copy(line[i:j], linux+'lib/')
+    print('copying '+line[i:j]+' ....')
+    shutil.copy(line[i:j], linux+'lib/')
 
 # clean folders
 subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
