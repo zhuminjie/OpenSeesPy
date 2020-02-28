@@ -219,6 +219,11 @@ def plot_modeshape(modeNumber):
 	# Plot original shape
 	# overlap with mode shape with the mode number asked for
 	
+	# Run eigen analysis and get information to print
+	wipeAnalysis()
+	eigenVal = eigen(modeNumber)
+	Tn=4*asin(1.0)/(eigenVal[modeNumber-1])**0.5
+	
 	nodeList = getNodeTags()
 	eleList = getEleTags()
 	scale = 200				#offset for text
@@ -253,6 +258,10 @@ def plot_modeshape(modeNumber):
 		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
 		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
 		view_range = max(max(x)-min(x), max(y)-min(y))
+		ax.set_xlim(xViewCenter-(1.1*view_range/1), xViewCenter+(1.1*view_range/1))
+		ax.set_ylim(yViewCenter-(1.1*view_range/1), yViewCenter+(1.1*view_range/1))
+		ax.text(0.05, 0.95, "Mode "+str(modeNumber), transform=ax.transAxes)
+		ax.text(0.05, 0.90, "T = "+str("%.3f" % Tn)+" s", transform=ax.transAxes)
 			
 	if len(nodeCoord(nodeList[0])) == 3:
 		print('3D model')
@@ -287,7 +296,10 @@ def plot_modeshape(modeNumber):
 		ax.set_xlim(xViewCenter-(view_range/4), xViewCenter+(view_range/4))
 		ax.set_ylim(yViewCenter-(view_range/4), yViewCenter+(view_range/4))
 		ax.set_zlim(zViewCenter-(view_range/3), zViewCenter+(view_range/3))
-			
+		ax.text2D(0.10, 0.95, "Mode "+str(modeNumber), transform=ax.transAxes)
+		ax.text2D(0.10, 0.90, "T = "+str("%.3f" % Tn)+" s", transform=ax.transAxes)
 			
 	plt.axis('off')
 	plt.show()
+
+	wipeAnalysis()
