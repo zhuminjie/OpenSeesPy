@@ -7,10 +7,23 @@
 ##																						##
 ## Created By - Anurag Upadhyay															##
 ## Edit 1: Anurag Upadhyay, 12/31/2019, Added shell and solid elements to plot_model 	##
+## Edit 2: Anurag Upadhyay, 03/02/2020, Added check for Jupyter Notebook and display...	##
+## ... mode period																		##
 ##																						##
 ## You can download more examples from https://github.com/u-anurag						##
 ##########################################################################################
 
+# Check if the script is executed on Jupyter Notebook Ipython. If yes, force inline, interactive ...
+# ... backend for Matplotlib.
+import sys
+import matplotlib
+
+for line in range(0,len(sys.argv)):
+    if "ipykernel_launcher.py" in sys.argv[line]:
+        matplotlib.use('nbagg')
+        break
+    else:
+        pass
 
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
@@ -221,7 +234,7 @@ def plot_modeshape(modeNumber):
 	
 	# Run eigen analysis and get information to print
 	wipeAnalysis()
-	eigenVal = eigen(modeNumber)
+	eigenVal = eigen(modeNumber+1)
 	Tn=4*asin(1.0)/(eigenVal[modeNumber-1])**0.5
 	
 	nodeList = getNodeTags()
