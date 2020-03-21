@@ -3,12 +3,13 @@
 ## This script records the Nodes and Elements in order to render the OpenSees model.	##
 ## As of now, this procedure does not work for 9 and 20 node brick elements, and 		##
 ## tetrahedron elements.																##
-## Modeshape plotter works only for 2D and 3D beam-columnelements.						##
+##																						##
 ##																						##
 ## Created By - Anurag Upadhyay															##
-## Edit 1: Anurag Upadhyay, 12/31/2019, Added shell and solid elements to plot_model 	##
-## Edit 2: Anurag Upadhyay, 03/02/2020, Added check for Jupyter Notebook and display...	##
-## ... mode period																		##
+## Edit 1: Anurag Upadhyay, 12/31/2019, Added shell and solid elements to plot_model	##
+## Edit 2: Anurag Upadhyay, 03/21/2020, Added check for Jupyter Notebook; mode shape..	##
+## plotter for 2D and 3D shell, and brick elements; User specified scale factor to ...	##
+## plot mode shapes; display mode period on the plot.									##
 ##																						##
 ## You can download more examples from https://github.com/u-anurag						##
 ##########################################################################################
@@ -28,6 +29,7 @@ for line in range(0,len(sys.argv)):
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
+from math import asin, sqrt
 
 from openseespy.opensees import *
 
@@ -140,7 +142,6 @@ def plot_model():
 							np.array([[aNode[1], dNode[1]], [bNode[1], cNode[1]]]), 
 							np.array([[aNode[2], dNode[2]], [bNode[2], cNode[2]]]), color='g', alpha=.5)
 #
-
 		for element in eleList:
 			Nodes = eleNodes(element)
 			if len(Nodes) == 2:
@@ -228,9 +229,16 @@ def plot_model():
 	plt.axis('on')
 	plt.show()
 
-def plot_modeshape(modeNumber):
-	# Plot original shape
-	# overlap with mode shape with the mode number asked for
+def plot_modeshape(*argv):
+	# Expected input argv : modeNumber, scale
+
+	modeNumber = argv[0]
+	if len(argv) < 2:
+		print("No scale factor specified to plot modeshape, using dafault 200.")
+		print("Input arguments are plot_modeshape(modeNumber, scaleFactor)")
+		scale = 200
+	else:
+		scale = argv[1]
 	
 	# Run eigen analysis and get information to print
 	wipeAnalysis()
@@ -239,12 +247,26 @@ def plot_modeshape(modeNumber):
 	
 	nodeList = getNodeTags()
 	eleList = getEleTags()
-	scale = 200				#offset for text
+	# scale = 200				#offset for text
 
 	ele_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
 	Eig_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
 	node_style = {'color':'black', 'marker':'.', 'linestyle':''} 
 
+	def plotCubeSurf(NodeList):
+			# Define procedure to plot a 3D solid element
+			aNode = NodeList[0]
+			bNode = NodeList[1]
+			cNode = NodeList[2]
+			dNode = NodeList[3]
+			plt.plot((aNode[0], bNode[0], cNode[0], dNode[0], aNode[0]), 
+						(aNode[1], bNode[1], cNode[1], dNode[1], aNode[1]),
+						(aNode[2], bNode[2], cNode[2], dNode[2], aNode[2]), marker='', **ele_style)
+
+			ax.plot_surface(np.array([[aNode[0], dNode[0]], [bNode[0], cNode[0]]]), 
+							np.array([[aNode[1], dNode[1]], [bNode[1], cNode[1]]]), 
+							np.array([[aNode[2], dNode[2]], [bNode[2], cNode[2]]]), color='g', alpha=.5)
+#
 	# Check if the model is 2D or 3D
 	if len(nodeCoord(nodeList[0])) == 2:
 		print('2D model')
@@ -254,17 +276,72 @@ def plot_modeshape(modeNumber):
 		ax = fig.add_subplot(1,1,1)
 		for element in eleList:
 			Nodes = eleNodes(element)
-			iNode = nodeCoord(Nodes[0])
-			jNode = nodeCoord(Nodes[1])
-			iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
-			jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
-			x.append(iNode[0])  # list of x coordinates to define plot view area
-			y.append(iNode[1])	# list of y coordinates to define plot view area
+			if len(Nodes) == 2:
+				# 3D Beam-Column Elements
+				iNode = nodeCoord(Nodes[0])
+				jNode = nodeCoord(Nodes[1])
+				iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
+				jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
+				
+				# Get final node coordinates
+				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1]]
+				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1]]
+				
+				x.append(iNode_final[0])  # list of x coordinates to define plot view area
+				y.append(iNode_final[1])	# list of y coordinates to define plot view area
 
-			plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),marker='', **ele_style)
-			plt.plot((iNode[0]+ scale*iNode_Eig[0], jNode[0]+ scale*jNode_Eig[0]), 
-						(iNode[1]+ scale*iNode_Eig[1], jNode[1]+ scale*jNode_Eig[1]),marker='', **Eig_style)
+				plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),marker='', **ele_style)
+				plt.plot((iNode_final[0], jNode_final[0]), 
+							(iNode_final[1], jNode_final[1]),marker='', **Eig_style)
 
+			if len(Nodes) == 3:
+				# 2D Planer three-node shell elements
+				iNode = nodeCoord(Nodes[0])
+				jNode = nodeCoord(Nodes[1])
+				kNode = nodeCoord(Nodes[2])
+				iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
+				jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
+				kNode_Eig = nodeEigenvector(Nodes[2], modeNumber)
+
+				# Get final node coordinates
+				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1]]
+				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1]]
+				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1]]
+				
+				x.append(iNode_final[0])  # list of x coordinates to define plot view area
+				y.append(iNode_final[1])	# list of y coordinates to define plot view area
+
+				plt.plot((iNode[0], jNode[0], kNode[0]), (iNode[1], jNode[1], kNode[1]),marker='', **ele_style)
+
+				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0]), (iNode_final[1], jNode_final[1], kNode_final[1]),marker='', **Eig_style)
+				ax.fill([iNode_final[0], jNode_final[0], kNode_final[0]],[iNode_final[1], jNode_final[1], kNode_final[1]],"b", alpha=.6)
+
+						
+			if len(Nodes) == 4:
+				# 2D Planer four-node shell elements
+				iNode = nodeCoord(Nodes[0])
+				jNode = nodeCoord(Nodes[1])
+				kNode = nodeCoord(Nodes[2])
+				lNode = nodeCoord(Nodes[3])
+				iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
+				jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
+				kNode_Eig = nodeEigenvector(Nodes[2], modeNumber)
+				lNode_Eig = nodeEigenvector(Nodes[3], modeNumber)
+				
+				# Get final node coordinates
+				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1]]
+				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1]]
+				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1]]
+				lNode_final = [lNode[0]+ scale*lNode_Eig[0], lNode[1]+ scale*lNode_Eig[1]]
+				
+				x.append(iNode_final[0])  # list of x coordinates to define plot view area
+				y.append(iNode_final[1])	# list of y coordinates to define plot view area
+
+				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0]), (iNode[1], jNode[1], kNode[1], lNode[1]),marker='', **ele_style)
+				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0]), (iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1]),marker='', **Eig_style)
+				ax.fill([iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0]],[iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1]],"b", alpha=.6)
+	
+				
 		nodeMins = np.array([min(x),min(y)])
 		nodeMaxs = np.array([max(x),max(y)])
 		
@@ -285,20 +362,99 @@ def plot_modeshape(modeNumber):
 		ax = fig.add_subplot(1,1,1, projection='3d')
 		for element in eleList:
 			Nodes = eleNodes(element)
-			iNode = nodeCoord(Nodes[0])
-			jNode = nodeCoord(Nodes[1])
-			iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
-			jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
-			
-			x.append(iNode[0])  # list of x coordinates to define plot view area
-			y.append(iNode[1])	# list of y coordinates to define plot view area
-			z.append(iNode[2])	# list of z coordinates to define plot view area
-			
-			plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='', **ele_style)
-			plt.plot((iNode[0]+ scale*iNode_Eig[0], jNode[0]+ scale*jNode_Eig[0]), 
-						(iNode[1]+ scale*iNode_Eig[1], jNode[1]+ scale*jNode_Eig[1]), 
-						(iNode[2]+ scale*iNode_Eig[2], jNode[2]+ scale*jNode_Eig[2]),
-							marker='', **Eig_style)
+			if len(Nodes) == 2:
+				# 3D beam-column elements
+				iNode = nodeCoord(Nodes[0])
+				jNode = nodeCoord(Nodes[1])
+				iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
+				jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
+				
+				# Add original and mode shape to get final node coordinates
+				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1], iNode[2]+ scale*iNode_Eig[2]]
+				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1], jNode[2]+ scale*jNode_Eig[2]]
+				
+				x.append(iNode_final[0])  # list of x coordinates to define plot view area
+				y.append(iNode_final[1])	# list of y coordinates to define plot view area
+				z.append(iNode_final[2])	# list of z coordinates to define plot view area
+				
+				plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='', **ele_style)
+				plt.plot((iNode_final[0], jNode_final[0]), (iNode_final[1], jNode_final[1]),(iNode_final[2], jNode_final[2]), 
+					marker='', **Eig_style)
+
+				# plt.plot((iNode[0]+ scale*iNode_Eig[0], jNode[0]+ scale*jNode_Eig[0]), 
+							# (iNode[1]+ scale*iNode_Eig[1], jNode[1]+ scale*jNode_Eig[1]), 
+							# (iNode[2]+ scale*iNode_Eig[2], jNode[2]+ scale*jNode_Eig[2]),
+								# marker='', **Eig_style)
+
+			if len(Nodes) == 4:
+				# 3D four-node Quad/shell element
+				iNode = nodeCoord(Nodes[0])
+				jNode = nodeCoord(Nodes[1])
+				kNode = nodeCoord(Nodes[2])
+				lNode = nodeCoord(Nodes[3])
+				iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
+				jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
+				kNode_Eig = nodeEigenvector(Nodes[2], modeNumber)
+				lNode_Eig = nodeEigenvector(Nodes[3], modeNumber)
+				
+				# Add original and mode shape to get final node coordinates
+				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1], iNode[2]+ scale*iNode_Eig[2]]
+				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1], jNode[2]+ scale*jNode_Eig[2]]
+				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1], kNode[2]+ scale*kNode_Eig[2]]
+				lNode_final = [lNode[0]+ scale*lNode_Eig[0], lNode[1]+ scale*lNode_Eig[1], lNode[2]+ scale*lNode_Eig[2]]
+				
+				
+				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
+							(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]),
+							(iNode[2], jNode[2], kNode[2], lNode[2], iNode[2]), marker='', **ele_style)
+				
+				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0], iNode_final[0]), 
+							(iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1], iNode_final[1]),
+							(iNode_final[2], jNode_final[2], kNode_final[2], lNode_final[2], iNode_final[2]), 
+								marker='', **Eig_style)
+				# Plot surfaces on the mode shape
+				ax.plot_surface(np.array([[iNode_final[0], lNode_final[0]], [jNode_final[0], kNode_final[0]]]), 
+								np.array([[iNode_final[1], lNode_final[1]], [jNode_final[1], kNode_final[1]]]), 
+								np.array([[iNode_final[2], lNode_final[2]], [jNode_final[2], kNode_final[2]]]), 
+									color='g', alpha=.6)
+						
+			if len(Nodes) == 8:
+				# 3D eight-node Brick element
+				# Nodes in CCW on bottom (0-3) and top (4-7) faces resp
+				iNode = nodeCoord(Nodes[0])
+				jNode = nodeCoord(Nodes[1])
+				kNode = nodeCoord(Nodes[2])
+				lNode = nodeCoord(Nodes[3])
+				iiNode = nodeCoord(Nodes[4])
+				jjNode = nodeCoord(Nodes[5])
+				kkNode = nodeCoord(Nodes[6])
+				llNode = nodeCoord(Nodes[7])
+				
+				iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
+				jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
+				kNode_Eig = nodeEigenvector(Nodes[2], modeNumber)
+				lNode_Eig = nodeEigenvector(Nodes[3], modeNumber)
+				iiNode_Eig = nodeEigenvector(Nodes[4], modeNumber)
+				jjNode_Eig = nodeEigenvector(Nodes[5], modeNumber)
+				kkNode_Eig = nodeEigenvector(Nodes[6], modeNumber)
+				llNode_Eig = nodeEigenvector(Nodes[7], modeNumber)
+				
+				# Add original and mode shape to get final node coordinates
+				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1], iNode[2]+ scale*iNode_Eig[2]]
+				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1], jNode[2]+ scale*jNode_Eig[2]]
+				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1], kNode[2]+ scale*kNode_Eig[2]]
+				lNode_final = [lNode[0]+ scale*lNode_Eig[0], lNode[1]+ scale*lNode_Eig[1], lNode[2]+ scale*lNode_Eig[2]]
+				iiNode_final = [iiNode[0]+ scale*iiNode_Eig[0], iiNode[1]+ scale*iiNode_Eig[1], iiNode[2]+ scale*iiNode_Eig[2]]
+				jjNode_final = [jjNode[0]+ scale*jjNode_Eig[0], jjNode[1]+ scale*jjNode_Eig[1], jjNode[2]+ scale*jjNode_Eig[2]]
+				kkNode_final = [kkNode[0]+ scale*kkNode_Eig[0], kkNode[1]+ scale*kkNode_Eig[1], kkNode[2]+ scale*kkNode_Eig[2]]
+				llNode_final = [llNode[0]+ scale*llNode_Eig[0], llNode[1]+ scale*llNode_Eig[1], llNode[2]+ scale*llNode_Eig[2]]
+				
+				plotCubeSurf([iNode_final, jNode_final, kNode_final, lNode_final])
+				plotCubeSurf([iNode_final, jNode_final, jjNode_final, iiNode_final])
+				plotCubeSurf([iiNode_final, jjNode_final, kkNode_final, llNode_final])
+				plotCubeSurf([lNode_final, kNode_final, kkNode_final, llNode_final])
+				plotCubeSurf([jNode_final, kNode_final, kkNode_final, jjNode_final])
+				plotCubeSurf([iNode_final, lNode_final, llNode_final, iiNode_final])
 
 		nodeMins = np.array([min(x),min(y),min(z)])
 		nodeMaxs = np.array([max(x),max(y),max(z)])
