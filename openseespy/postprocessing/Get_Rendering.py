@@ -473,7 +473,7 @@ def plot_modeshape(*argv):
 
 	wipeAnalysis()
 
-def recordNodeDisp(filename = "nodeDisp.txt"):
+def recordNodeDisp(filename = 'nodeDisp.txt'):
 	# This function is meant to be run before an analysis and saves the displacements of all nodes into filename. 
 	# It can be used later in the plot_deformedshape function.
 	nodeList = getNodeTags()
@@ -481,9 +481,9 @@ def recordNodeDisp(filename = "nodeDisp.txt"):
 		dofList = [1, 2]
 	if len(nodeCoord(nodeList[0])) == 3:
 		dofList = [1, 2, 3]
-	recorder("Node", "-file", filename, "–time", "–node", *nodeList, "-dof", *dofList, "disp")
+	recorder('Node', '-file', filename, '–time', '–node', *nodeList, '-dof', *dofList, 'disp')
 	
-def plot_deformedshape(filename = "nodeDisp.txt", tstep = -1, scale = 200):
+def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# Expected input argv : filename contains the displacements of all nodes in the same order they are returned by getNodeTags().
 	# First column in filename is time. 
 	# tstep is the number of the step of the analysis to be ploted (starting from 1), 
@@ -492,6 +492,9 @@ def plot_deformedshape(filename = "nodeDisp.txt", tstep = -1, scale = 200):
 	nodeList = getNodeTags()
 	eleList = getEleTags()
 	nodeDispArray = np.loadtxt(filename)
+	if len(nodeDispArray[0, :]) == len(nodeList) * len(nodeCoord(nodeList[0])):
+		tarray = np.zeros((len(nodeDispArray), 1))
+		nodeDispArray = np.append(tarray, nodeDispArray, axis = 1) 
 	if tstep == -1:
 		tstep = len(nodeDispArray)
 	ele_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
