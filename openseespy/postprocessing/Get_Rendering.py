@@ -525,8 +525,8 @@ def plot_deformedshape(filename = "nodeDisp.txt", tstep = -1, scale = 200):
 				# 3D Beam-Column Elements
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 2]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 2]
+				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 3]
+				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 3]
 				
 				# Get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1]]
@@ -544,9 +544,9 @@ def plot_deformedshape(filename = "nodeDisp.txt", tstep = -1, scale = 200):
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 2]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 2]
-				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*2 + 1: nodeList.index(Nodes[2])*2 + 2]				# Get final node coordinates
+				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 3]
+				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 3]
+				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*2 + 1: nodeList.index(Nodes[2])*2 + 3]				# Get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1]]
 				jNode_final = [jNode[0]+ scale*jNode_Disp[0], jNode[1]+ scale*jNode_Disp[1]]
 				kNode_final = [kNode[0]+ scale*kNode_Disp[0], kNode[1]+ scale*kNode_Disp[1]]
@@ -566,10 +566,10 @@ def plot_deformedshape(filename = "nodeDisp.txt", tstep = -1, scale = 200):
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
 				lNode = nodeCoord(Nodes[3])
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 2]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 2]
-				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*2 + 1: nodeList.index(Nodes[2])*2 + 2]
-				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*2 + 1: nodeList.index(Nodes[3])*2 + 2]
+				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 3]
+				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 3]
+				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*2 + 1: nodeList.index(Nodes[2])*2 + 3]
+				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*2 + 1: nodeList.index(Nodes[3])*2 + 3]
 				
 				# Get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1]]
@@ -608,8 +608,8 @@ def plot_deformedshape(filename = "nodeDisp.txt", tstep = -1, scale = 200):
 				# 3D beam-column elements
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 3]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 3]
+				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 4]
+				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 4]
 				# Add original and deformed shape to get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1], iNode[2]+ scale*iNode_Disp[2]]
 				jNode_final = [jNode[0]+ scale*jNode_Disp[0], jNode[1]+ scale*jNode_Disp[1], jNode[2]+ scale*jNode_Disp[2]]
@@ -628,10 +628,10 @@ def plot_deformedshape(filename = "nodeDisp.txt", tstep = -1, scale = 200):
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
 				lNode = nodeCoord(Nodes[3])
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 3]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 3]
-				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*3 + 1: nodeList.index(Nodes[2])*3 + 3]
-				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*3 + 1: nodeList.index(Nodes[3])*3 + 3]
+				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 4]
+				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 4]
+				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*3 + 1: nodeList.index(Nodes[2])*3 + 4]
+				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*3 + 1: nodeList.index(Nodes[3])*3 + 4]
 				
 				# Add original and mode shape to get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1], iNode[2]+ scale*iNode_Disp[2]]
@@ -666,14 +666,14 @@ def plot_deformedshape(filename = "nodeDisp.txt", tstep = -1, scale = 200):
 				kkNode = nodeCoord(Nodes[6])
 				llNode = nodeCoord(Nodes[7])
 				
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 3]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 3]
-				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*3 + 1: nodeList.index(Nodes[2])*3 + 3]
-				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*3 + 1: nodeList.index(Nodes[3])*3 + 3]
-				iiNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[4])*3 + 1: nodeList.index(Nodes[4])*3 + 3]
-				jjNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[5])*3 + 1: nodeList.index(Nodes[5])*3 + 3]
-				kkNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[6])*3 + 1: nodeList.index(Nodes[6])*3 + 3]
-				llNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[7])*3 + 1: nodeList.index(Nodes[7])*3 + 3]
+				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 4]
+				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 4]
+				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*3 + 1: nodeList.index(Nodes[2])*3 + 4]
+				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*3 + 1: nodeList.index(Nodes[3])*3 + 4]
+				iiNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[4])*3 + 1: nodeList.index(Nodes[4])*3 + 4]
+				jjNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[5])*3 + 1: nodeList.index(Nodes[5])*3 + 4]
+				kkNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[6])*3 + 1: nodeList.index(Nodes[6])*3 + 4]
+				llNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[7])*3 + 1: nodeList.index(Nodes[7])*3 + 4]
 				
 				# Add original and mode shape to get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1], iNode[2]+ scale*iNode_Disp[2]]
