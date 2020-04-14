@@ -7,7 +7,10 @@ if sys.maxsize < 2**31:
 # platform dependent
 if sys.platform.startswith('linux'):
 
-    from openseespy.opensees.linux.opensees import *
+    try:
+        from openseespy.opensees.linux.opensees import *
+    except:
+        raise RuntimeError('Failed to import openseespy.')
 
 elif sys.platform.startswith('win'):
 
@@ -19,10 +22,10 @@ elif sys.platform.startswith('win'):
             
         except:
 
-            print('Failed to import openseespy. Anaconda is recommended https://www.anaconda.com/distribution/')
+            raise RuntimeError('Failed to import openseespy. Anaconda is recommended https://www.anaconda.com/distribution/')
 
     else:
-        print('Python version 3.7 is needed for Windows (Anaconda is recommended https://www.anaconda.com/distribution/)')
+        raise RuntimeError('Python version 3.7 is needed for Windows (Anaconda is recommended https://www.anaconda.com/distribution/)')
 
 
     # if sys.version_info[1] == 6:
@@ -39,7 +42,8 @@ elif sys.platform.startswith('win'):
 
 elif sys.platform.startswith('darwin'):
 
-    from openseespy.opensees.mac.opensees import *
+    # from openseespy.opensees.mac.opensees import *
+    raise RuntimeError('Please install Mac version from openseespymac package (pip install openseespymac)')
 
 
 else:
