@@ -473,6 +473,7 @@ def plot_modeshape(*argv):
 
 	wipeAnalysis()
 
+
 def recordNodeDisp(filename = 'nodeDisp.txt'):
 	# This function is meant to be run before an analysis and saves the displacements of all nodes into filename. 
 	# It can be used later in the plot_deformedshape function.
@@ -490,13 +491,13 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# tstep is the number of the step of the analysis to be ploted (starting from 1), 
 	# and scale is the scale factor for the deformed shape.
 
-	nodeList = getNodeTags()
+  nodeList = getNodeTags()
 	eleList = getEleTags()
 	nodeDispArray = np.loadtxt(filename)
 	if len(nodeDispArray[0, :]) == len(nodeList) * len(nodeCoord(nodeList[0])):
 		tarray = np.zeros((len(nodeDispArray), 1))
 		nodeDispArray = np.append(tarray, nodeDispArray, axis = 1) 
-        
+  
 	if tstep == -1:
 		tstep = len(nodeDispArray)
 	ele_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
@@ -549,6 +550,7 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
+
 				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 3]
 				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 3]
 				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*2 + 1: nodeList.index(Nodes[2])*2 + 3]				# Get final node coordinates
@@ -564,13 +566,13 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0]), (iNode_final[1], jNode_final[1], kNode_final[1]),marker='', **Disp_style)
 				ax.fill([iNode_final[0], jNode_final[0], kNode_final[0]],[iNode_final[1], jNode_final[1], kNode_final[1]],"b", alpha=.6)
 
-
 			if len(Nodes) == 4:
 				# 2D Planer four-node shell elements
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
 				lNode = nodeCoord(Nodes[3])
+
 				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 3]
 				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 3]
 				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*2 + 1: nodeList.index(Nodes[2])*2 + 3]
@@ -588,7 +590,6 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0]), (iNode[1], jNode[1], kNode[1], lNode[1]),marker='', **ele_style)
 				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0]), (iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1]),marker='', **Disp_style)
 				ax.fill([iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0]],[iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1]],"b", alpha=.6)
-
 
 		nodeMins = np.array([min(x),min(y)])
 		nodeMaxs = np.array([max(x),max(y)])
@@ -613,6 +614,7 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				# 3D beam-column elements
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
+
 				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 4]
 				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 4]
 				# Add original and deformed shape to get final node coordinates
@@ -633,6 +635,7 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
 				lNode = nodeCoord(Nodes[3])
+
 				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 4]
 				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 4]
 				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*3 + 1: nodeList.index(Nodes[2])*3 + 4]
@@ -644,11 +647,10 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				kNode_final = [kNode[0]+ scale*kNode_Disp[0], kNode[1]+ scale*kNode_Disp[1], kNode[2]+ scale*kNode_Disp[2]]
 				lNode_final = [lNode[0]+ scale*lNode_Disp[0], lNode[1]+ scale*lNode_Disp[1], lNode[2]+ scale*lNode_Disp[2]]
 
-
 				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
 							(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]),
 							(iNode[2], jNode[2], kNode[2], lNode[2], iNode[2]), marker='', **ele_style)
-
+  
 				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0], iNode_final[0]), 
 							(iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1], iNode_final[1]),
 							(iNode_final[2], jNode_final[2], kNode_final[2], lNode_final[2], iNode_final[2]), 
@@ -706,7 +708,9 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 		ax.set_xlim(xViewCenter-(view_range/4), xViewCenter+(view_range/4))
 		ax.set_ylim(yViewCenter-(view_range/4), yViewCenter+(view_range/4))
 		ax.set_zlim(zViewCenter-(view_range/3), zViewCenter+(view_range/3))
-		ax.text2D(0.10, 0.95, "Deformed shape at step "+str(tstep), transform=ax.transAxes)
+		ax.text2D(0.10, 0.95, "Deformed shape", transform=ax.transAxes)
+		ax.text2D(0.10, 0.90, "Step: "+str(tstep), transform=ax.transAxes)
+    
 
 	plt.axis('off')
 	plt.show()
