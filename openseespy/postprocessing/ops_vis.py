@@ -8,8 +8,8 @@
 # plot_section is inspired by similar Matlab function
 # found on OpenSees forum and written by D. Vamvatsikos
 
-# import openseespy.opensees as ops
-import opensees as ops
+import openseespy.opensees as ops
+# import opensees as ops
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
