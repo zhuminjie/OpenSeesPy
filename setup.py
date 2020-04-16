@@ -24,6 +24,8 @@ setuptools.setup(
             'LICENSE.md',
             '*.so',
             '*.dll',
+            '*.dat',
+            '*.at2',
             '*.dylib',
             '*.so.*'],
     },
