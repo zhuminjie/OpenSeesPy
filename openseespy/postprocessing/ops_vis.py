@@ -121,9 +121,6 @@ def _plot_model_2d(node_labels, element_labels, offn, axis_off):
                 max_y_crd = y_crd
 
         max_crd = np.amax([max_x_crd, max_y_crd])
-        # print(f'max_x_crd: {max_x_crd}')
-        # print(f'max_y_crd: {max_y_crd}')
-        # print(f'max_crd: {max_crd}')
         _offset = 0.005 * max_crd
         _offn = 0.003 * max_crd
 
@@ -138,13 +135,9 @@ def _plot_model_2d(node_labels, element_labels, offn, axis_off):
                            ops.nodeCoord(nd2)[1],
                            ops.nodeCoord(nd3)[1]])
 
-            # print(f'{i+1:3}. el. {ele_tag}: {nd1}-{nd2}-{nd3}-{nd4}')
-
             # location of label
             xt = sum(ex)/nen
             yt = sum(ey)/nen
-            # print(f'xt:\n{xt}')
-            # print(f'yt:\n{yt}')
 
             plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]), 'bo-')
 
@@ -251,7 +244,6 @@ def _plot_model_3d(node_labels, element_labels, offn, axis_off, az_el,
         -np.inf, -np.inf
 
     nen = np.shape(ops.eleNodes(ele_tags[0]))[0]
-    # print(f'\n-- nen: {nen} - (number of element nodes)')
 
     # truss and beam/frame elements
     if nen == 2:
@@ -270,10 +262,6 @@ def _plot_model_3d(node_labels, element_labels, offn, axis_off, az_el,
             _offset = 0.
         else:
             max_crd = np.amax([max_x_crd, max_y_crd, max_z_crd])
-            print(f'max_x_crd: {max_x_crd}')
-            print(f'max_y_crd: {max_y_crd}')
-            print(f'max_z_crd: {max_z_crd}')
-            print(f'max_crd: {max_crd}')
             _offset = 0.005 * max_crd
 
         # work-around fix because of aspect equal bug
@@ -649,8 +637,6 @@ def _plot_defo_mode_2d(modeNo, sfac, npt, unDefoFlag, fmtu, interpFlag,
                                ops.nodeDisp(nd3)[0],
                                ops.nodeDisp(nd3)[1]])
 
-            print(f'ed: {ed}')
-
             if unDefoFlag:
                 plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]), fmtu)
 
@@ -668,10 +654,6 @@ def _plot_defo_mode_2d(modeNo, sfac, npt, unDefoFlag, fmtu, interpFlag,
             y = ey+sfac*ed[[1, 3, 5]]
             # x = ex+sfac*ed[[0, 2, 4, 6]]
             # y = ey+sfac*ed[[1, 3, 5, 7]]
-            print(f'ex:\n{ex}')
-            print(f'x:\n{x}')
-            print(f'ey:\n{ey}')
-            print(f'y:\n{y}')
             plt.plot(np.append(x, x[0]), np.append(y, y[0]), 'b.-')
 
         plt.axis('equal')
@@ -843,9 +825,6 @@ def _plot_defo_mode_3d(modeNo, sfac, npt, unDefoFlag, fmtu, interpFlag,
         # max_overall = np.amax([np.abs(xmax), np.abs(ymax), np.abs(zmax)])
 
         # minmax_overall = max(min_overall, max_overall)
-        # print(f'min_overall:\n{min_overall}')
-        # print(f'max_overall:\n{max_overall}')
-        # print(f'minmax_overall:\n{minmax_overall}')
         # _max_overall = 1.1 * minmax_overall
         # _min_overall = -1.1 * minmax_overall
         # ax.set_xlim(_min_overall, _max_overall)
@@ -1027,9 +1006,7 @@ def _plot_defo_mode_3d(modeNo, sfac, npt, unDefoFlag, fmtu, interpFlag,
             x = ex+sfac*ed[[0, 3, 6, 9, 12, 15, 18, 21]]
             y = ey+sfac*ed[[1, 4, 7, 10, 13, 16, 19, 22]]
             z = ez+sfac*ed[[2, 5, 8, 11, 14, 17, 20, 23]]
-            # print(f'x:\n{x}')
-            # print(f'y:\n{y}')
-            # print(f'z:\n{z}')
+
             ax.plot(np.append(x[:4], x[0]),
                     np.append(y[:4], y[0]),
                     np.append(z[:4], z[0]),
@@ -1249,8 +1226,6 @@ def beam_defo_interp_3d(ex, ey, ez, eo, d, sfac, npt=21):
     """
     G, L = beam_3d_gtrans(ex, ey, ez, eo)
     dl = G @ d
-    print(f'd:\n{d}')
-    print(f'dl:\n{dl}')
     excd, eycd = beam_defo_interp_2d(np.array([0., L]),
                                      np.array([0., 0.]),
                                      np.array([dl[0], dl[1], dl[5], dl[6],
@@ -1326,8 +1301,6 @@ def beam_defo_interp_2d(ex, ey, d, sfac, npt=21):
     # 1-st vector longitudinal deformation (1)
     # 2-nd vector transverse deformation (2)
     cld = np.vstack((ul, vl))
-
-    # print('-- combined row vectors ul and vl')
 
     A1 = np.array([[n[0], -n[1]], [n[1], n[0]]])
 
@@ -1422,8 +1395,6 @@ def plot_section(fib_sec_list, fillflag=1,
     for item in fib_sec_list:
         if item[0] == 'section':
             secTag = item[2]
-            print(f'\n- display fiber section for Tag: {secTag} using \
-Matplotlib')
 
         if item[0] == 'layer':
             matTag = item[2]
@@ -1435,7 +1406,6 @@ Matplotlib')
                 Y = np.linspace(Iy, Jy, n_bars)
                 Z = np.linspace(Iz, Jz, n_bars)
                 for zi, yi in zip(Z, Y):
-                    print(f'z, y:\n{zi, yi}')
                     bar = Circle((zi, yi), r, ec='k', fc='k', zorder=10)
                     ax.add_patch(bar)
 
@@ -1534,16 +1504,13 @@ def fib_section(fib_sec_list):
                 ops.patch('rect', matTag, nIJ, nJK, Iy, Iz, Ky, Kz)
 
 
-# credit: based on beam2s from https://github.com/CALFEM/calfem-matlab
-def beam_sf_2d(ex, ey, E, A, I, d, nep=2,
+def beam_sf_2d(ex, ey, local_forces, nep=2,
                ele_load_data=['-beamUniform', 0., 0.]):
     """
-    Calculate section forces (N, V, M) for a 2d elastic Euler-Bernoulli beam.
+    Calculate section forces (N, V, M) for an elastic 2D Euler-Bernoulli beam.
 
     Input:
     ex, ey - x, y element coordinates in global system
-    E, A, I - modulus of elasticity, section area, moment of inertia
-    d - nodal element displacements in global system
     nep - number of evaluation points, by default (2) at element ends
     ele_load_list - list of transverse and longitudinal element load
       syntax: [ele_load_type, Wy, Wx]
@@ -1552,77 +1519,30 @@ def beam_sf_2d(ex, ey, E, A, I, d, nep=2,
     Output:
     s = [N V M]; shape: (nep,3)
         section forces at nep points along local x
-    uv = [u v]; shape: (nep, 2)
-         displacements at nep points along local x
     xl: coordinates of local x-axis; shape: (nep,)
 
-    Use it with eldia_2d to draw N, V, M diagrams.
+    Use it with dia_sf to draw N, V, M diagrams.
 
     TODO: add '-beamPoint' element load type
     """
 
     eload_type, qy, qx = ele_load_data[0], ele_load_data[1], ele_load_data[2]
 
-    EA, EI = E*A, E*I
+    N_1, V_1, M_1 = local_forces[0], local_forces[1], local_forces[2]
 
     b = np.array([ex[1]-ex[0], ey[1]-ey[0]])
     L = np.sqrt(b @ b)
-    n = b / L
-
-    C = np.array([[0.,      0.,   0., 1., 0., 0.],
-                  [0.,      0.,   0., 0., 0., 1.],
-                  [0.,      0.,   0., 0., 1., 0.],
-                  [L,       0.,   0., 1., 0., 0.],
-                  [0.,    L**3, L**2, 0.,  L, 1.],
-                  [0., 3.*L**2, 2.*L, 0., 1., 0.]])
-
-    G = np.array([[n[0],  n[1], 0.,    0.,   0., 0.],
-                  [-n[1], n[0], 0.,    0.,   0., 0.],
-                  [0.,      0., 1,     0.,   0., 0.],
-                  [0.,      0., 0.,  n[0], n[1], 0.],
-                  [0.,      0., 0., -n[1], n[0], 0.],
-                  [0.,      0., 0.,    0.,   0., 1.]])
-
-    # global to local element displacements
-    dl = G @ d
-
-    if eload_type == '-beamUniform':
-        Q = np.array([0., 0., 0.,
-                      -1.*qx*(L**2)/(2.*EA),
-                      qy*(L**4)/(24.*EI),
-                      qy*(L**3)/(6.*EI)])
-    else:
-        Q = np.array([0., 0., 0., 0., 0., 0.])
-
-    Cinv = np.linalg.inv(C)
-    dlmQ = dl - Q
-    c = Cinv @ dlmQ
-
-    a = np.array([c[0], c[3]])
-    b = np.array([c[1], c[2], c[4], c[5]])
 
     xl = np.linspace(0., L, nep)
-    zero = np.zeros(nep)
     one = np.ones(nep)
 
-    u = np.column_stack((xl, one)) @ a - xl**2 * qx/(2*EA)
+    N = -1.*(N_1 * one + qx * xl)
+    V = -1.*(V_1 * one + qy * xl)
+    M = -M_1 * one + V_1 * xl + 0.5 * qy * xl**2
 
-    du = np.column_stack((one, zero)) @ a - xl*qx/EA
-
-    v = np.column_stack((xl**3, xl**2, xl, one)) @ b + xl**4 * qy/(24*EI)
-
-    d2v = np.column_stack((6*xl, 2*one, zero, zero)) @ b + \
-        xl**2 * qy/(2.*EI)
-
-    d3v = np.column_stack((6*one, zero, zero, zero)) @ b + xl * qy/EI
-
-    N = EA * du
-    M = EI * d2v
-    V = -EI * d3v
-    uv = np.column_stack((u, v))
     s = np.column_stack((N, V, M))
 
-    return (s, uv, xl, b, L, n)
+    return s, xl
 
 
 # credit: based on beam3s from https://github.com/CALFEM/calfem-matlab
@@ -1660,8 +1580,6 @@ def beam_sf_3d(ex, ey, ez, eo, E, G, A, Iy, Iz, J, d, nep=2,
     EA, EIy, EIz, GJ = E*A, E*Iy, E*Iz, G*J
 
     G, L = beam_3d_gtrans(ex, ey, ez, eo)
-    print(f'L: {L}')
-    print(f'G:\n{G}')
 
     C = np.array([[0., 1., 0., 0., 0., 0., 0., 0.,  0., 0., 0., 0.],
                   [0., 0., 0., 0., 0., 1., 0., 0.,  0., 0., 0., 0.],
@@ -1676,12 +1594,8 @@ def beam_sf_3d(ex, ey, ez, eo, E, G, A, Iy, Iz, J, d, nep=2,
                   [0., 0., 0., 0., 0., 0., -3.*L**2, -2.*L, -1., 0., 0., 0.],
                   [0., 0., 3.*L**2, 2.*L, 1., 0., 0., 0., 0., 0., 0., 0.]])
 
-    print(f'C: {C}')
-
     # global to local nodal element displacements
     dl = G @ d
-    print(f'd: {d}')
-    print(f'dl: {dl}')
 
     # -qw*(L**2)/(2.*GJ),
     if eload_type == '-beamUniform':
@@ -1745,56 +1659,7 @@ def beam_sf_3d(ex, ey, ez, eo, E, G, A, Iy, Iz, J, d, nep=2,
     uvwfi = np.column_stack((u, v, w, fi))
     s = np.column_stack((N, Vy, Vz, T, My, Mz))
 
-    # return (s, uvwfi, xl, b, L, n)
     return (s, uvwfi, xl)
-
-
-def eldia_2d(ex, ey, s, sfac=1., fmtsf=fmtsf):
-    """
-    Draw section forces diagrams (N, V, M)
-    """
-
-    nep = s.shape[0]
-
-    # FIXME in this form it only applies to one member
-    # create a loop as in eldisp2
-    # b = np.array([ex[i, 1]-ex[i, 0], ey[i, 1]-ey[i, 0]])
-    b = np.array([ex[1]-ex[0], ey[1]-ey[0]])
-    L = np.sqrt(b @ b)
-    n = b / L
-
-    # sfac = (0.2*L)/np.max(np.abs(s))
-    xl = np.linspace(0., L, nep)
-
-    s = s*sfac
-
-    A = np.zeros((nep, 2))
-    A[0, :] = [ex[0], ey[0]]
-
-    A[1:, 0] = A[0, 0] + xl[1:] * n[0]
-    A[1:, 1] = A[0, 1] + xl[1:] * n[1]
-
-    B = np.copy(A)
-
-    A[:, 0] = A[:, 0] + s * n[1]
-    A[:, 1] = A[:, 1] - s * n[0]
-
-    plt.axis('equal')
-
-    # curve
-    plt.plot(A[:, 0], A[:, 1], fmtsf,
-             solid_capstyle='round', solid_joinstyle='round',
-             dash_capstyle='butt', dash_joinstyle='round')
-
-    # origin model
-    plt.plot(ex, ey, 'k-', solid_capstyle='round', solid_joinstyle='round',
-             dash_capstyle='butt', dash_joinstyle='round')
-
-    # hatching
-    for i in np.arange(nep):
-        plt.plot([B[i, 0], A[i, 0]], [B[i, 1], A[i, 1]], fmtsf,
-                 solid_capstyle='round', solid_joinstyle='round',
-                 dash_capstyle='butt', dash_joinstyle='round')
 
 
 # credit: eldia2 from https://github.com/CALFEM/calfem-matlab
@@ -1826,19 +1691,17 @@ def dia_sf(sf_type, Ep, Ew, sfac=1., nep=21, fmtsf=fmtsf):
         ey = np.array([ops.nodeCoord(nd1)[1],
                        ops.nodeCoord(nd2)[1]])
 
-        ed = np.array([ops.nodeDisp(nd1)[0],
-                       ops.nodeDisp(nd1)[1],
-                       ops.nodeDisp(nd1)[2],
-                       ops.nodeDisp(nd2)[0],
-                       ops.nodeDisp(nd2)[1],
-                       ops.nodeDisp(nd2)[2]])
+        b = np.array([ex[1]-ex[0], ey[1]-ey[0]])
+        L = np.sqrt(b @ b)
+        n = b / L
 
-        s_all, uv, xl, b, L, n = beam_sf_2d(ex, ey, E, A, Iz, ed,
-                                            nep, eload_data)
+        pl = ops.eleResponse(ele_tag, 'localForces')
+
+        s_all, xl = beam_sf_2d(ex, ey, pl, nep, eload_data)
 
         if sf_type == 'N':
             s = s_all[:, 0]
-        elif sf_type == 'V' or sf_type == 'T':
+        elif sf_type == 'V':
             s = s_all[:, 1]
         elif sf_type == 'M':
             s = s_all[:, 2]
