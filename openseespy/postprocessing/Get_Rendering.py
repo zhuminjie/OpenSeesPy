@@ -477,13 +477,13 @@ def plot_modeshape(*argv):
 def recordNodeDisp(filename = 'nodeDisp.txt'):
 	# This function is meant to be run before an analysis and saves the displacements of all nodes into filename. 
 	# It can be used later in the plot_deformedshape function.
-    nodeList = getNodeTags()
-    if len(nodeCoord(nodeList[0])) == 2:
-        dofList = [1, 2]
-    if len(nodeCoord(nodeList[0])) == 3:
-        dofList = [1, 2, 3]
-    # recorder('Node', '-file', filename, '–time', '–node', *nodeList, '-dof', *dofList, 'disp')
-    recorder('Node', '-file', filename, '-time', '-closeOnWrite', '–node', *nodeList, '-dof', *dofList, 'disp')
+	nodeList = getNodeTags()
+	if len(nodeCoord(nodeList[0])) == 2:
+		dofList = [1, 2]
+	if len(nodeCoord(nodeList[0])) == 3:
+		dofList = [1, 2, 3]
+	# recorder('Node', '-file', filename, '–time', '–node', *nodeList, '-dof', *dofList, 'disp')
+	recorder('Node', '-file', filename, '-time', '-closeOnWrite', '–node', *nodeList, '-dof', *dofList, 'disp')
 
 def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# Expected input argv : filename contains the displacements of all nodes in the same order they are returned by getNodeTags().
