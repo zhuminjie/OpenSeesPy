@@ -63,12 +63,14 @@ def clean_pip():
 def upload_pip_test():
     # upload
     subprocess.run(['python', '-m', 'twine', 'upload',
-                    '--repository-url', 'https://test.pypi.org/legacy/', 'dist/*'])
+                    '--repository', 'testpypi', 'dist/*'])
 
 
 def install_pip_test():
-    subprocess.run(['python', '-m', 'pip', 
+    subprocess.run(['python', '-m', 'pip', 'uninstall', 'openseespy'])
+    subprocess.run(['python', '-m', 'pip',  'install', '--index-url',
                     'https://test.pypi.org/simple/', 'openseespy'])
 
 def install_pip():
-    subprocess.run(['python', '-m', 'pip', 'openseespy'])
+    subprocess.run(['python', '-m', 'pip', 'uninstall', 'openseespy'])
+    subprocess.run(['python', '-m', 'pip', 'install', 'openseespy'])
