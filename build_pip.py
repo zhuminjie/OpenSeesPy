@@ -55,4 +55,13 @@ def build_pip():
 def upload_pip():
     # upload
     subprocess.run(['python3.7', '-m', 'twine', 'upload', 'dist/*'])
+
+def clean_pip():
     subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
+
+def upload_pip_test():
+    # upload
+    subprocess.run(['python3.7', '-m', 'twine', 'upload', '--repository-url', 'https://test.pypi.org/legacy/', 'dist/*'])
+
+def install_pip_test():
+    subprocess.run(['python3.7', '-m', 'pip', '--index-url', 'https://test.pypi.org/simple/', 'openseespy'])
