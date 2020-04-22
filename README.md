@@ -15,3 +15,17 @@ Mac version maintained at [openseespymac](pypi.org/project/openseespymac)
 
 [OpenSeesPy Source Code](github.com/OpenSees/OpenSees)
 
+
+## Run tests
+
+```bash
+pytest --pyargs openseespy.test
+```
+
+## Install local package
+
+If you clone the github repository, the package can be installed locally
+
+```bash
+pip install openseespy-pip
+```
