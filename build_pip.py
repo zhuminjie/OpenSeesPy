@@ -67,7 +67,7 @@ def upload_pip_test():
 
 
 def install_pip_test():
-    subprocess.run(['python', '-m', 'pip', '--index-url',
+    subprocess.run(['python', '-m', 'pip', 
                     'https://test.pypi.org/simple/', 'openseespy'])
 
 def install_pip():
