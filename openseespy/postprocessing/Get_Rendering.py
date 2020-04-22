@@ -33,12 +33,41 @@ from math import asin, sqrt
 
 from openseespy.opensees import *
 
-def plot_model():
+def plot_model(*argv):
+	#Options to display node and element tags, THe following procedure is to keep the backward compatibility.
+	if len(argv)== 1:
+		if argv[0]=="nodes" or argv[0]=="Nodes" or argv[0]=="node" or argv[0]=="Node":
+			show_node_tags = 'yes'
+			show_element_tags = 'no'
+		
+		elif argv[0]=="elements" or argv[0]=="Elements" or argv[0]=="element" or argv[0]=="Element":
+			show_node_tags = 'no'
+			show_element_tags = 'yes'
+		
+		else:
+			print("Incorrect arguments; correct arguments are plot_model(nodes,elements)")
+			print("Setting show node tags and element tags as default")
+			show_node_tags = 'yes'
+			show_element_tags = 'yes'
+		
+	elif len(argv)== 2:
+		if "nodes" or "Nodes" in argv:
+			show_node_tags = 'yes'
+		else:
+			pass
+			
+		if "elements" or "Elements" in argv:
+			show_element_tags = 'yes'
+		else:
+			pass
+	
+	else:
+		print("Setting show node tags and element tags as default")
+		show_node_tags = 'yes'
+		show_element_tags = 'yes'
 	
 	nodeList = getNodeTags()
 	eleList = getEleTags()
-	show_node_tags = 'yes'		# Check if you want to display the node numbers     :: 'yes'  or   'no'
-	show_element_tags = 'yes'	# Check if you want to display the element numbers  :: 'yes'  or   'no'
 	offset = 0.05				# offset for text
 
 	ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
