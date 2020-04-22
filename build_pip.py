@@ -44,16 +44,16 @@ def build_pip():
     subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
     # update tools
-    subprocess.run(['python3.7', '-m', 'pip', 'install', '--upgrade',
+    subprocess.run(['python', '-m', 'pip', 'install', '--upgrade',
                     'setuptools', 'wheel', 'twine'])
 
     # compile wheel
-    subprocess.run(['python3.7', 'setup.py', 'bdist_wheel'])
+    subprocess.run(['python', 'setup.py', 'bdist_wheel'])
 
 
 def upload_pip():
     # upload
-    subprocess.run(['python3.7', '-m', 'twine', 'upload', 'dist/*'])
+    subprocess.run(['python', '-m', 'twine', 'upload', 'dist/*'])
 
 
 def clean_pip():
@@ -62,13 +62,13 @@ def clean_pip():
 
 def upload_pip_test():
     # upload
-    subprocess.run(['python3.7', '-m', 'twine', 'upload',
+    subprocess.run(['python', '-m', 'twine', 'upload',
                     '--repository-url', 'https://test.pypi.org/legacy/', 'dist/*'])
 
 
 def install_pip_test():
-    subprocess.run(['python3.7', '-m', 'pip', '--index-url',
+    subprocess.run(['python', '-m', 'pip', '--index-url',
                     'https://test.pypi.org/simple/', 'openseespy'])
 
 def install_pip():
-    subprocess.run(['python3.7', '-m', 'pip', 'openseespy'])
+    subprocess.run(['python', '-m', 'pip', 'openseespy'])
