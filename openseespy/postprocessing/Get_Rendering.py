@@ -520,7 +520,7 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# tstep is the number of the step of the analysis to be ploted (starting from 1), 
 	# and scale is the scale factor for the deformed shape.
 
-  nodeList = getNodeTags()
+	nodeList = getNodeTags()
 	eleList = getEleTags()
 	nodeDispArray = np.loadtxt(filename)
 	if len(nodeDispArray[0, :]) == len(nodeList) * len(nodeCoord(nodeList[0])):
