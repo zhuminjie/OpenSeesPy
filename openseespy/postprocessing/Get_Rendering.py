@@ -33,12 +33,41 @@ from math import asin, sqrt
 
 from openseespy.opensees import *
 
-def plot_model():
+def plot_model(*argv):
+	#Options to display node and element tags, THe following procedure is to keep the backward compatibility.
+	if len(argv)== 1:
+		if argv[0]=="nodes" or argv[0]=="Nodes" or argv[0]=="node" or argv[0]=="Node":
+			show_node_tags = 'yes'
+			show_element_tags = 'no'
+		
+		elif argv[0]=="elements" or argv[0]=="Elements" or argv[0]=="element" or argv[0]=="Element":
+			show_node_tags = 'no'
+			show_element_tags = 'yes'
+		
+		else:
+			print("Incorrect arguments; correct arguments are plot_model(nodes,elements)")
+			print("Setting show node tags and element tags as default")
+			show_node_tags = 'yes'
+			show_element_tags = 'yes'
+		
+	elif len(argv)== 2:
+		if "nodes" or "Nodes" in argv:
+			show_node_tags = 'yes'
+		else:
+			pass
+			
+		if "elements" or "Elements" in argv:
+			show_element_tags = 'yes'
+		else:
+			pass
+	
+	else:
+		print("Setting show node tags and element tags as default")
+		show_node_tags = 'yes'
+		show_element_tags = 'yes'
 	
 	nodeList = getNodeTags()
 	eleList = getEleTags()
-	show_node_tags = 'yes'		# Check if you want to display the node numbers     :: 'yes'  or   'no'
-	show_element_tags = 'yes'	# Check if you want to display the element numbers  :: 'yes'  or   'no'
 	offset = 0.05				# offset for text
 
 	ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
@@ -477,13 +506,13 @@ def plot_modeshape(*argv):
 def recordNodeDisp(filename = 'nodeDisp.txt'):
 	# This function is meant to be run before an analysis and saves the displacements of all nodes into filename. 
 	# It can be used later in the plot_deformedshape function.
-    nodeList = getNodeTags()
-    if len(nodeCoord(nodeList[0])) == 2:
-        dofList = [1, 2]
-    if len(nodeCoord(nodeList[0])) == 3:
-        dofList = [1, 2, 3]
-    # recorder('Node', '-file', filename, '–time', '–node', *nodeList, '-dof', *dofList, 'disp')
-    recorder('Node', '-file', filename, '-time', '-closeOnWrite', '–node', *nodeList, '-dof', *dofList, 'disp')
+	nodeList = getNodeTags()
+	if len(nodeCoord(nodeList[0])) == 2:
+		dofList = [1, 2]
+	if len(nodeCoord(nodeList[0])) == 3:
+		dofList = [1, 2, 3]
+	# recorder('Node', '-file', filename, '–time', '–node', *nodeList, '-dof', *dofList, 'disp')
+	recorder('Node', '-file', filename, '-time', '-closeOnWrite', '–node', *nodeList, '-dof', *dofList, 'disp')
 
 def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# Expected input argv : filename contains the displacements of all nodes in the same order they are returned by getNodeTags().
@@ -491,7 +520,7 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# tstep is the number of the step of the analysis to be ploted (starting from 1), 
 	# and scale is the scale factor for the deformed shape.
 
-  nodeList = getNodeTags()
+	nodeList = getNodeTags()
 	eleList = getEleTags()
 	nodeDispArray = np.loadtxt(filename)
 	if len(nodeDispArray[0, :]) == len(nodeList) * len(nodeCoord(nodeList[0])):
