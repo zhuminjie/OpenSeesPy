@@ -1,13 +1,12 @@
-#  OpenSeesPy
-
+# OpenSeesPy
 
 Pip Package for OpenSeesPy
 
-Linux and Windows versions maintained by:
+```bash
+pip install openseespy
+```
 
-Minjie Zhu <zhum@oregonstate.edu>
-Research Associate;
-Civil and Construction Engineering; Oregon State University
+Linux and Windows versions maintained by [Minjie Zhu](openseespymj@outlook.com)
 
 Mac version maintained at [openseespymac](pypi.org/project/openseespymac)
 
@@ -15,6 +14,14 @@ Mac version maintained at [openseespymac](pypi.org/project/openseespymac)
 
 [OpenSeesPy Source Code](github.com/OpenSees/OpenSees)
 
+## Issues
+
+Any issues for installation and running the pip package, please
+report to
+[OpenSeesPy-Pip Github Page](https://github.com/OpenSeesPy-pip/openseespy-pip/issues).
+
+Any modeling issues and bugs in `OpenSees` should be
+reported on the [OpenSees GitHub Page](https://github.com/OpenSees/OpenSees).
 
 ## Run tests
 
