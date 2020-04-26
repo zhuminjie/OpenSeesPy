@@ -20,11 +20,11 @@ import sys
 import matplotlib
 
 for line in range(0,len(sys.argv)):
-    if "ipykernel_launcher.py" in sys.argv[line]:
-        matplotlib.use('nbagg')
-        break
-    else:
-        pass
+	if "ipykernel_launcher.py" in sys.argv[line]:
+		matplotlib.use('nbagg')
+		break
+	else:
+		pass
 
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
@@ -477,13 +477,13 @@ def plot_modeshape(*argv):
 def recordNodeDisp(filename = 'nodeDisp.txt'):
 	# This function is meant to be run before an analysis and saves the displacements of all nodes into filename. 
 	# It can be used later in the plot_deformedshape function.
-    nodeList = getNodeTags()
-    if len(nodeCoord(nodeList[0])) == 2:
-        dofList = [1, 2]
-    if len(nodeCoord(nodeList[0])) == 3:
-        dofList = [1, 2, 3]
-    # recorder('Node', '-file', filename, '–time', '–node', *nodeList, '-dof', *dofList, 'disp')
-    recorder('Node', '-file', filename, '-time', '-closeOnWrite', '–node', *nodeList, '-dof', *dofList, 'disp')
+	nodeList = getNodeTags()
+	if len(nodeCoord(nodeList[0])) == 2:
+		dofList = [1, 2]
+	if len(nodeCoord(nodeList[0])) == 3:
+		dofList = [1, 2, 3]
+	# recorder('Node', '-file', filename, '–time', '–node', *nodeList, '-dof', *dofList, 'disp')
+	recorder('Node', '-file', filename, '-time', '-closeOnWrite', '–node', *nodeList, '-dof', *dofList, 'disp')
 
 def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# Expected input argv : filename contains the displacements of all nodes in the same order they are returned by getNodeTags().
@@ -491,13 +491,13 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# tstep is the number of the step of the analysis to be ploted (starting from 1), 
 	# and scale is the scale factor for the deformed shape.
 
-  nodeList = getNodeTags()
+	nodeList = getNodeTags()
 	eleList = getEleTags()
 	nodeDispArray = np.loadtxt(filename)
 	if len(nodeDispArray[0, :]) == len(nodeList) * len(nodeCoord(nodeList[0])):
 		tarray = np.zeros((len(nodeDispArray), 1))
 		nodeDispArray = np.append(tarray, nodeDispArray, axis = 1) 
-  
+
 	if tstep == -1:
 		tstep = len(nodeDispArray)
 	ele_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
@@ -710,7 +710,6 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 		ax.set_zlim(zViewCenter-(view_range/3), zViewCenter+(view_range/3))
 		ax.text2D(0.10, 0.95, "Deformed shape", transform=ax.transAxes)
 		ax.text2D(0.10, 0.90, "Step: "+str(tstep), transform=ax.transAxes)
-    
 
 	plt.axis('off')
 	plt.show()
