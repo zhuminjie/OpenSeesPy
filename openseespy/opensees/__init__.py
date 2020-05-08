@@ -19,14 +19,15 @@ elif sys.platform.startswith('win'):
 
         try:
             from openseespy.opensees.win.opensees import *
-            
+
         except:
 
-            raise RuntimeError('Failed to import openseespy. Anaconda is recommended https://www.anaconda.com/distribution/')
+            raise RuntimeError(
+                'Failed to import openseespy. Anaconda is recommended https://www.anaconda.com/distribution/')
 
     else:
-        raise RuntimeError('Python version 3.7 is needed for Windows (Anaconda is recommended https://www.anaconda.com/distribution/)')
-
+        raise RuntimeError(
+            'Python version 3.7 is needed for Windows (Anaconda is recommended https://www.anaconda.com/distribution/)')
 
     # if sys.version_info[1] == 6:
 
@@ -43,11 +44,11 @@ elif sys.platform.startswith('win'):
 elif sys.platform.startswith('darwin'):
 
     # from openseespy.opensees.mac.opensees import *
-    raise RuntimeError('Please install Mac version from openseespymac package (pip install openseespymac)')
+    raise RuntimeError(
+        'Please install Mac version from openseespymac package (pip install openseespymac)')
 
 
 else:
 
     raise RuntimeError(sys.platform+' is not supported yet')
-
 
