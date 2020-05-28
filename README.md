@@ -1,6 +1,6 @@
 # OpenSeesPy
 
-A collection of OpenSeesPy resources
+Sub-folders:
 
 - `pkg`
 
