@@ -10,13 +10,13 @@ Sub-folders:
 
 - `doc`
 
-  The updated copy of [OpenSeesPyDoc repo](https://github.com/zhuminjie/OpenSeesPyDoc)
+  The OpenSeesPy documentation, a link to [OpenSeesPyDoc repo](https://github.com/zhuminjie/OpenSeesPyDoc)
   using the [git subtree](https://www.atlassian.com/git/tutorials/git-subtree).
 
   [OpenSeesPy Documentation](https://openseespydoc.readthedocs.io/en/latest/)
 
 - `docker`
 
-  The Docker version of OpenSeesPy.
+  The OpenSeesPy Docker.
 
   [OpenSeesPy Docker Hub](https://hub.docker.com/r/zhuminjie/openseespy)
