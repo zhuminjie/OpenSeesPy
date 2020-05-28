@@ -9,7 +9,7 @@ Sub-folders:
 
   [OpenSeesPy Pip](https://pypi.org/project/openseespy/)
 
-- `doc`
+- `openseespy-docs`
 
   The OpenSeesPy documentation, a link to [OpenSeesPyDoc repo](https://github.com/zhuminjie/OpenSeesPyDoc)
   using the [git subtree](https://www.atlassian.com/git/tutorials/git-subtree).
