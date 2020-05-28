@@ -2,7 +2,7 @@
 
 Sub-folders:
 
-- `pkg`
+- `openseespy-pip`
 
   The OpenSeesPy package including extra python modules but not the `opensees.so` and `opensees.pyd` libraries, which
   can be compiled from `opensees` folder.
