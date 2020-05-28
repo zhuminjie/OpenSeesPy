@@ -4,7 +4,7 @@ A collection of OpenSeesPy resources
 
 - `pkg`
 
-  The OpenSeesPy package including extra python modules but without `opensees.so` and `opensees.pyd` libraries.
+  The OpenSeesPy pip package including extra python modules but not `opensees.so` and `opensees.pyd` libraries.
 
   [https://pypi.org/project/openseespy/](https://pypi.org/project/openseespy/)
 
