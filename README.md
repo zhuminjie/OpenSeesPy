@@ -16,13 +16,13 @@ Sub-folders:
 
   [OpenSeesPy Documentation](https://openseespydoc.readthedocs.io/en/latest/)
 
-- `opensees`
-
-  The OpenSees source code, a link to [OpenSees repo](https://github.com/OpenSees/OpenSees)
-  using the [git subtree](https://www.atlassian.com/git/tutorials/git-subtree).
-
-- `docker`
+- `openseespy-docker`
 
   The OpenSeesPy Docker.
 
   [OpenSeesPy Docker Hub](https://hub.docker.com/r/zhuminjie/openseespy)
+
+- `opensees`
+
+  The OpenSees source code, a link to [OpenSees repo](https://github.com/OpenSees/OpenSees)
+  using the [git subtree](https://www.atlassian.com/git/tutorials/git-subtree).
