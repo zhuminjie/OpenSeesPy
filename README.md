@@ -1,20 +1,22 @@
-#  OpenSeesPy
+# OpenSeesPy
 
+Sub-folders:
 
-Pip Package for OpenSeesPy
+- `pkg`
 
-Linux and Windows versions maintained by:
+  The OpenSeesPy package including extra python modules but not `opensees.so` and `opensees.pyd` libraries.
 
-Minjie Zhu <zhum@oregonstate.edu>
-Research Associate;
-Civil and Construction Engineering; Oregon State University
+  [OpenSeesPy Pip](https://pypi.org/project/openseespy/)
 
-Mac version maintained by:
+- `doc`
 
-Stevan Gavrilovic <steva44@hotmail.com>
-PhD Candidate;
-Structural and Earthquake Engineering;
-University of British Columbia
+  The OpenSeesPy documentation, a link to [OpenSeesPyDoc repo](https://github.com/zhuminjie/OpenSeesPyDoc)
+  using the [git subtree](https://www.atlassian.com/git/tutorials/git-subtree).
 
-[OpenSeesPy Documentation](https://openseespydoc.readthedocs.io/en/latest/index.html)
+  [OpenSeesPy Documentation](https://openseespydoc.readthedocs.io/en/latest/)
 
+- `docker`
+
+  The OpenSeesPy Docker.
+
+  [OpenSeesPy Docker Hub](https://hub.docker.com/r/zhuminjie/openseespy)
