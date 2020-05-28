@@ -60,12 +60,7 @@ To run a test of the pip installation:
 ::
 
    pytest --pyargs openseespy.test
-   
 
-Most of `OpenSeesPy`_ commands have the same syntax and arguments as the
-OpenSees `Tcl commands <http://opensees.berkeley.edu/wiki/index.php/Command_Manual>`_.
-The conversion from Tcl to Python is easy and straightforward
-as demonstrated with commands below.
 
 ============
  Developer
