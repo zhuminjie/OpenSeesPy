@@ -10,7 +10,7 @@
 ## Edit 2: Anurag Upadhyay, 03/21/2020, Added check for Jupyter Notebook; mode shape..	##
 ## plotter for 2D and 3D shell, and brick elements; User specified scale factor to ...	##
 ## plot mode shapes; display mode period on the plot.									##
-##																						##
+## 																	##
 ## You can download more examples from https://github.com/u-anurag						##
 ##########################################################################################
 
@@ -33,8 +33,135 @@ from math import asin, sqrt
 
 from openseespy.opensees import *
 
+### All the plotting related definitions start here.
+
+ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
+node_style = {'color':'black', 'marker':'o', 'facecolor':'black'} 
+node_text_style = {'fontsize':6, 'fontweight':'regular', 'color':'green'} 
+ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'} 
+
+WireEle_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
+Eig_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
+
+def _plotCubeSurf(NodeList,ax,fillSurface,eleStyle):
+			## This procedure is called by the plotCubeVol() command
+			aNode = NodeList[0]
+			bNode = NodeList[1]
+			cNode = NodeList[2]
+			dNode = NodeList[3]
+			
+			## Use arrays for less memory and fast code
+			
+			surfXarray = np.array([[aNode[0], dNode[0]], [bNode[0], cNode[0]]])
+			surfYarray = np.array([[aNode[1], dNode[1]], [bNode[1], cNode[1]]])
+			surfZarray = np.array([[aNode[2], dNode[2]], [bNode[2], cNode[2]]])
+				
+			if fillSurface == 'yes':
+				ax.plot_surface(surfXarray, surfYarray, surfZarray, edgecolor='k', color='g', alpha=.5)
+			
+			del aNode, bNode, cNode, dNode, surfXarray, surfYarray, surfZarray
+
+
+def _plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, eleStyle, fillSurface):
+	## procedure to render a cubic element, use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
+	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
+	
+	_plotCubeSurf([iNode, jNode, kNode, lNode],ax,fillSurface,eleStyle)
+	_plotCubeSurf([iNode, jNode, jjNode, iiNode],ax,fillSurface,eleStyle)
+	_plotCubeSurf([iiNode, jjNode, kkNode, llNode],ax,fillSurface,eleStyle)
+	_plotCubeSurf([lNode, kNode, kkNode, llNode],ax,fillSurface,eleStyle)
+	_plotCubeSurf([jNode, kNode, kkNode, jjNode],ax,fillSurface,eleStyle)
+	_plotCubeSurf([iNode, lNode, llNode, iiNode],ax,fillSurface,eleStyle)
+
+	if show_element_tags == 'yes':
+		ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0]+iiNode[0]+jjNode[0]+kkNode[0]+llNode[0])/8, 
+				(iNode[1]+jNode[1]+kNode[1]+lNode[1]+iiNode[1]+jjNode[1]+kkNode[1]+llNode[1])/8, 
+				(iNode[2]+jNode[2]+kNode[2]+lNode[2]+iiNode[2]+jjNode[2]+kkNode[2]+llNode[2])/8, 
+				str(element), **ele_text_style) #label elements
+
+
+def _plotTri2D(iNode, jNode, kNode, ax, show_element_tags, element, eleStyle, fillSurface):
+	## procedure to render a 2D three node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
+	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
+							
+	P=plt.plot((iNode[0], jNode[0], kNode[0]), 
+			(iNode[1], jNode[1], kNode[1]), marker='')
+			
+	if eleStyle == "wire":
+		plt.setp(P,**WireEle_style)
+	else:
+		plt.setp(P,**ele_style)
+	
+	if fillSurface == 'yes':
+		ax.plot_surface(np.array([iNode[0], jNode[0], kNode[0]]), 
+						np.array([iNode[1], jNode[1], kNode[1]]), color='g', alpha=.6)
+
+	if show_element_tags == 'yes':
+		ax.text((iNode[0]+jNode[0]+kNode[0])*1.0/4, (iNode[1]+jNode[1]+kNode[1])*1.0/4, 
+				str(element), **ele_text_style) #label elements
+
+
+def _plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleStyle, fillSurface):
+	## procedure to render a 2D four node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
+	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
+	
+	P=plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
+			(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]), marker='')
+			
+	if eleStyle == "wire":
+		plt.setp(P,**WireEle_style)
+	else:
+		plt.setp(P,**ele_style)
+	
+	if fillSurface == 'yes':
+		ax.fill(np.array([iNode[0], jNode[0], kNode[0], lNode[0]]), 
+						np.array([iNode[1], jNode[1], kNode[1], lNode[1]]), color='g', alpha=.6)
+
+	if show_element_tags == 'yes':
+		ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0])*1.0/4, (iNode[1]+jNode[1]+kNode[1]+lNode[1])*1.0/4, 
+				str(element), **ele_text_style) #label elements
+
+
+def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleStyle, fillSurface):
+	## procedure to render a 3D four node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
+	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
+	
+	P=plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
+			(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]),
+			(iNode[2], jNode[2], kNode[2], lNode[2], iNode[2]), marker='')
+			
+	if eleStyle == "wire":
+		plt.setp(P,**WireEle_style)
+	else:
+		plt.setp(P,**ele_style)
+	
+	if fillSurface == 'yes':
+		ax.plot_surface(np.array([[iNode[0], lNode[0]], [jNode[0], kNode[0]]]), 
+						np.array([[iNode[1], lNode[1]], [jNode[1], kNode[1]]]), 
+						np.array([[iNode[2], lNode[2]], [jNode[2], kNode[2]]]), color='g', alpha=.6)
+
+	if show_element_tags == 'yes':
+		ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0])*1.05/4, (iNode[1]+jNode[1]+kNode[1]+lNode[1])*1.05/4, 
+				(iNode[2]+jNode[2]+kNode[2]+lNode[2])*1.05/4, str(element), **ele_text_style) #label elements
+
+
+def _plotBeam3D(iNode, jNode, ax, show_element_tags, element, eleStyle):
+	##
+	P=plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='')
+	
+	if eleStyle == "wire":
+		plt.setp(P,**WireEle_style)
+	else:
+		plt.setp(P,**ele_style)
+	
+	if show_element_tags == 'yes':
+		ax.text((iNode[0]+jNode[0])/2, (iNode[1]+jNode[1])*1.02/2, 
+				(iNode[2]+jNode[2])*1.02/2, str(element), **ele_text_style) #label elements
+
+
 def plot_model(*argv):
-	#Options to display node and element tags, THe following procedure is to keep the backward compatibility.
+
+	### Options to display node and element tags, The following procedure is to keep the backward compatibility.
 	if len(argv)== 1:
 		if argv[0]=="nodes" or argv[0]=="Nodes" or argv[0]=="node" or argv[0]=="Node":
 			show_node_tags = 'yes'
@@ -47,8 +174,8 @@ def plot_model(*argv):
 		else:
 			print("Incorrect arguments; correct arguments are plot_model(nodes,elements)")
 			print("Setting show node tags and element tags as default")
-			show_node_tags = 'yes'
-			show_element_tags = 'yes'
+			show_node_tags = 'no'
+			show_element_tags = 'no'
 		
 	elif len(argv)== 2:
 		if "nodes" or "Nodes" in argv:
@@ -63,17 +190,19 @@ def plot_model(*argv):
 	
 	else:
 		print("Setting show node tags and element tags as default")
-		show_node_tags = 'yes'
-		show_element_tags = 'yes'
+		show_node_tags = 'no'
+		show_element_tags = 'no'
+	
 	
 	nodeList = getNodeTags()
 	eleList = getEleTags()
 	offset = 0.05				# offset for text
-
-	ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
-	node_style = {'color':'black', 'marker':'o', 'facecolor':'black'} 
-	node_text_style = {'fontsize':6, 'fontweight':'regular', 'color':'green'} 
-	ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'} 
+	
+	## 5/2/2020 :: Added array to store all node coordinates to get plot range : Anurag
+	nodeArray=np.array(nodeList)
+	eleArray=np.array(eleList)
+	
+	nodeCoordArray = np.zeros([len(nodeList),3])
 
 	# Check if the model is 2D or 3D
 	if len(nodeCoord(nodeList[0])) == 2:
@@ -82,16 +211,19 @@ def plot_model(*argv):
 		y = []
 		fig = plt.figure()
 		ax = fig.add_subplot(1,1,1)
+		
+		## 5/2/2020:: Get all the node coordinates in the array
+		for i in range(0,len(nodeList)):
+			nodeCoordArray[i,0:2]= np.array([nodeCoord(int(nodeArray[i]))[0], nodeCoord(int(nodeArray[i]))[1]])
+			
 		for element in eleList:
 			Nodes = eleNodes(element)
+			
 			if len(Nodes) == 2:
 				# 2D Beam-Column Elements
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				
-				x.append(iNode[0])  # list of x coordinates to define plot view area
-				y.append(iNode[1])	# list of y coordinates to define plot view area
-
 				plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),marker='', **ele_style)
 				
 				if show_element_tags == 'yes':
@@ -103,15 +235,7 @@ def plot_model(*argv):
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
 				
-				x.append(iNode[0])  # list of x coordinates to define plot view area
-				y.append(iNode[1])	# list of y coordinates to define plot view area
-
-				plt.plot((iNode[0], jNode[0], kNode[0]), (iNode[1], jNode[1], kNode[1]),marker='', **ele_style)
-				ax.fill([iNode[0], jNode[0], kNode[0]],[iNode[1], jNode[1], kNode[1]],"b", alpha=.6)
-
-				if show_element_tags == 'yes':
-					ax.text((iNode[0]+jNode[0]+kNode[0])/4, (iNode[1]+jNode[1]+kNode[1])/4, 
-						str(element), **ele_text_style) #label elements
+				_plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
 						
 			if len(Nodes) == 4:
 				# 2D Planer four-node shell elements
@@ -120,30 +244,22 @@ def plot_model(*argv):
 				kNode = nodeCoord(Nodes[2])
 				lNode = nodeCoord(Nodes[3])
 				
-				x.append(iNode[0])  # list of x coordinates to define plot view area
-				y.append(iNode[1])	# list of y coordinates to define plot view area
+				_plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
 
-				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0]), (iNode[1], jNode[1], kNode[1], lNode[1]),marker='', **ele_style)
-				ax.fill([iNode[0], jNode[0], kNode[0], lNode[0]],[iNode[1], jNode[1], kNode[1], lNode[1]],"b", alpha=.6)
-
-				if show_element_tags == 'yes':
-					ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0])/4, (iNode[1]+jNode[1]+kNode[1]+lNode[1])/4, 
-						str(element), **ele_text_style) #label elements
 			
 		if show_node_tags == 'yes':
 			for node in nodeList:
-				x.append(nodeCoord(node)[0])  # list of x coordinates to define plot view area
-				y.append(nodeCoord(node)[1])
 				ax.text(nodeCoord(node)[0]*1.02, nodeCoord(node)[1]*1.02, str(node),**node_text_style) #label nodes
 			
-			ax.scatter(x, y, **node_style)
+			ax.scatter(nodeCoordArray[:,0], nodeCoordArray[:,1], **node_style)
 			
-		nodeMins = np.array([min(x),min(y)])
-		nodeMaxs = np.array([max(x),max(y)])
+		
+		nodeMins = np.array([min(nodeCoordArray[:,0]),min(nodeCoordArray[:,1])])
+		nodeMaxs = np.array([max(nodeCoordArray[:,0]),max(nodeCoordArray[:,1])])
 		
 		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
 		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-		view_range = max(max(x)-min(x), max(y)-min(y))
+		view_range = max(max(nodeCoordArray[:,0])-min(nodeCoordArray[:,0]), max(nodeCoordArray[:,1])-min(nodeCoordArray[:,1]))
 		
 		ax.set_xlabel('X')
 		ax.set_ylabel('Y')
@@ -154,57 +270,32 @@ def plot_model(*argv):
 		x = []
 		y = []
 		z = []
+		xx= np.array([])
 		fig = plt.figure()
 		ax = fig.add_subplot(1,1,1, projection='3d')
 		
-		def plotCubeSurf(NodeList):
-			# Define procedure to plot a 3D solid element
-			aNode = NodeList[0]
-			bNode = NodeList[1]
-			cNode = NodeList[2]
-			dNode = NodeList[3]
-			plt.plot((aNode[0], bNode[0], cNode[0], dNode[0], aNode[0]), 
-						(aNode[1], bNode[1], cNode[1], dNode[1], aNode[1]),
-						(aNode[2], bNode[2], cNode[2], dNode[2], aNode[2]), marker='', **ele_style)
-
-			ax.plot_surface(np.array([[aNode[0], dNode[0]], [bNode[0], cNode[0]]]), 
-							np.array([[aNode[1], dNode[1]], [bNode[1], cNode[1]]]), 
-							np.array([[aNode[2], dNode[2]], [bNode[2], cNode[2]]]), color='g', alpha=.5)
-#
+		## 5/2/2020:: Get all the node coordinates in the array
+		for i in range(0,len(nodeList)):
+			nodeCoordArray[i,:]= nodeCoord(int(nodeArray[i]))
+			
+		
 		for element in eleList:
 			Nodes = eleNodes(element)
 			if len(Nodes) == 2:
 				# 3D beam-column elements
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
-				x.append(iNode[0])  # list of x coordinates to define plot view area
-				y.append(iNode[1])	# list of y coordinates to define plot view area
-				z.append(iNode[2])	# list of z coordinates to define plot view area
 				
-				plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='', **ele_style)
-				
-				if show_element_tags == 'yes':
-					ax.text((iNode[0]+jNode[0])/2, (iNode[1]+jNode[1])*1.02/2, 
-							(iNode[2]+jNode[2])*1.02/2, str(element), **ele_text_style) #label elements
-			
+				_plotBeam3D(iNode, jNode, ax, show_element_tags, element, "solid")
+								
 			if len(Nodes) == 4:
 				# 3D four-node Quad/shell element
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
 				lNode = nodeCoord(Nodes[3])
-			
-				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
-							(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]),
-							(iNode[2], jNode[2], kNode[2], lNode[2], iNode[2]), marker='', **ele_style)
 				
-				ax.plot_surface(np.array([[iNode[0], lNode[0]], [jNode[0], kNode[0]]]), 
-								np.array([[iNode[1], lNode[1]], [jNode[1], kNode[1]]]), 
-								np.array([[iNode[2], lNode[2]], [jNode[2], kNode[2]]]), color='g', alpha=.6)
-				
-				if show_element_tags == 'yes':
-					ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0])*1.05/4, (iNode[1]+jNode[1]+kNode[1]+lNode[1])*1.05/4, 
-								(iNode[2]+jNode[2]+kNode[2]+lNode[2])*1.05/4, str(element), **ele_text_style) #label elements
+				_plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
 			
 			if len(Nodes) == 8:
 				# 3D eight-node Brick element
@@ -218,35 +309,23 @@ def plot_model(*argv):
 				kkNode = nodeCoord(Nodes[6])
 				llNode = nodeCoord(Nodes[7])
 				
-				plotCubeSurf([iNode, jNode, kNode, lNode])
-				plotCubeSurf([iNode, jNode, jjNode, iiNode])
-				plotCubeSurf([iiNode, jjNode, kkNode, llNode])
-				plotCubeSurf([lNode, kNode, kkNode, llNode])
-				plotCubeSurf([jNode, kNode, kkNode, jjNode])
-				plotCubeSurf([iNode, lNode, llNode, iiNode])
-
-				if show_element_tags == 'yes':
-					ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0]+iiNode[0]+jjNode[0]+kkNode[0]+llNode[0])/8, 
-							(iNode[1]+jNode[1]+kNode[1]+lNode[1]+iiNode[1]+jjNode[1]+kkNode[1]+llNode[1])/8, 
-							(iNode[2]+jNode[2]+kNode[2]+lNode[2]+iiNode[2]+jjNode[2]+kkNode[2]+llNode[2])/8, 
-							str(element), **ele_text_style) #label elements
-			
+				_plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, 'solid', fillSurface='yes')
+							
 		if show_node_tags == 'yes':
 			for node in nodeList:
-				x.append(nodeCoord(node)[0])  # list of x coordinates to define plot view area
-				y.append(nodeCoord(node)[1])
-				z.append(nodeCoord(node)[2])
 				ax.text(nodeCoord(node)[0]*1.02, nodeCoord(node)[1]*1.02, nodeCoord(node)[2]*1.02, str(node),**node_text_style) #label nodes
-			
-			ax.scatter(x, y, z, **node_style)
-			
+				
+			ax.scatter(nodeCoordArray[:,0], nodeCoordArray[:,1], nodeCoordArray[:,2], **node_style)								#show nodes
 		
-		nodeMins = np.array([min(x),min(y),min(z)])
-		nodeMaxs = np.array([max(x),max(y),max(z)])
+		nodeMins = np.array([min(nodeCoordArray[:,0]),min(nodeCoordArray[:,1]),min(nodeCoordArray[:,2])])
+		nodeMaxs = np.array([max(nodeCoordArray[:,0]),max(nodeCoordArray[:,1]),max(nodeCoordArray[:,2])])
+		
 		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
 		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
 		zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
-		view_range = max(max(x)-min(x), max(y)-min(y), max(z)-min(z))
+		
+		view_range = max(max(nodeCoordArray[:,0])-min(nodeCoordArray[:,0]), max(nodeCoordArray[:,1])-min(nodeCoordArray[:,1]), max(nodeCoordArray[:,2])-min(nodeCoordArray[:,2]))
+
 		ax.set_xlim(xViewCenter-(view_range/4), xViewCenter+(view_range/4))
 		ax.set_ylim(yViewCenter-(view_range/4), yViewCenter+(view_range/4))
 		ax.set_zlim(zViewCenter-(view_range/3), zViewCenter+(view_range/3))
@@ -257,17 +336,20 @@ def plot_model(*argv):
 	
 	plt.axis('on')
 	plt.show()
+	
 
 def plot_modeshape(*argv):
-	# Expected input argv : modeNumber, scale
+	# Expected input argv : modeNumber, scale,   to be added: overlap='yes' or 'no'
 
 	modeNumber = argv[0]
 	if len(argv) < 2:
-		print("No scale factor specified to plot modeshape, using default 200.")
-		print("Input arguments are plot_modeshape(modeNumber, scaleFactor)")
+		print("No scale factor specified to plot modeshape, using dafault 200.")
+		print("Input arguments are plot_modeshape(modeNumber, scaleFactor, overlap='yes')")
 		scale = 200
 	else:
 		scale = argv[1]
+		
+	overlap='yes'		# overlap the modeshape with a wireframe of original shape, set default "yes" for now.
 	
 	# Run eigen analysis and get information to print
 	wipeAnalysis()
@@ -276,33 +358,31 @@ def plot_modeshape(*argv):
 	
 	nodeList = getNodeTags()
 	eleList = getEleTags()
-	# scale = 200				#offset for text
+	
+	## 5/2/2020 :: Added array to store all node coordinates to get plot range : Anurag
+	nodeArray=np.array(nodeList)
+	eleArray=np.array(eleList)
+	
+	DeflectedNodeCoordArray = np.zeros([len(nodeList),3])
+	
+	show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
+	show_element_tags = 'no'
 
-	ele_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
-	Eig_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
-	node_style = {'color':'black', 'marker':'.', 'linestyle':''} 
-
-	def plotCubeSurf(NodeList):
-			# Define procedure to plot a 3D solid element
-			aNode = NodeList[0]
-			bNode = NodeList[1]
-			cNode = NodeList[2]
-			dNode = NodeList[3]
-			plt.plot((aNode[0], bNode[0], cNode[0], dNode[0], aNode[0]), 
-						(aNode[1], bNode[1], cNode[1], dNode[1], aNode[1]),
-						(aNode[2], bNode[2], cNode[2], dNode[2], aNode[2]), marker='', **ele_style)
-
-			ax.plot_surface(np.array([[aNode[0], dNode[0]], [bNode[0], cNode[0]]]), 
-							np.array([[aNode[1], dNode[1]], [bNode[1], cNode[1]]]), 
-							np.array([[aNode[2], dNode[2]], [bNode[2], cNode[2]]]), color='g', alpha=.5)
-#
-	# Check if the model is 2D or 3D
+	## Check if the model is 2D or 3D
 	if len(nodeCoord(nodeList[0])) == 2:
 		print('2D model')
 		x = []
 		y = []
 		fig = plt.figure()
 		ax = fig.add_subplot(1,1,1)
+		
+		## 6/8/2020:: Get all the node coordinates in the array
+		for i in range(0,len(nodeList)):
+			tempNode_Eig = nodeEigenvector(int(nodeArray[i]), modeNumber)
+			DeflectedNodeCoordArray[i,0:2]= np.array([nodeCoord(int(nodeArray[i]))[0]+ scale*tempNode_Eig[0], 
+														nodeCoord(int(nodeArray[i]))[1]+ scale*tempNode_Eig[1]])
+			
+		
 		for element in eleList:
 			Nodes = eleNodes(element)
 			if len(Nodes) == 2:
@@ -316,15 +396,14 @@ def plot_modeshape(*argv):
 				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1]]
 				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1]]
 				
-				x.append(iNode_final[0])  # list of x coordinates to define plot view area
-				y.append(iNode_final[1])	# list of y coordinates to define plot view area
-
-				plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),marker='', **ele_style)
+				if overlap == "yes":
+					plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),marker='', **ele_style)
+				
 				plt.plot((iNode_final[0], jNode_final[0]), 
 							(iNode_final[1], jNode_final[1]),marker='', **Eig_style)
 
 			if len(Nodes) == 3:
-				# 2D Planer three-node shell elements
+				## 2D Planer three-node shell elements
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
@@ -337,13 +416,10 @@ def plot_modeshape(*argv):
 				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1]]
 				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1]]
 				
-				x.append(iNode_final[0])  # list of x coordinates to define plot view area
-				y.append(iNode_final[1])	# list of y coordinates to define plot view area
-
-				plt.plot((iNode[0], jNode[0], kNode[0]), (iNode[1], jNode[1], kNode[1]),marker='', **ele_style)
-
-				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0]), (iNode_final[1], jNode_final[1], kNode_final[1]),marker='', **Eig_style)
-				ax.fill([iNode_final[0], jNode_final[0], kNode_final[0]],[iNode_final[1], jNode_final[1], kNode_final[1]],"b", alpha=.6)
+				if overlap == "yes":
+					_plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+				
+				_plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
 
 						
 			if len(Nodes) == 4:
@@ -363,20 +439,19 @@ def plot_modeshape(*argv):
 				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1]]
 				lNode_final = [lNode[0]+ scale*lNode_Eig[0], lNode[1]+ scale*lNode_Eig[1]]
 				
-				x.append(iNode_final[0])  # list of x coordinates to define plot view area
-				y.append(iNode_final[1])	# list of y coordinates to define plot view area
-
-				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0]), (iNode[1], jNode[1], kNode[1], lNode[1]),marker='', **ele_style)
-				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0]), (iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1]),marker='', **Eig_style)
-				ax.fill([iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0]],[iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1]],"b", alpha=.6)
-	
+				if overlap == "yes":
+					_plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
 				
-		nodeMins = np.array([min(x),min(y)])
-		nodeMaxs = np.array([max(x),max(y)])
+				_plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+	
+		
+		nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1])])
+		nodeMaxs = np.array([max(DeflectedNodeCoordArray[:,0]),max(DeflectedNodeCoordArray[:,1])])
 		
 		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
 		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-		view_range = max(max(x)-min(x), max(y)-min(y))
+		view_range = max(max(DeflectedNodeCoordArray[:,0])-min(DeflectedNodeCoordArray[:,0]), max(DeflectedNodeCoordArray[:,1])-min(DeflectedNodeCoordArray[:,1]))
+		
 		ax.set_xlim(xViewCenter-(1.1*view_range/1), xViewCenter+(1.1*view_range/1))
 		ax.set_ylim(yViewCenter-(1.1*view_range/1), yViewCenter+(1.1*view_range/1))
 		ax.text(0.05, 0.95, "Mode "+str(modeNumber), transform=ax.transAxes)
@@ -389,34 +464,35 @@ def plot_modeshape(*argv):
 		z = []
 		fig = plt.figure()
 		ax = fig.add_subplot(1,1,1, projection='3d')
+		
+		for i in range(0,len(nodeList)):
+			"""Get deflected node coordinates"""
+			tempNode_Eig = nodeEigenvector(int(nodeArray[i]), modeNumber)
+			DeflectedNodeCoordArray[i,:]= np.array([nodeCoord(int(nodeArray[i]))[0]+ scale*tempNode_Eig[0], 
+														nodeCoord(int(nodeArray[i]))[1]+ scale*tempNode_Eig[1], 
+														nodeCoord(int(nodeArray[i]))[2]+ scale*tempNode_Eig[2]])
+			
+			
 		for element in eleList:
 			Nodes = eleNodes(element)
 			if len(Nodes) == 2:
-				# 3D beam-column elements
+				## 3D beam-column elements
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				iNode_Eig = nodeEigenvector(Nodes[0], modeNumber)
 				jNode_Eig = nodeEigenvector(Nodes[1], modeNumber)
 				
-				# Add original and mode shape to get final node coordinates
+				## Add original and mode shape to get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1], iNode[2]+ scale*iNode_Eig[2]]
 				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1], jNode[2]+ scale*jNode_Eig[2]]
 				
-				x.append(iNode_final[0])  # list of x coordinates to define plot view area
-				y.append(iNode_final[1])	# list of y coordinates to define plot view area
-				z.append(iNode_final[2])	# list of z coordinates to define plot view area
+				if overlap == "yes":
+					_plotBeam3D(iNode, jNode, ax, show_element_tags, element, "wire")
 				
-				plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='', **ele_style)
-				plt.plot((iNode_final[0], jNode_final[0]), (iNode_final[1], jNode_final[1]),(iNode_final[2], jNode_final[2]), 
-					marker='', **Eig_style)
-
-				# plt.plot((iNode[0]+ scale*iNode_Eig[0], jNode[0]+ scale*jNode_Eig[0]), 
-							# (iNode[1]+ scale*iNode_Eig[1], jNode[1]+ scale*jNode_Eig[1]), 
-							# (iNode[2]+ scale*iNode_Eig[2], jNode[2]+ scale*jNode_Eig[2]),
-								# marker='', **Eig_style)
-
+				_plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, element, "solid")
+				
 			if len(Nodes) == 4:
-				# 3D four-node Quad/shell element
+				## 3D four-node Quad/shell element
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
@@ -426,30 +502,21 @@ def plot_modeshape(*argv):
 				kNode_Eig = nodeEigenvector(Nodes[2], modeNumber)
 				lNode_Eig = nodeEigenvector(Nodes[3], modeNumber)
 				
-				# Add original and mode shape to get final node coordinates
+				## Add original and mode shape to get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1], iNode[2]+ scale*iNode_Eig[2]]
 				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1], jNode[2]+ scale*jNode_Eig[2]]
 				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1], kNode[2]+ scale*kNode_Eig[2]]
 				lNode_final = [lNode[0]+ scale*lNode_Eig[0], lNode[1]+ scale*lNode_Eig[1], lNode[2]+ scale*lNode_Eig[2]]
 				
-				
-				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
-							(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]),
-							(iNode[2], jNode[2], kNode[2], lNode[2], iNode[2]), marker='', **ele_style)
-				
-				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0], iNode_final[0]), 
-							(iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1], iNode_final[1]),
-							(iNode_final[2], jNode_final[2], kNode_final[2], lNode_final[2], iNode_final[2]), 
-								marker='', **Eig_style)
-				# Plot surfaces on the mode shape
-				ax.plot_surface(np.array([[iNode_final[0], lNode_final[0]], [jNode_final[0], kNode_final[0]]]), 
-								np.array([[iNode_final[1], lNode_final[1]], [jNode_final[1], kNode_final[1]]]), 
-								np.array([[iNode_final[2], lNode_final[2]], [jNode_final[2], kNode_final[2]]]), 
-									color='g', alpha=.6)
+				if overlap == "yes":
+					_plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+					
+				_plotQuad3D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+
 						
 			if len(Nodes) == 8:
-				# 3D eight-node Brick element
-				# Nodes in CCW on bottom (0-3) and top (4-7) faces resp
+				## 3D eight-node Brick element
+				## Nodes in CCW on bottom (0-3) and top (4-7) faces resp
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
@@ -468,7 +535,7 @@ def plot_modeshape(*argv):
 				kkNode_Eig = nodeEigenvector(Nodes[6], modeNumber)
 				llNode_Eig = nodeEigenvector(Nodes[7], modeNumber)
 				
-				# Add original and mode shape to get final node coordinates
+				## Add original and mode shape to get final node coordinates
 				iNode_final = [iNode[0]+ scale*iNode_Eig[0], iNode[1]+ scale*iNode_Eig[1], iNode[2]+ scale*iNode_Eig[2]]
 				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1], jNode[2]+ scale*jNode_Eig[2]]
 				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1], kNode[2]+ scale*kNode_Eig[2]]
@@ -478,22 +545,27 @@ def plot_modeshape(*argv):
 				kkNode_final = [kkNode[0]+ scale*kkNode_Eig[0], kkNode[1]+ scale*kkNode_Eig[1], kkNode[2]+ scale*kkNode_Eig[2]]
 				llNode_final = [llNode[0]+ scale*llNode_Eig[0], llNode[1]+ scale*llNode_Eig[1], llNode[2]+ scale*llNode_Eig[2]]
 				
-				plotCubeSurf([iNode_final, jNode_final, kNode_final, lNode_final])
-				plotCubeSurf([iNode_final, jNode_final, jjNode_final, iiNode_final])
-				plotCubeSurf([iiNode_final, jjNode_final, kkNode_final, llNode_final])
-				plotCubeSurf([lNode_final, kNode_final, kkNode_final, llNode_final])
-				plotCubeSurf([jNode_final, kNode_final, kkNode_final, jjNode_final])
-				plotCubeSurf([iNode_final, lNode_final, llNode_final, iiNode_final])
+				if overlap == "yes":
+					_plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, "wire", fillSurface='no') # plot undeformed shape
 
-		nodeMins = np.array([min(x),min(y),min(z)])
-		nodeMaxs = np.array([max(x),max(y),max(z)])
+				_plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
+								ax, show_element_tags, element, "solid", fillSurface='yes')
+								
+
+		nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1]),min(DeflectedNodeCoordArray[:,2])])
+		nodeMaxs = np.array([max(DeflectedNodeCoordArray[:,0]),max(DeflectedNodeCoordArray[:,1]),max(DeflectedNodeCoordArray[:,2])])
+				
 		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
 		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
 		zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
-		view_range = max(max(x)-min(x), max(y)-min(y), max(z)-min(z))
-		ax.set_xlim(xViewCenter-(view_range/4), xViewCenter+(view_range/4))
-		ax.set_ylim(yViewCenter-(view_range/4), yViewCenter+(view_range/4))
-		ax.set_zlim(zViewCenter-(view_range/3), zViewCenter+(view_range/3))
+		
+		view_range = max(max(DeflectedNodeCoordArray[:,0])-min(DeflectedNodeCoordArray[:,0]), 
+							max(DeflectedNodeCoordArray[:,1])-min(DeflectedNodeCoordArray[:,1]), 
+							max(DeflectedNodeCoordArray[:,2])-min(DeflectedNodeCoordArray[:,2]))
+
+		ax.set_xlim(xViewCenter-(view_range/3), xViewCenter+(view_range/3))
+		ax.set_ylim(yViewCenter-(view_range/3), yViewCenter+(view_range/3))
+		ax.set_zlim(zViewCenter-(view_range/4), zViewCenter+(view_range/3))
 		ax.text2D(0.10, 0.95, "Mode "+str(modeNumber), transform=ax.transAxes)
 		ax.text2D(0.10, 0.90, "T = "+str("%.3f" % Tn)+" s", transform=ax.transAxes)
 			
@@ -501,7 +573,6 @@ def plot_modeshape(*argv):
 	plt.show()
 
 	wipeAnalysis()
-
 
 def recordNodeDisp(filename = 'nodeDisp.txt'):
 	# This function is meant to be run before an analysis and saves the displacements of all nodes into filename. 
@@ -511,7 +582,6 @@ def recordNodeDisp(filename = 'nodeDisp.txt'):
 		dofList = [1, 2]
 	if len(nodeCoord(nodeList[0])) == 3:
 		dofList = [1, 2, 3]
-	# recorder('Node', '-file', filename, '–time', '–node', *nodeList, '-dof', *dofList, 'disp')
 	recorder('Node', '-file', filename, '-time', '-closeOnWrite', '–node', *nodeList, '-dof', *dofList, 'disp')
 
 def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
@@ -519,6 +589,10 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 	# First column in filename is time. 
 	# tstep is the number of the step of the analysis to be ploted (starting from 1), 
 	# and scale is the scale factor for the deformed shape.
+	
+	overlap = "yes" 					# An option to select if overlap with original geometry.
+	show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
+	show_element_tags = 'no'
 
 	nodeList = getNodeTags()
 	eleList = getEleTags()
@@ -529,24 +603,10 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
   
 	if tstep == -1:
 		tstep = len(nodeDispArray)
-	ele_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
-	Disp_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
-	node_style = {'color':'black', 'marker':'.', 'linestyle':''} 
+		ele_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
+		Disp_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
+		node_style = {'color':'black', 'marker':'.', 'linestyle':''} 
 
-	def plotCubeSurf(NodeList):
-			# Define procedure to plot a 3D solid element
-			aNode = NodeList[0]
-			bNode = NodeList[1]
-			cNode = NodeList[2]
-			dNode = NodeList[3]
-			plt.plot((aNode[0], bNode[0], cNode[0], dNode[0], aNode[0]), 
-						(aNode[1], bNode[1], cNode[1], dNode[1], aNode[1]),
-						(aNode[2], bNode[2], cNode[2], dNode[2], aNode[2]), marker='', **ele_style)
-
-			ax.plot_surface(np.array([[aNode[0], dNode[0]], [bNode[0], cNode[0]]]), 
-							np.array([[aNode[1], dNode[1]], [bNode[1], cNode[1]]]), 
-							np.array([[aNode[2], dNode[2]], [bNode[2], cNode[2]]]), color='g', alpha=.5)
-#
 	# Check if the model is 2D or 3D
 	if len(nodeCoord(nodeList[0])) == 2:
 		print('2D model')
@@ -570,7 +630,9 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				x.append(iNode_final[0])  # list of x coordinates to define plot view area
 				y.append(iNode_final[1])	# list of y coordinates to define plot view area
 
-				plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),marker='', **ele_style)
+				if overlap == "yes":
+					plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),marker='', **ele_style)
+				
 				plt.plot((iNode_final[0], jNode_final[0]), 
 							(iNode_final[1], jNode_final[1]),marker='', **Disp_style)
 
@@ -590,10 +652,10 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				x.append(iNode_final[0])  # list of x coordinates to define plot view area
 				y.append(iNode_final[1])	# list of y coordinates to define plot view area
 
-				plt.plot((iNode[0], jNode[0], kNode[0]), (iNode[1], jNode[1], kNode[1]),marker='', **ele_style)
+				if overlap == "yes":
+					_plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
 
-				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0]), (iNode_final[1], jNode_final[1], kNode_final[1]),marker='', **Disp_style)
-				ax.fill([iNode_final[0], jNode_final[0], kNode_final[0]],[iNode_final[1], jNode_final[1], kNode_final[1]],"b", alpha=.6)
+				_plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
 
 			if len(Nodes) == 4:
 				# 2D Planer four-node shell elements
@@ -616,10 +678,11 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				x.append(iNode_final[0])  # list of x coordinates to define plot view area
 				y.append(iNode_final[1])	# list of y coordinates to define plot view area
 
-				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0]), (iNode[1], jNode[1], kNode[1], lNode[1]),marker='', **ele_style)
-				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0]), (iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1]),marker='', **Disp_style)
-				ax.fill([iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0]],[iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1]],"b", alpha=.6)
-
+				if overlap == "yes":
+					_plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+				
+				_plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+	
 		nodeMins = np.array([min(x),min(y)])
 		nodeMaxs = np.array([max(x),max(y)])
 
@@ -654,10 +717,11 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				y.append(iNode_final[1])	# list of y coordinates to define plot view area
 				z.append(iNode_final[2])	# list of z coordinates to define plot view area
 
-				plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='', **ele_style)
-				plt.plot((iNode_final[0], jNode_final[0]), (iNode_final[1], jNode_final[1]),(iNode_final[2], jNode_final[2]), 
-					marker='', **Disp_style)
-
+				if overlap == "yes":
+					_plotBeam3D(iNode, jNode, ax, show_element_tags, element, "wire")
+				
+				_plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, element, "solid")
+				
 			if len(Nodes) == 4:
 				# 3D four-node Quad/shell element
 				iNode = nodeCoord(Nodes[0])
@@ -676,19 +740,11 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				kNode_final = [kNode[0]+ scale*kNode_Disp[0], kNode[1]+ scale*kNode_Disp[1], kNode[2]+ scale*kNode_Disp[2]]
 				lNode_final = [lNode[0]+ scale*lNode_Disp[0], lNode[1]+ scale*lNode_Disp[1], lNode[2]+ scale*lNode_Disp[2]]
 
-				plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
-							(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]),
-							(iNode[2], jNode[2], kNode[2], lNode[2], iNode[2]), marker='', **ele_style)
-  
-				plt.plot((iNode_final[0], jNode_final[0], kNode_final[0], lNode_final[0], iNode_final[0]), 
-							(iNode_final[1], jNode_final[1], kNode_final[1], lNode_final[1], iNode_final[1]),
-							(iNode_final[2], jNode_final[2], kNode_final[2], lNode_final[2], iNode_final[2]), 
-								marker='', **Disp_style)
-				# Plot surfaces on the mode shape
-				ax.plot_surface(np.array([[iNode_final[0], lNode_final[0]], [jNode_final[0], kNode_final[0]]]), 
-								np.array([[iNode_final[1], lNode_final[1]], [jNode_final[1], kNode_final[1]]]), 
-								np.array([[iNode_final[2], lNode_final[2]], [jNode_final[2], kNode_final[2]]]), 
-									color='g', alpha=.6)
+				if overlap == "yes":
+					_plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+					
+				_plotQuad3D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+
 
 			if len(Nodes) == 8:
 				# 3D eight-node Brick element
@@ -721,13 +777,12 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				kkNode_final = [kkNode[0]+ scale*kkNode_Disp[0], kkNode[1]+ scale*kkNode_Disp[1], kkNode[2]+ scale*kkNode_Disp[2]]
 				llNode_final = [llNode[0]+ scale*llNode_Disp[0], llNode[1]+ scale*llNode_Disp[1], llNode[2]+ scale*llNode_Disp[2]]
 
-				plotCubeSurf([iNode_final, jNode_final, kNode_final, lNode_final])
-				plotCubeSurf([iNode_final, jNode_final, jjNode_final, iiNode_final])
-				plotCubeSurf([iiNode_final, jjNode_final, kkNode_final, llNode_final])
-				plotCubeSurf([lNode_final, kNode_final, kkNode_final, llNode_final])
-				plotCubeSurf([jNode_final, kNode_final, kkNode_final, jjNode_final])
-				plotCubeSurf([iNode_final, lNode_final, llNode_final, iiNode_final])
+				if overlap == "yes":
+					_plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, "wire", fillSurface='no') # plot undeformed shape
 
+				_plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
+								ax, show_element_tags, element, "solid", fillSurface='yes')
+								
 		nodeMins = np.array([min(x),min(y),min(z)])
 		nodeMaxs = np.array([max(x),max(y),max(z)])
 		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
