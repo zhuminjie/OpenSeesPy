@@ -14,8 +14,8 @@
 ## You can download more examples from https://github.com/u-anurag						##
 ##########################################################################################
 
-# Check if the script is executed on Jupyter Notebook Ipython. If yes, force inline, interactive ...
-# ... backend for Matplotlib.
+# Check if the script is executed on Jupyter Notebook Ipython. 
+# If yes, force inline, interactive backend for Matplotlib.
 import sys
 import matplotlib
 
@@ -33,6 +33,67 @@ from math import asin, sqrt
 
 from openseespy.opensees import *
 
+def createODB(*argv):
+	
+	"""
+	This function creates a directory to save all the output data.
+	Expected input arguments : modelName, loadCase, Selective output quantities in future
+	Created folders: modelOutputFolder > loadCaseOutputFolder
+	For example: createODB(TwoSpanBridge, Pushover)
+	
+	The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
+	of elastic and nonlienar elements, we need to create a method distinguish. 
+	
+	First record all the output data and then read it instantly for plotting.
+	"""
+	
+	ModelName = argv[0]
+	LoadCaseName = argv[1]
+	
+	ODBdir = ModelName+"_ODB"		# ODB Dir name
+	LoadCaseDir = os.path.join(ODBdir,LoadCaseName)
+
+	if not os.path.exists(LoadCaseDir):
+		os.makedirs(LoadCaseDir)
+		# Creates the ODB folder if does not exist. OpenSees will overwrite the existing output data.
+	
+	if len(argv) != 2:
+		print("Incorrect command, provide ModelName and LoadCaseName.")
+	else:
+		pass
+	
+	nodeList = getNodeTags()
+	eleList = getEleTags()
+	
+	if len(nodeCoord(nodeList[0])) == 2:
+		dofList = [1, 2]
+	if len(nodeCoord(nodeList[0])) == 3:
+		dofList = [1, 2, 3]
+			
+	# Define standard outout filenames
+	
+	NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
+	EleForceFile = os.path.join(LoadCaseDir,"EleForce_All.out")
+	ReactionFile = os.path.join(LoadCaseDir,"Reaction_All.out")
+	EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
+	EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
+	EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
+	ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
+	EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
+	
+	# Save recorders in the ODB folder
+
+	recorder('Node', '-file', NodeDispFile, '-closeOnWrite', '-node', *nodeList, '-dof',*dofList, 'disp')
+	recorder('Node', '-file', ReactionFile, '-closeOnWrite', '-node', *nodeList, '-dof',*dofList, 'reaction')
+	recorder('Element', '-file', EleForceFile, '-closeOnWrite', '-ele', *eleList, '-dof',*dofList, 'localForce')   
+	recorder('Element', '-file', EleBasicDefFile, '-closeOnWrite', '-ele', *eleList, '-dof',*dofList, 'basicDeformation')   
+	recorder('Element', '-file', ElePlasticDefFile, '-closeOnWrite', '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')   
+	recorder('Element','-file', EleStressFile, '-closeOnWrite','-ele', *eleList,'stresses')
+	recorder('Element','-file', EleStrainFile, '-closeOnWrite','-ele', *eleList,'strains')
+	# recorder('Element', '-file', EleIntPointsFile, '-closeOnWrite', '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
+
+	# Add procedure to read data for plotting
+	
 ### All the plotting related definitions start here.
 
 ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
