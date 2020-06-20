@@ -1,4 +1,3 @@
-
 ##########################################################################################
 ## This script records the Nodes and Elements in order to render the OpenSees model.	##
 ## As of now, this procedure does not work for 9 and 20 node brick elements, and 		##
@@ -17,6 +16,7 @@
 # Check if the script is executed on Jupyter Notebook Ipython. 
 # If yes, force inline, interactive backend for Matplotlib.
 import sys
+import os
 import matplotlib
 
 for line in range(0,len(sys.argv)):
@@ -30,6 +30,10 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
 from math import asin, sqrt
+
+#### CHANGE THESE BEFORE COMMITTING, call them before calling openseespy here ####
+import internal_database_functions as idbf
+import internal_plotting_functions as ipltf
 
 from openseespy.opensees import *
 
@@ -69,7 +73,11 @@ def createODB(*argv):
 		dofList = [1, 2]
 	if len(nodeCoord(nodeList[0])) == 3:
 		dofList = [1, 2, 3]
-			
+	
+	# Save node and element data in the main Output folder
+	idbf.saveNodesandElements(ODBdir)
+	
+	
 	# Define standard outout filenames
 	
 	NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
@@ -103,122 +111,6 @@ ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'}
 
 WireEle_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
 Eig_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
-
-def _plotCubeSurf(NodeList,ax,fillSurface,eleStyle):
-			## This procedure is called by the plotCubeVol() command
-			aNode = NodeList[0]
-			bNode = NodeList[1]
-			cNode = NodeList[2]
-			dNode = NodeList[3]
-			
-			## Use arrays for less memory and fast code
-			
-			surfXarray = np.array([[aNode[0], dNode[0]], [bNode[0], cNode[0]]])
-			surfYarray = np.array([[aNode[1], dNode[1]], [bNode[1], cNode[1]]])
-			surfZarray = np.array([[aNode[2], dNode[2]], [bNode[2], cNode[2]]])
-				
-			if fillSurface == 'yes':
-				ax.plot_surface(surfXarray, surfYarray, surfZarray, edgecolor='k', color='g', alpha=.5)
-			
-			del aNode, bNode, cNode, dNode, surfXarray, surfYarray, surfZarray
-
-
-def _plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, eleStyle, fillSurface):
-	## procedure to render a cubic element, use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
-	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
-	
-	_plotCubeSurf([iNode, jNode, kNode, lNode],ax,fillSurface,eleStyle)
-	_plotCubeSurf([iNode, jNode, jjNode, iiNode],ax,fillSurface,eleStyle)
-	_plotCubeSurf([iiNode, jjNode, kkNode, llNode],ax,fillSurface,eleStyle)
-	_plotCubeSurf([lNode, kNode, kkNode, llNode],ax,fillSurface,eleStyle)
-	_plotCubeSurf([jNode, kNode, kkNode, jjNode],ax,fillSurface,eleStyle)
-	_plotCubeSurf([iNode, lNode, llNode, iiNode],ax,fillSurface,eleStyle)
-
-	if show_element_tags == 'yes':
-		ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0]+iiNode[0]+jjNode[0]+kkNode[0]+llNode[0])/8, 
-				(iNode[1]+jNode[1]+kNode[1]+lNode[1]+iiNode[1]+jjNode[1]+kkNode[1]+llNode[1])/8, 
-				(iNode[2]+jNode[2]+kNode[2]+lNode[2]+iiNode[2]+jjNode[2]+kkNode[2]+llNode[2])/8, 
-				str(element), **ele_text_style) #label elements
-
-
-def _plotTri2D(iNode, jNode, kNode, ax, show_element_tags, element, eleStyle, fillSurface):
-	## procedure to render a 2D three node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
-	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
-							
-	P=plt.plot((iNode[0], jNode[0], kNode[0]), 
-			(iNode[1], jNode[1], kNode[1]), marker='')
-			
-	if eleStyle == "wire":
-		plt.setp(P,**WireEle_style)
-	else:
-		plt.setp(P,**ele_style)
-	
-	if fillSurface == 'yes':
-		ax.plot_surface(np.array([iNode[0], jNode[0], kNode[0]]), 
-						np.array([iNode[1], jNode[1], kNode[1]]), color='g', alpha=.6)
-
-	if show_element_tags == 'yes':
-		ax.text((iNode[0]+jNode[0]+kNode[0])*1.0/4, (iNode[1]+jNode[1]+kNode[1])*1.0/4, 
-				str(element), **ele_text_style) #label elements
-
-
-def _plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleStyle, fillSurface):
-	## procedure to render a 2D four node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
-	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
-	
-	P=plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
-			(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]), marker='')
-			
-	if eleStyle == "wire":
-		plt.setp(P,**WireEle_style)
-	else:
-		plt.setp(P,**ele_style)
-	
-	if fillSurface == 'yes':
-		ax.fill(np.array([iNode[0], jNode[0], kNode[0], lNode[0]]), 
-						np.array([iNode[1], jNode[1], kNode[1], lNode[1]]), color='g', alpha=.6)
-
-	if show_element_tags == 'yes':
-		ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0])*1.0/4, (iNode[1]+jNode[1]+kNode[1]+lNode[1])*1.0/4, 
-				str(element), **ele_text_style) #label elements
-
-
-def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleStyle, fillSurface):
-	## procedure to render a 3D four node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
-	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
-	
-	P=plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
-			(iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]),
-			(iNode[2], jNode[2], kNode[2], lNode[2], iNode[2]), marker='')
-			
-	if eleStyle == "wire":
-		plt.setp(P,**WireEle_style)
-	else:
-		plt.setp(P,**ele_style)
-	
-	if fillSurface == 'yes':
-		ax.plot_surface(np.array([[iNode[0], lNode[0]], [jNode[0], kNode[0]]]), 
-						np.array([[iNode[1], lNode[1]], [jNode[1], kNode[1]]]), 
-						np.array([[iNode[2], lNode[2]], [jNode[2], kNode[2]]]), color='g', alpha=.6)
-
-	if show_element_tags == 'yes':
-		ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0])*1.05/4, (iNode[1]+jNode[1]+kNode[1]+lNode[1])*1.05/4, 
-				(iNode[2]+jNode[2]+kNode[2]+lNode[2])*1.05/4, str(element), **ele_text_style) #label elements
-
-
-def _plotBeam3D(iNode, jNode, ax, show_element_tags, element, eleStyle):
-	##
-	P=plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='')
-	
-	if eleStyle == "wire":
-		plt.setp(P,**WireEle_style)
-	else:
-		plt.setp(P,**ele_style)
-	
-	if show_element_tags == 'yes':
-		ax.text((iNode[0]+jNode[0])/2, (iNode[1]+jNode[1])*1.02/2, 
-				(iNode[2]+jNode[2])*1.02/2, str(element), **ele_text_style) #label elements
-
 
 def plot_model(*argv):
 
@@ -296,7 +188,7 @@ def plot_model(*argv):
 				jNode = nodeCoord(Nodes[1])
 				kNode = nodeCoord(Nodes[2])
 				
-				_plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
+				ipltf._plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
 						
 			if len(Nodes) == 4:
 				# 2D Planer four-node shell elements
@@ -305,7 +197,7 @@ def plot_model(*argv):
 				kNode = nodeCoord(Nodes[2])
 				lNode = nodeCoord(Nodes[3])
 				
-				_plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
+				ipltf._plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
 
 			
 		if show_node_tags == 'yes':
@@ -347,7 +239,7 @@ def plot_model(*argv):
 				iNode = nodeCoord(Nodes[0])
 				jNode = nodeCoord(Nodes[1])
 				
-				_plotBeam3D(iNode, jNode, ax, show_element_tags, element, "solid")
+				ipltf._plotBeam3D(iNode, jNode, ax, show_element_tags, element, "solid")
 								
 			if len(Nodes) == 4:
 				# 3D four-node Quad/shell element
@@ -356,7 +248,7 @@ def plot_model(*argv):
 				kNode = nodeCoord(Nodes[2])
 				lNode = nodeCoord(Nodes[3])
 				
-				_plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
+				ipltf._plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, ele_style, fillSurface='yes')
 			
 			if len(Nodes) == 8:
 				# 3D eight-node Brick element
@@ -370,7 +262,7 @@ def plot_model(*argv):
 				kkNode = nodeCoord(Nodes[6])
 				llNode = nodeCoord(Nodes[7])
 				
-				_plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, 'solid', fillSurface='yes')
+				ipltf._plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, 'solid', fillSurface='yes')
 							
 		if show_node_tags == 'yes':
 			for node in nodeList:
@@ -478,9 +370,9 @@ def plot_modeshape(*argv):
 				kNode_final = [kNode[0]+ scale*kNode_Eig[0], kNode[1]+ scale*kNode_Eig[1]]
 				
 				if overlap == "yes":
-					_plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+					ipltf._plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
 				
-				_plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+				ipltf._plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
 
 						
 			if len(Nodes) == 4:
@@ -501,9 +393,9 @@ def plot_modeshape(*argv):
 				lNode_final = [lNode[0]+ scale*lNode_Eig[0], lNode[1]+ scale*lNode_Eig[1]]
 				
 				if overlap == "yes":
-					_plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+					ipltf._plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
 				
-				_plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+				ipltf._plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
 	
 		
 		nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1])])
@@ -548,9 +440,9 @@ def plot_modeshape(*argv):
 				jNode_final = [jNode[0]+ scale*jNode_Eig[0], jNode[1]+ scale*jNode_Eig[1], jNode[2]+ scale*jNode_Eig[2]]
 				
 				if overlap == "yes":
-					_plotBeam3D(iNode, jNode, ax, show_element_tags, element, "wire")
+					ipltf._plotBeam3D(iNode, jNode, ax, show_element_tags, element, "wire")
 				
-				_plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, element, "solid")
+				ipltf._plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, element, "solid")
 				
 			if len(Nodes) == 4:
 				## 3D four-node Quad/shell element
@@ -570,9 +462,9 @@ def plot_modeshape(*argv):
 				lNode_final = [lNode[0]+ scale*lNode_Eig[0], lNode[1]+ scale*lNode_Eig[1], lNode[2]+ scale*lNode_Eig[2]]
 				
 				if overlap == "yes":
-					_plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+					ipltf._plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
 					
-				_plotQuad3D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+				ipltf._plotQuad3D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
 
 						
 			if len(Nodes) == 8:
@@ -607,9 +499,9 @@ def plot_modeshape(*argv):
 				llNode_final = [llNode[0]+ scale*llNode_Eig[0], llNode[1]+ scale*llNode_Eig[1], llNode[2]+ scale*llNode_Eig[2]]
 				
 				if overlap == "yes":
-					_plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, "wire", fillSurface='no') # plot undeformed shape
+					ipltf._plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, "wire", fillSurface='no') # plot undeformed shape
 
-				_plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
+				ipltf._plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
 								ax, show_element_tags, element, "solid", fillSurface='yes')
 								
 
@@ -714,9 +606,9 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				y.append(iNode_final[1])	# list of y coordinates to define plot view area
 
 				if overlap == "yes":
-					_plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+					ipltf._plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
 
-				_plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+				ipltf._plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
 
 			if len(Nodes) == 4:
 				# 2D Planer four-node shell elements
@@ -740,9 +632,9 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				y.append(iNode_final[1])	# list of y coordinates to define plot view area
 
 				if overlap == "yes":
-					_plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+					ipltf._plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
 				
-				_plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+				ipltf._plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
 	
 		nodeMins = np.array([min(x),min(y)])
 		nodeMaxs = np.array([max(x),max(y)])
@@ -779,9 +671,9 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				z.append(iNode_final[2])	# list of z coordinates to define plot view area
 
 				if overlap == "yes":
-					_plotBeam3D(iNode, jNode, ax, show_element_tags, element, "wire")
+					ipltf._plotBeam3D(iNode, jNode, ax, show_element_tags, element, "wire")
 				
-				_plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, element, "solid")
+				ipltf._plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, element, "solid")
 				
 			if len(Nodes) == 4:
 				# 3D four-node Quad/shell element
@@ -802,9 +694,9 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				lNode_final = [lNode[0]+ scale*lNode_Disp[0], lNode[1]+ scale*lNode_Disp[1], lNode[2]+ scale*lNode_Disp[2]]
 
 				if overlap == "yes":
-					_plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
+					ipltf._plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
 					
-				_plotQuad3D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
+				ipltf._plotQuad3D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
 
 
 			if len(Nodes) == 8:
@@ -839,9 +731,9 @@ def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
 				llNode_final = [llNode[0]+ scale*llNode_Disp[0], llNode[1]+ scale*llNode_Disp[1], llNode[2]+ scale*llNode_Disp[2]]
 
 				if overlap == "yes":
-					_plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, "wire", fillSurface='no') # plot undeformed shape
+					ipltf._plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, "wire", fillSurface='no') # plot undeformed shape
 
-				_plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
+				ipltf._plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
 								ax, show_element_tags, element, "solid", fillSurface='yes')
 								
 		nodeMins = np.array([min(x),min(y),min(z)])
