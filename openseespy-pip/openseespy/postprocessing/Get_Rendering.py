@@ -45,6 +45,9 @@ def createODB(*argv):
 	Created folders: modelOutputFolder > loadCaseOutputFolder
 	For example: createODB(TwoSpanBridge, Pushover)
 	
+	Not using '-closeOnWrite' options since it slows down the analysis time significantly. User to issue wipe()
+	command after each analysis in order to force the recorders to finish and close.
+	
 	The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
 	of elastic and nonlienar elements, we need to create a method distinguish. 
 	
@@ -91,14 +94,14 @@ def createODB(*argv):
 	
 	# Save recorders in the ODB folder
 
-	recorder('Node', '-file', NodeDispFile, '-closeOnWrite', '-node', *nodeList, '-dof',*dofList, 'disp')
-	recorder('Node', '-file', ReactionFile, '-closeOnWrite', '-node', *nodeList, '-dof',*dofList, 'reaction')
-	recorder('Element', '-file', EleForceFile, '-closeOnWrite', '-ele', *eleList, '-dof',*dofList, 'localForce')   
-	recorder('Element', '-file', EleBasicDefFile, '-closeOnWrite', '-ele', *eleList, '-dof',*dofList, 'basicDeformation')   
-	recorder('Element', '-file', ElePlasticDefFile, '-closeOnWrite', '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')   
-	recorder('Element','-file', EleStressFile, '-closeOnWrite','-ele', *eleList,'stresses')
-	recorder('Element','-file', EleStrainFile, '-closeOnWrite','-ele', *eleList,'strains')
-	# recorder('Element', '-file', EleIntPointsFile, '-closeOnWrite', '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
+	recorder('Node', '-file', NodeDispFile, '-node', *nodeList, '-dof',*dofList, 'disp')
+	recorder('Node', '-file', ReactionFile, '-node', *nodeList, '-dof',*dofList, 'reaction')
+	recorder('Element', '-file', EleForceFile, '-ele', *eleList, '-dof',*dofList, 'localForce')   
+	recorder('Element', '-file', EleBasicDefFile, '-ele', *eleList, '-dof',*dofList, 'basicDeformation')   
+	recorder('Element', '-file', ElePlasticDefFile, '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')   
+	recorder('Element','-file', EleStressFile, '-ele', *eleList,'stresses')
+	recorder('Element','-file', EleStrainFile, '-ele', *eleList,'strains')
+	# recorder('Element', '-file', EleIntPointsFile, '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
 
 	# Add procedure to read data for plotting
 	
