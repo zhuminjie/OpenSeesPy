@@ -78,7 +78,7 @@ def createODB(*argv):
 		dofList = [1, 2, 3]
 	
 	# Save node and element data in the main Output folder
-	idbf.saveNodesandElements(ODBdir)
+	idbf._saveNodesandElements(ModelName)
 	
 	
 	# Define standard outout filenames
@@ -104,7 +104,63 @@ def createODB(*argv):
 	# recorder('Element', '-file', EleIntPointsFile, '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
 
 	# Add procedure to read data for plotting
+
+
+def readODB(*argv):
 	
+    """
+    This function reads saved data from a directory.
+    Expected input arguments : modelName, loadCase, Selective output quantities in future
+    Created folders: modelOutputFolder > loadCaseOutputFolder
+    For example: createODB(TwoSpanBridge, Pushover)
+    	
+    The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
+    of elastic and nonlienar elements, we need to create a method distinguish. 
+    
+    First record all the output data and then read it instantly for plotting.
+	"""
+    
+    ModelName = argv[0]
+    LoadCaseName = argv[1]
+	
+    ODBdir = ModelName+"_ODB"		# ODB Dir name
+    LoadCaseDir = os.path.join(ODBdir, LoadCaseName)
+
+    if not os.path.exists(LoadCaseDir):
+        print("No database found")
+	
+    if len(argv) != 2:
+        print("Incorrect command, provide ModelName and LoadCaseName.")
+    else:
+        pass
+	
+	# Read node and element data in the main Output folder
+    nodes, elements = idbf._readNodesandElements(ModelName)
+	
+	
+    # Define standard outout filenames
+    NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
+    EleForceFile = os.path.join(LoadCaseDir,"EleForce_All.out")
+    ReactionFile = os.path.join(LoadCaseDir,"Reaction_All.out")
+    EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
+    EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
+    EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
+    ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
+    EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
+	
+	# Read recorders in the ODB folder
+    NodeDisp = np.loadtxt(NodeDispFile,delimiter=' ')
+    EleForce = np.loadtxt(EleForceFile,delimiter=' ')   
+    Reaction = np.loadtxt(ReactionFile,delimiter=' ')
+    # EleStress = np.loadtxt(EleStressFile,delimiter=' ')
+    # EleStrain = np.loadtxt(EleStrainFile,delimiter=' ')   
+    # EleBasicDef = np.loadtxt(EleBasicDefFile,delimiter=' ')
+    # ElePlasticDef = np.loadtxt(ElePlasticDefFile,delimiter=' ')
+
+    return nodes, elements, NodeDisp, Reaction, EleForce
+
+
+
 ### All the plotting related definitions start here.
 
 ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements

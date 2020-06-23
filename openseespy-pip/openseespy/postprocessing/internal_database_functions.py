@@ -57,7 +57,7 @@ def getNodesandElements():
     
     return nodes, elements
 
-def saveNodesandElements(*argv):
+def _saveNodesandElements(ModelName):
     """   
     This file saves the node and element information for the structure. 
     For each node information is saved in the following format:
@@ -83,26 +83,17 @@ def saveNodesandElements(*argv):
     
 
     # Consider making these optional arguements
-    nodeName = 'Nodes', 
-    eleName = 'Elements', 
-    delim = ',', 
-    fmt = '%.5e', 
+    nodeName = 'Nodes'
+    eleName = 'Elements'
+    delim = ' '
+    fmt = '%.5e'
     ftype = '.out'
     
-    if len(argv) != 2:
-        print("Incorrect command, provide ModelName and LoadCaseName.")
-    else:
-        pass      
-    
-    ModelName = argv[0]
-    LoadCaseName = argv[1]
-	
     ODBdir = ModelName+"_ODB"		# ODB Dir name
-    LoadCaseDir = os.path.join(ODBdir,LoadCaseName)
     
     # Creates the ODB folder if does not exist. OpenSees will overwrite the existing output data.
-    if not os.path.exists(LoadCaseDir):
-        os.makedirs(LoadCaseDir)
+    if not os.path.exists(ODBdir):
+        os.makedirs(ODBdir)
         
     # Read noades and elements
     nodes, elements = getNodesandElements()
@@ -114,12 +105,12 @@ def saveNodesandElements(*argv):
     ele8Node = np.array([ele for ele in elements if len(ele) == 9])
 
     
-    nodeFile = os.path.join(LoadCaseDir, nodeName + ftype)
+    nodeFile = os.path.join(ODBdir, nodeName + ftype)
     
-    ele2File = os.path.join(LoadCaseDir, eleName + "_2Node" + ftype)
-    ele3File = os.path.join(LoadCaseDir, eleName + "_3Node" + ftype)
-    ele4File = os.path.join(LoadCaseDir, eleName + "_4Node"  + ftype)
-    ele8File = os.path.join(LoadCaseDir, eleName + "_8Node"  + ftype)
+    ele2File = os.path.join(ODBdir, eleName + "_2Node" + ftype)
+    ele3File = os.path.join(ODBdir, eleName + "_3Node" + ftype)
+    ele4File = os.path.join(ODBdir, eleName + "_4Node"  + ftype)
+    ele8File = os.path.join(ODBdir, eleName + "_8Node"  + ftype)
 
     # SaveNodes
     np.savetxt(nodeFile, nodes, delimiter = delim, fmt = fmt)
@@ -129,8 +120,15 @@ def saveNodesandElements(*argv):
     np.savetxt(ele3File, ele3Node, delimiter = delim, fmt = fmt)
     np.savetxt(ele4File, ele4Node, delimiter = delim, fmt = fmt)
     np.savetxt(ele8File, ele8Node, delimiter = delim, fmt = fmt)
+
+
+
+
+
+
+
     
-def readNodesandElements(*argv):
+def _readNodesandElements(ModelName):
     """   
     This function reads input node/element information, assuming it is in the 
     standard format. 
@@ -161,39 +159,29 @@ def readNodesandElements(*argv):
     """
 
     # Consider making these optional arguements
-    nodeName = 'Nodes', 
-    eleName = 'Elements', 
-    delim = ',', 
+    nodeName = 'Nodes'
+    eleName = 'Elements'
+    delim = ' '
     dtype ='float32' 
     ftype = '.out'
-    
-    if len(argv) != 2:
-        print("Incorrect command, provide ModelName and LoadCaseName.")
-    else:
-        pass      
-    
-    ModelName = argv[0]
-    LoadCaseName = argv[1]
-	
+        
     ODBdir = ModelName+"_ODB"		# ODB Dir name
-    LoadCaseDir = os.path.join(ODBdir,LoadCaseName)
     
-    # Creates the ODB folder if does not exist. OpenSees will overwrite the existing output data.
-    if not os.path.exists(LoadCaseDir):
-        os.makedirs(LoadCaseDir)
+    # Check if output database exists
+    if not os.path.exists(ODBdir):
+        print('No directory found for nodes and elements')
         
     # Generate the file names
-    nodeFile = os.path.join(LoadCaseDir, nodeName + ftype)
-    ele2File = os.path.join(LoadCaseDir, eleName + "_2Node" + ftype)
-    ele3File = os.path.join(LoadCaseDir, eleName + "_3Node" + ftype)
-    ele4File = os.path.join(LoadCaseDir, eleName + "_4Node"  + ftype)
-    ele8File = os.path.join(LoadCaseDir, eleName + "_8Node"  + ftype)     
+    nodeFile = os.path.join(ODBdir, nodeName + ftype)
+    ele2File = os.path.join(ODBdir, eleName + "_2Node" + ftype)
+    ele3File = os.path.join(ODBdir, eleName + "_3Node" + ftype)
+    ele4File = os.path.join(ODBdir, eleName + "_4Node"  + ftype)
+    ele8File = os.path.join(ODBdir, eleName + "_8Node"  + ftype)     
        
     eleFileNames = [ele2File, ele3File, ele4File, ele8File]    
     
     # Load Node information
     nodes = np.loadtxt(nodeFile, dtype, delimiter = delim)
-    
     
     # Populate an array with the input element information
     TempEle = [[]]*4
