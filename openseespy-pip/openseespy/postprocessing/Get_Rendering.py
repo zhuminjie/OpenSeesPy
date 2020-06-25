@@ -44,6 +44,7 @@ def createODB(*argv):
 	Expected input arguments : modelName, loadCase, Selective output quantities in future
 	Created folders: modelOutputFolder > loadCaseOutputFolder
 	For example: createODB(TwoSpanBridge, Pushover)
+	If only one input argument is provided, no load case data is saved.
 	
 	Not using '-closeOnWrite' options since it slows down the analysis time significantly. User to issue wipe()
 	command after each analysis in order to force the recorders to finish and close.
@@ -55,20 +56,10 @@ def createODB(*argv):
 	"""
 	
 	ModelName = argv[0]
-	LoadCaseName = argv[1]
-	
 	ODBdir = ModelName+"_ODB"		# ODB Dir name
-	LoadCaseDir = os.path.join(ODBdir,LoadCaseName)
+	if not os.path.exists(ODBdir):
+			os.makedirs(ODBdir)
 
-	if not os.path.exists(LoadCaseDir):
-		os.makedirs(LoadCaseDir)
-		# Creates the ODB folder if does not exist. OpenSees will overwrite the existing output data.
-	
-	if len(argv) != 2:
-		print("Incorrect command, provide ModelName and LoadCaseName.")
-	else:
-		pass
-	
 	nodeList = getNodeTags()
 	eleList = getEleTags()
 	
@@ -80,85 +71,91 @@ def createODB(*argv):
 	# Save node and element data in the main Output folder
 	idbf._saveNodesandElements(ModelName)
 	
-	
 	# Define standard outout filenames
-	
-	NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
-	EleForceFile = os.path.join(LoadCaseDir,"EleForce_All.out")
-	ReactionFile = os.path.join(LoadCaseDir,"Reaction_All.out")
-	EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
-	EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
-	EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
-	ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
-	EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
-	
-	# Save recorders in the ODB folder
+	if len(argv)>=2:
+		LoadCaseName = argv[1]
+		LoadCaseDir = os.path.join(ODBdir,LoadCaseName)
 
-	recorder('Node', '-file', NodeDispFile, '-node', *nodeList, '-dof',*dofList, 'disp')
-	recorder('Node', '-file', ReactionFile, '-node', *nodeList, '-dof',*dofList, 'reaction')
-	recorder('Element', '-file', EleForceFile, '-ele', *eleList, '-dof',*dofList, 'localForce')   
-	recorder('Element', '-file', EleBasicDefFile, '-ele', *eleList, '-dof',*dofList, 'basicDeformation')   
-	recorder('Element', '-file', ElePlasticDefFile, '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')   
-	recorder('Element','-file', EleStressFile, '-ele', *eleList,'stresses')
-	recorder('Element','-file', EleStrainFile, '-ele', *eleList,'strains')
-	# recorder('Element', '-file', EleIntPointsFile, '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
+		if not os.path.exists(LoadCaseDir):
+			os.makedirs(LoadCaseDir)
+			
+		NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
+		EleForceFile = os.path.join(LoadCaseDir,"EleForce_All.out")
+		ReactionFile = os.path.join(LoadCaseDir,"Reaction_All.out")
+		EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
+		EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
+		EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
+		ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
+		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
+		
+		# Save recorders in the ODB folder
 
-	# Add procedure to read data for plotting
+		recorder('Node', '-file', NodeDispFile, '-node', *nodeList, '-dof',*dofList, 'disp')
+		recorder('Node', '-file', ReactionFile, '-node', *nodeList, '-dof',*dofList, 'reaction')
+		recorder('Element', '-file', EleForceFile, '-ele', *eleList, '-dof',*dofList, 'localForce')   
+		recorder('Element', '-file', EleBasicDefFile, '-ele', *eleList, '-dof',*dofList, 'basicDeformation')   
+		recorder('Element', '-file', ElePlasticDefFile, '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')   
+		recorder('Element','-file', EleStressFile, '-ele', *eleList,'stresses')
+		recorder('Element','-file', EleStrainFile, '-ele', *eleList,'strains')
+		# recorder('Element', '-file', EleIntPointsFile, '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
+		
+	else:
+		print("Insufficient arguments: ModelName and LoadCaseName are required.")
+		print("Output from any loadCase will not be saved")
+		
 
 
 def readODB(*argv):
 	
     """
-    This function reads saved data from a directory.
-    Expected input arguments : modelName, loadCase, Selective output quantities in future
-    Created folders: modelOutputFolder > loadCaseOutputFolder
-    For example: createODB(TwoSpanBridge, Pushover)
-    	
-    The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
-    of elastic and nonlienar elements, we need to create a method distinguish. 
+	This function reads saved data from a directory.
+	Expected input arguments : modelName, loadCase, Selective output quantities in future
+	Created folders: modelOutputFolder > loadCaseOutputFolder
+	For example: createODB(TwoSpanBridge, Pushover)
+    If only one input argument is provided, no load case data is read.
+	
+	The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
+	of elastic and nonlienar elements, we need to create a method distinguish. 
     
-    First record all the output data and then read it instantly for plotting.
+	First record all the output data and then read it instantly for plotting.
 	"""
     
-    ModelName = argv[0]
-    LoadCaseName = argv[1]
-	
-    ODBdir = ModelName+"_ODB"		# ODB Dir name
-    LoadCaseDir = os.path.join(ODBdir, LoadCaseName)
+	ModelName = argv[0]
+	ODBdir = ModelName+"_ODB"		# ODB Dir name
 
-    if not os.path.exists(LoadCaseDir):
-        print("No database found")
-	
-    if len(argv) != 2:
-        print("Incorrect command, provide ModelName and LoadCaseName.")
-    else:
-        pass
-	
 	# Read node and element data in the main Output folder
-    nodes, elements = idbf._readNodesandElements(ModelName)
+	nodes, elements = idbf._readNodesandElements(ModelName)
 	
-	
-    # Define standard outout filenames
-    NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
-    EleForceFile = os.path.join(LoadCaseDir,"EleForce_All.out")
-    ReactionFile = os.path.join(LoadCaseDir,"Reaction_All.out")
-    EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
-    EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
-    EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
-    ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
-    EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
-	
-	# Read recorders in the ODB folder
-    NodeDisp = np.loadtxt(NodeDispFile,delimiter=' ')
-    EleForce = np.loadtxt(EleForceFile,delimiter=' ')   
-    Reaction = np.loadtxt(ReactionFile,delimiter=' ')
-    # EleStress = np.loadtxt(EleStressFile,delimiter=' ')
-    # EleStrain = np.loadtxt(EleStrainFile,delimiter=' ')   
-    # EleBasicDef = np.loadtxt(EleBasicDefFile,delimiter=' ')
-    # ElePlasticDef = np.loadtxt(ElePlasticDefFile,delimiter=' ')
+	if len(argv)>=2:
+		LoadCaseName = argv[1]
+		LoadCaseDir = os.path.join(ODBdir, LoadCaseName)
 
-    return nodes, elements, NodeDisp, Reaction, EleForce
-
+		if not os.path.exists(LoadCaseDir):
+			print("No database found")
+		
+		# Define standard outout filenames
+		NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
+		EleForceFile = os.path.join(LoadCaseDir,"EleForce_All.out")
+		ReactionFile = os.path.join(LoadCaseDir,"Reaction_All.out")
+		EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
+		EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
+		EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
+		ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
+		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
+		
+		# Read recorders in the ODB folder
+		# FUTURE: Gives warning if the files are empty. Create a procedure to check if files are empty.
+		NodeDisp = np.loadtxt(NodeDispFile,delimiter=' ')
+		EleForce = np.loadtxt(EleForceFile,delimiter=' ')   
+		Reaction = np.loadtxt(ReactionFile,delimiter=' ')
+		# EleStress = np.loadtxt(EleStressFile,delimiter=' ')
+		# EleStrain = np.loadtxt(EleStrainFile,delimiter=' ')   
+		# EleBasicDef = np.loadtxt(EleBasicDefFile,delimiter=' ')
+		# ElePlasticDef = np.loadtxt(ElePlasticDefFile,delimiter=' ')
+		return nodes, elements, NodeDisp, Reaction, EleForce
+	
+	else:
+		return nodes, elements
 
 
 ### All the plotting related definitions start here.
@@ -173,39 +170,18 @@ Eig_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
 
 def plot_model(*argv):
 
-	### Options to display node and element tags, The following procedure is to keep the backward compatibility.
-	if len(argv)== 1:
-		if argv[0]=="nodes" or argv[0]=="Nodes" or argv[0]=="node" or argv[0]=="Node":
-			show_node_tags = 'yes'
-			show_element_tags = 'no'
-		
-		elif argv[0]=="elements" or argv[0]=="Elements" or argv[0]=="element" or argv[0]=="Element":
-			show_node_tags = 'no'
-			show_element_tags = 'yes'
-		
-		else:
-			print("Incorrect arguments; correct arguments are plot_model(nodes,elements)")
-			print("Setting show node tags and element tags as default")
-			show_node_tags = 'no'
-			show_element_tags = 'no'
-		
-	elif len(argv)== 2:
-		if "nodes" or "Nodes" in argv:
-			show_node_tags = 'yes'
-		else:
-			pass
-			
-		if "elements" or "Elements" in argv:
-			show_element_tags = 'yes'
-		else:
-			pass
+	### Options to display node and element tags. Matplotlib rendering is faster when tags are not displayed.
 	
-	else:
-		print("Setting show node tags and element tags as default")
-		show_node_tags = 'no'
-		show_element_tags = 'no'
+	##  Default values
+	show_node_tags = 'no'
+	show_element_tags = 'no'
 	
-	
+	if len(argv)>0 and any(nodeArg in argv for nodeArg in ["nodes","Nodes","node","Node"]):
+		show_node_tags = 'yes'
+		
+	if len(argv)>0 and any(eleArg in argv for eleArg in ["elements", "Elements", "element", "Element"]):
+		show_element_tags = 'yes'
+		
 	nodeList = getNodeTags()
 	eleList = getEleTags()
 	offset = 0.05				# offset for text
