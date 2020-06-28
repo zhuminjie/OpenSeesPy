@@ -1,7 +1,6 @@
-
-
 import numpy as np
 import os
+import warnings
 import openseespy.opensees as ops
 
 
@@ -23,7 +22,6 @@ def getNodesandElements():
     elements : Array 
         An list of all elements in. Each entry in the list is it's own'
         [element1, element2,...],   element1 = [element#, node1, node2,...]
-
     """
    
     # Get nodes and elements
@@ -67,7 +65,6 @@ def _saveNodesandElements(ModelName):
     A different file is created for each type of element
     each possible element type.
         Elements: [EleID, eleNode1, eleNode2, ... , eleNodeN]
-
     Parameters
     ----------
     nodeName : str, optional
@@ -78,7 +75,6 @@ def _saveNodesandElements(ModelName):
         The delimeter for the output file. The default is ','.
     fmt : str, optional
         the format of the file to be saved in. The default is '%.5e'.
-
     """
     
 
@@ -90,11 +86,7 @@ def _saveNodesandElements(ModelName):
     ftype = '.out'
     
     ODBdir = ModelName+"_ODB"		# ODB Dir name
-    
-    # Creates the ODB folder if does not exist. OpenSees will overwrite the existing output data.
-    if not os.path.exists(ODBdir):
-        os.makedirs(ODBdir)
-        
+            
     # Read noades and elements
     nodes, elements = getNodesandElements()
 
@@ -122,17 +114,11 @@ def _saveNodesandElements(ModelName):
     np.savetxt(ele8File, ele8Node, delimiter = delim, fmt = fmt)
 
 
-
-
-
-
-
     
 def _readNodesandElements(ModelName):
     """   
     This function reads input node/element information, assuming it is in the 
     standard format. 
-
     If outputDir == False, the base directory will be used.    
     
     Parameters
@@ -146,7 +132,6 @@ def _readNodesandElements(ModelName):
         The delimiter for files to be read. The default is ','.
     dtype : TYPE, optional
         The data type to read in. The default is 'float32'.
-
     Returns
     -------
     nodes : Array
@@ -155,7 +140,6 @@ def _readNodesandElements(ModelName):
         An output Element vector in standard format.
         elements = [ele1, ele2,..., elen], 
         ele1 = [element, node 1, node 2, ... , node n]
-
     """
 
     # Consider making these optional arguements
@@ -180,16 +164,26 @@ def _readNodesandElements(ModelName):
        
     eleFileNames = [ele2File, ele3File, ele4File, ele8File]    
     
-    # Load Node information
-    nodes = np.loadtxt(nodeFile, dtype, delimiter = delim)
-    
+    ## Load Node information
+    try:
+        nodes = np.loadtxt(nodeFile, dtype, delimiter = delim, unpack=False)
+    except:
+        print("Reading Tcl output")
+        nodes = np.transpose(np.loadtxt(nodeFile, dtype=float, delimiter=None, converters=None, unpack=True))
+				    	
     # Populate an array with the input element information
     TempEle = [[]]*4
     
-    # Check if the file exists, read it if it does
+    # Check if the file exists, read it if it does. Ignore warnings if the files are empty
     for ii, FileName in enumerate(eleFileNames):
         if os.path.isfile(FileName):
-            TempEle[ii] = np.loadtxt(FileName, dtype,  delimiter = delim)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                try:
+                    TempEle[ii] = np.loadtxt(FileName, dtype,  delimiter = delim, unpack=False)
+                except:
+                    print("Reading Tcl element data")
+                    TempEle[ii] = np.transpose(np.loadtxt(FileName, dtype=float, delimiter=None, converters=None, unpack=True))
 
     # define the final element array
     elements = [*TempEle[0],*TempEle[1],*TempEle[2],*TempEle[3]]
@@ -199,3 +193,73 @@ def _readNodesandElements(ModelName):
         raise Exception('No files were found!')
 
     return nodes, elements
+	
+	
+################ ModeShapes #############################
+
+def getModeShapeData(modeNumber):
+	
+	# Get nodes and elements
+    nodeList = ops.getNodeTags()
+    
+    # Check Number of dimensions and intialize variables
+    ndm = len(ops.nodeCoord(nodeList[0]))
+    Nnodes = len(nodeList)
+    nodes_modeshape = np.zeros([Nnodes, ndm + 1])
+    
+    for ii, node in enumerate(nodeList):
+        nodes_modeshape[ii,0] = node
+        tempData = ops.nodeEigenvector(nodeList[ii], modeNumber)
+        nodes_modeshape[ii,1:] = tempData[0:ndm]
+
+    return nodes_modeshape
+	
+	
+def _saveModeShapeData(ModelName,modeNumber):
+    
+    nodes_modeshape = getModeShapeData(modeNumber)
+	
+	# Consider making these optional arguements
+    modeName = "ModeShape"
+    delim = ' '
+    fmt = '%.5e'
+    ftype = '.out'
+    
+    ODBdir = ModelName+"_ODB"		# ODB Dir name
+    ModeShapeDir = os.path.join(ODBdir,"ModeShapes")
+    modeFile = os.path.join(ModeShapeDir, modeName+str(modeNumber)+ftype)
+	
+	## ModeShapeDir is a default name
+    np.savetxt(modeFile, nodes_modeshape, delimiter = delim, fmt = fmt)    
+	
+	
+def _readModeShapeData(ModelName,modeNumber):
+
+    # Consider making these optional arguements
+    modeName = "ModeShape"
+    delim = ' '
+    fmt = '%.5e'
+    dtype ='float32'
+    ftype = '.out'
+        
+    ODBdir = ModelName+"_ODB"		# ODB Dir name
+    ModeShapeDir = os.path.join(ODBdir,"ModeShapes")
+	
+    # Check if output database exists
+    if not os.path.exists(ModeShapeDir):
+        print('Error: No directory found for modeshapes. Use recordODB() command to save modeshapes.')
+
+    modeFile = os.path.join(ModeShapeDir, modeName+str(modeNumber)+ftype)
+    modeTFile = os.path.join(ModeShapeDir, "ModalPeriods.out")
+    
+    ## Read modal period data to display
+    periods = np.loadtxt(modeTFile, dtype, delimiter = delim, unpack=False)
+	
+	## Load Node information
+    try:
+        nodes_modeshape = np.loadtxt(modeFile, dtype, delimiter = delim, unpack=False)
+    except:
+        print("Reading Tcl output")
+        nodes_modeshape = np.transpose(np.loadtxt(modeFile, dtype=float, delimiter=None, converters=None, unpack=True))
+
+    return nodes_modeshape, periods
