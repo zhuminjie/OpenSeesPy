@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
-node_style = {'color':'black', 'marker':'o', 'facecolor':'black'} 
+node_style = {'color':'black', 'marker':'o', 'facecolor':'black','linewidth':0.} 
 node_text_style = {'fontsize':6, 'fontweight':'regular', 'color':'green'} 
 ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'} 
 
@@ -76,7 +76,7 @@ def _plotTri2D(iNode, jNode, kNode, ax, show_element_tags, element, eleStyle, fi
     tempSurf = [None]
     tempTag = [None]
     
-    tempLines = plt.plot((iNode[0], jNode[0], kNode[0], iNode[0]), 
+    tempLines, = plt.plot((iNode[0], jNode[0], kNode[0], iNode[0]), 
                          (iNode[1], jNode[1], kNode[1], iNode[1]), marker='')
     
     # update style
@@ -99,7 +99,7 @@ def _plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleS
 	## procedure to render a 2D four node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
 	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
 	   
-    tempLines = plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
+    tempLines, = plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
                (iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]), marker='')
     
     # update style
@@ -126,7 +126,7 @@ def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleS
     # [iNode, jNode, kNode, lNode] = [*nodesCords]
     
     # Create Lines
-    tempLines = plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
+    tempLines, = plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
                          (iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]),
                          (iNode[2], jNode[2], kNode[2], lNode[2], iNode[2]), marker='')
 
@@ -152,7 +152,7 @@ def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleS
 def _plotBeam3D(iNode, jNode, ax, show_element_tags, element, eleStyle):
         
     ##
-    tempLines = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='')
+    tempLines, = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='')
     
     if eleStyle == "wire":
         plt.setp(tempLines,**WireEle_style)

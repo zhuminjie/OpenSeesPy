@@ -32,8 +32,8 @@ import numpy as np
 from math import asin, sqrt
 
 #### CHANGE THESE BEFORE COMMITTING, call them before calling openseespy here ####
-import internal_database_functions as idbf
-import internal_plotting_functions as ipltf
+import openseespy.postprocessing.internal_database_functions as idbf
+import openseespy.postprocessing.internal_plotting_functions as ipltf
 
 from openseespy.opensees import *
 
@@ -107,7 +107,7 @@ def createODB(*argv):
 
 def readODB(*argv):
 	
-    """
+	"""
 	This function reads saved data from a directory.
 	Expected input arguments : modelName, loadCase, Selective output quantities in future
 	Created folders: modelOutputFolder > loadCaseOutputFolder
@@ -119,7 +119,7 @@ def readODB(*argv):
     
 	First record all the output data and then read it instantly for plotting.
 	"""
-    
+
 	ModelName = argv[0]
 	ODBdir = ModelName+"_ODB"		# ODB Dir name
 
@@ -161,7 +161,7 @@ def readODB(*argv):
 ### All the plotting related definitions start here.
 
 ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
-node_style = {'color':'black', 'marker':'o', 'facecolor':'black'} 
+node_style = {'color':'black', 'marker':'o', 'facecolor':'black','linewidth':0.} 
 node_text_style = {'fontsize':6, 'fontweight':'regular', 'color':'green'} 
 ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'} 
 
