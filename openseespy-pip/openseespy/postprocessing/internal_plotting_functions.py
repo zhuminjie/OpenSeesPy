@@ -149,9 +149,24 @@ def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleS
 
     return tempLines, tempSurfaces, tempTag
 
-def _plotBeam3D(iNode, jNode, ax, show_element_tags, element, eleStyle):
-        
-    ##
+def _plotBeam2D(iNode, jNode, ax, show_element_tags, element, eleStyle):
+    ##procedure to render a 2D two-node element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
+    tempLines, = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]), marker='')
+    
+    if eleStyle == "wire":
+        plt.setp(tempLines,**WireEle_style)
+    else:
+        plt.setp(tempLines,**ele_style)
+    
+    tempTag = []
+    if show_element_tags == 'yes':
+        tempTag = ax.text((iNode[0]+jNode[0])/2, (iNode[1]+jNode[1])*1.02/2, 
+                           str(element), **ele_text_style) #label elements
+
+    return tempLines, tempTag
+
+def _plotBeam3D(iNode, jNode, ax, show_element_tags, element, eleStyle): 
+    ##procedure to render a 3D two-node element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
     tempLines, = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='')
     
     if eleStyle == "wire":
