@@ -41,12 +41,19 @@ def createODB(*argv, Nmodes=0):
 	
 	"""
 	This function creates a directory to save all the output data.
-	Expected input arguments : modelName, loadCase, Selective output quantities in future
-	Created folders: modelOutputFolder > loadCaseOutputFolder
-	For example: createODB(TwoSpanBridge, Pushover, Nmodes=3)
+
+	Command: createODB("ModelName",<"LoadCase Name">)
 	
-	The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
-	of elastic and nonlienar elements, we need to create a method distinguish. 
+	ModelName    : (string) Name of the model. The main output folder will be named "ModelName_ODB" in the current directory.
+	LoadCase Name: (string), Optional. Name of the load case forder to be created inside the ModelName_ODB folder. If not provided,
+					no load case data will be read.
+	Nmodes		 : Optional key argument to save modeshape data. Default is 0, no modeshape data is saved.
+	
+	
+	Example: createODB(TwoSpanBridge, Pushover, Nmodes=3)
+	
+	Future: The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
+			of elastic and nonlienar elements, we need to create a method distinguish. 
 	
 	"""
 	
@@ -110,14 +117,14 @@ def createODB(*argv, Nmodes=0):
 		
 		# Save recorders in the ODB folder
 
-		ops.recorder('Node', '-file', NodeDispFile, '-node', *nodeList, '-dof',*dofList, 'disp')
-		ops.recorder('Node', '-file', ReactionFile, '-node', *nodeList, '-dof',*dofList, 'reaction')
-		ops.recorder('Element', '-file', EleForceFile, '-ele', *eleList, '-dof',*dofList, 'localForce')   
-		ops.recorder('Element', '-file', EleBasicDefFile, '-ele', *eleList, '-dof',*dofList, 'basicDeformation')   
-		ops.recorder('Element', '-file', ElePlasticDefFile, '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')   
-		ops.recorder('Element','-file', EleStressFile, '-ele', *eleList,'stresses')
-		ops.recorder('Element','-file', EleStrainFile, '-ele', *eleList,'strains')
-		# ops.recorder('Element', '-file', EleIntPointsFile, '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
+		ops.recorder('Node', '-file', NodeDispFile,  '-time', '-node', *nodeList, '-dof',*dofList, 'disp')
+		ops.recorder('Node', '-file', ReactionFile,  '-time', '-node', *nodeList, '-dof',*dofList, 'reaction')
+		ops.recorder('Element', '-file', EleForceFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'localForce')   
+		ops.recorder('Element', '-file', EleBasicDefFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'basicDeformation')   
+		ops.recorder('Element', '-file', ElePlasticDefFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')   
+		ops.recorder('Element','-file', EleStressFile,  '-time', '-ele', *eleList,'stresses')
+		ops.recorder('Element','-file', EleStrainFile,  '-time', '-ele', *eleList,'strains')
+		# ops.recorder('Element', '-file', EleIntPointsFile, '-time', '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
 		
 	else:
 		print("Insufficient arguments: ModelName and LoadCaseName are required.")
@@ -126,17 +133,16 @@ def createODB(*argv, Nmodes=0):
 
 
 def readODB(*argv):
+	
 	"""
 	This function reads saved data from a directory.
-	Expected input arguments : modelName, loadCase, Selective output quantities in future
-	Created folders: modelOutputFolder > loadCaseOutputFolder
-	For example: createODB(TwoSpanBridge, Pushover)
-	If only one input argument is provided, no load case data is read.
-    	
-	The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
-	of elastic and nonlienar elements, we need to create a method distinguish. 
+	
+	Command: readODB("ModelName",<"LoadCase Name">)
+	
+	ModelName    : (string) Name of the model. The main output folder will be named "ModelName_ODB" in the current directory.
+	LoadCase Name: (string), Optional. Name of the load case forder to be created inside the ModelName_ODB folder. If not provided,
+					no load case data will be read.
     
-	First record all the output data and then read it instantly for plotting.
 	"""
     
 	ModelName = argv[0]
@@ -145,9 +151,6 @@ def readODB(*argv):
 	# Read node and element data in the main Output folder
 	nodes, elements = idbf._readNodesandElements(ModelName)
 	
-	# print(nodes)
-	# print(elements)
-	  	
 	if len(argv)>=2:
 		LoadCaseName = argv[1]
 		LoadCaseDir = os.path.join(ODBdir, LoadCaseName)
@@ -191,27 +194,36 @@ WireEle_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
 Eig_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
 	
 def plot_model(*argv,Model="none"):
+	
 	""" 
-	Expected input arguments are "nodes", "elements" and Model="model name" to read the ODB.
-	The default Model is "None". If a specific model name is given, the data will be read from the 
-	previously created output database.
+	Command: plot_model(<"nodes">,<"elements">,<Model="ModelName">)
+
+	nodes	: String, Optional, takes user input to show node tags on the model
+	elements: String, Optional, takes user input to show element tags on the model
+	Model	: Optional input for the name of the model used in createODB() to read the modeshape data from.
+	              The default is "none" and the mode shape is plotted from the active model.
+	
+	Matplotlib rendering is faster when tags are not displayed.
+	
 	"""
-	### Options to display node and element tags. Matplotlib rendering is faster when tags are not displayed.
+
 	##  Default values
 	show_node_tags = 'no'
 	show_element_tags = 'no'
-	
-	if len(argv)>0 and any(nodeArg in argv for nodeArg in ["nodes","Nodes","node","Node"]):
-		show_node_tags = 'yes'
-		
-	if len(argv)>0 and any(eleArg in argv for eleArg in ["elements", "Elements", "element", "Element"]):
-		show_element_tags = 'yes'
-	
+
+	if len(argv)>0:
+		if any(nodeArg in argv for nodeArg in ["nodes","Nodes","node","Node"]):
+			show_node_tags = 'yes'
+		if any(eleArg in argv for eleArg in ["elements", "Elements", "element", "Element"]):
+			show_element_tags = 'yes'
+		if show_node_tags == "no" and show_element_tags == "no":
+			raise Exception("Wrong input arguments. Command should be plot_model(<'node'>,<'element'>,Model='model_name')")
+
 	if Model == "none":
-		print("No Model_ODB specified")
+		print("No Model_ODB specified, getting data from the active model.")
 		nodeArray, elementArray = idbf.getNodesandElements()
 	else:
-		print("Reading data from the Model_ODB")
+		print("Reading data from the "+Model+"_ODB.")
 		nodeArray, elementArray = idbf._readNodesandElements(Model)
 		
 	nodetags = nodeArray[:,0]
@@ -219,7 +231,9 @@ def plot_model(*argv,Model="none"):
 	
 	
 	def nodecoords(nodetag):
-		# Returns an array of node coordinates: works like nodeCoord() in opensees.
+		"""
+		Returns an array of node coordinates: works like nodeCoord() in opensees.
+		"""
 		i, = np.where(nodeArray[:,0] == float(nodetag))
 		return nodeArray[int(i),1:]
 
@@ -334,7 +348,6 @@ def plot_model(*argv,Model="none"):
 		ax.set_xlim(xViewCenter-(view_range/2), xViewCenter+(view_range/2))
 		ax.set_ylim(yViewCenter-(view_range/2), yViewCenter+(view_range/2))
 		ax.set_zlim(zViewCenter-(view_range/2), zViewCenter+(view_range/2))
-		print(xViewCenter-(view_range/2), xViewCenter+(view_range/2))
 		
 		ax.set_xlabel('X')
 		ax.set_ylabel('Y')
@@ -342,21 +355,27 @@ def plot_model(*argv,Model="none"):
 
 	plt.axis('on')
 	plt.show()
-	
+	return fig
 
 def plot_modeshape(*argv,Model="none"):
 	"""
-	Expected input argv : modeNumber, scale,  Model name to read ODB. To be added: overlap='yes' or 'no'
-	The default Model is "None". If a specific model name is given, the data will be read from the 
-	previously created output database.
+	Command: plot_modeshape(modeNumber,<scale>, <Model="modelName">)
+	
+	modeNumber : Mode number to be plotted.
+	scale      : Optional input to change the scale factor of the deformed shape. Default is 200.
+	Model      : Optional input for the name of the model used in createODB() to read the modeshape data from.
+	              The default is "none" and the mode shape is plotted from the active model.
+	
 	"""
 	modeNumber = argv[0]
-	if len(argv) < 2:
+	if len(argv) == 1:
 		print("No scale factor specified to plot modeshape, using dafault 200.")
 		print("Input arguments are plot_modeshape(modeNumber, scaleFactor, overlap='yes')")
 		scale = 200
-	else:
+	elif len(argv) == 2:
 		scale = argv[1]
+	else:
+		raise Exception("Wrong input arguments. Command should be plot_model(ModeNumber,<ScaleFactor>,<Model='model_name'>)")
 		
 	if Model == "none":
 		print("No Model_ODB specified to plot modeshapes")
@@ -379,14 +398,18 @@ def plot_modeshape(*argv,Model="none"):
 	show_element_tags = 'no'
 
 	def nodecoords(nodetag):
-		# Returns an array of node coordinates: works like nodeCoord() in opensees.
+		"""
+		Returns an array of node coordinates: works like nodeCoord() in opensees.
+		"""
 		i, = np.where(nodeArray[:,0] == float(nodetag))
 		return nodeArray[int(i),1:]
 		
 	def nodecoordsEigen(nodetag):
-		# Returns an array of final deformed node coordinates
-		i, = np.where(nodeArray[:,0] == float(nodetag))				# Original coordinates
-		ii, = np.where(Mode_nodeArray[:,0] == float(nodetag))		# Mode shape coordinates
+		"""
+		Returns an array of final deformed node coordinates
+		"""
+		i, = np.where(nodeArray[:,0] == float(nodetag))				# index for Original coordinates
+		ii, = np.where(Mode_nodeArray[:,0] == float(nodetag))		# index for Mode shape coordinates
 		return nodeArray[int(i),1:] + scale*Mode_nodeArray[int(ii),1:]
 
 	# Check if the model is 2D or 3D
@@ -543,222 +566,211 @@ def plot_modeshape(*argv,Model="none"):
 				
 	plt.axis('on')
 	plt.show()
-	
-	
-## ANURAG TO CHANGE THE FOLLOWING PROCEDURE to streamline it with reading data from ODB.
-
-def plot_deformedshape(filename = 'nodeDisp.txt', tstep = -1, scale = 200):
-	# Expected input argv : filename contains the displacements of all nodes in the same order they are returned by getNodeTags().
-	# First column in filename is time. 
-	# tstep is the number of the step of the analysis to be ploted (starting from 1), 
-	# and scale is the scale factor for the deformed shape.
-	
-	overlap = "yes" 					# An option to select if overlap with original geometry.
-	show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
-	show_element_tags = 'no'
-
-	nodeList = getNodeTags()
-	eleList = getEleTags()
-	nodeDispArray = np.loadtxt(filename)
-	if len(nodeDispArray[0, :]) == len(nodeList) * len(nodeCoord(nodeList[0])):
-		tarray = np.zeros((len(nodeDispArray), 1))
-		nodeDispArray = np.append(tarray, nodeDispArray, axis = 1) 
-  
-	if tstep == -1:
-		tstep = len(nodeDispArray)
-		ele_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
-		Disp_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
-		node_style = {'color':'black', 'marker':'.', 'linestyle':''} 
-
-	# Check if the model is 2D or 3D
-	if len(nodeCoord(nodeList[0])) == 2:
-		print('2D model')
-		x = []
-		y = []
-		fig = plt.figure()
-		ax = fig.add_subplot(1,1,1)
-		for element in eleList:
-			Nodes = eleNodes(element)
-			if len(Nodes) == 2:
-				# 3D Beam-Column Elements
-				iNode = nodeCoord(Nodes[0])
-				jNode = nodeCoord(Nodes[1])
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 3]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 3]
-
-				# Get final node coordinates
-				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1]]
-				jNode_final = [jNode[0]+ scale*jNode_Disp[0], jNode[1]+ scale*jNode_Disp[1]]
-
-				x.append(iNode_final[0])  # list of x coordinates to define plot view area
-				y.append(iNode_final[1])	# list of y coordinates to define plot view area
-
-				if overlap == "yes":
-					plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),marker='', **ele_style)
-				
-				plt.plot((iNode_final[0], jNode_final[0]), 
-							(iNode_final[1], jNode_final[1]),marker='', **Disp_style)
-
-			if len(Nodes) == 3:
-				# 2D Planer three-node shell elements
-				iNode = nodeCoord(Nodes[0])
-				jNode = nodeCoord(Nodes[1])
-				kNode = nodeCoord(Nodes[2])
-
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 3]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 3]
-				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*2 + 1: nodeList.index(Nodes[2])*2 + 3]				# Get final node coordinates
-				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1]]
-				jNode_final = [jNode[0]+ scale*jNode_Disp[0], jNode[1]+ scale*jNode_Disp[1]]
-				kNode_final = [kNode[0]+ scale*kNode_Disp[0], kNode[1]+ scale*kNode_Disp[1]]
-
-				x.append(iNode_final[0])  # list of x coordinates to define plot view area
-				y.append(iNode_final[1])	# list of y coordinates to define plot view area
-
-				if overlap == "yes":
-					ipltf._plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
-
-				ipltf._plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
-
-			if len(Nodes) == 4:
-				# 2D Planer four-node shell elements
-				iNode = nodeCoord(Nodes[0])
-				jNode = nodeCoord(Nodes[1])
-				kNode = nodeCoord(Nodes[2])
-				lNode = nodeCoord(Nodes[3])
-
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*2 + 1: nodeList.index(Nodes[0])*2 + 3]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*2 + 1: nodeList.index(Nodes[1])*2 + 3]
-				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*2 + 1: nodeList.index(Nodes[2])*2 + 3]
-				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*2 + 1: nodeList.index(Nodes[3])*2 + 3]
-
-				# Get final node coordinates
-				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1]]
-				jNode_final = [jNode[0]+ scale*jNode_Disp[0], jNode[1]+ scale*jNode_Disp[1]]
-				kNode_final = [kNode[0]+ scale*kNode_Disp[0], kNode[1]+ scale*kNode_Disp[1]]
-				lNode_final = [lNode[0]+ scale*lNode_Disp[0], lNode[1]+ scale*lNode_Disp[1]]
-
-				x.append(iNode_final[0])  # list of x coordinates to define plot view area
-				y.append(iNode_final[1])	# list of y coordinates to define plot view area
-
-				if overlap == "yes":
-					ipltf._plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
-				
-				ipltf._plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
-	
-		nodeMins = np.array([min(x),min(y)])
-		nodeMaxs = np.array([max(x),max(y)])
-
-		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-		view_range = max(max(x)-min(x), max(y)-min(y))
-		ax.set_xlim(xViewCenter-(1.1*view_range/1), xViewCenter+(1.1*view_range/1))
-		ax.set_ylim(yViewCenter-(1.1*view_range/1), yViewCenter+(1.1*view_range/1))
-		ax.text(0.05, 0.95, "Deformed shape ", transform=ax.transAxes)
-
-	if len(nodeCoord(nodeList[0])) == 3:
-		print('3D model')
-		x = []
-		y = []
-		z = []
-		fig = plt.figure()
-		ax = fig.add_subplot(1,1,1, projection='3d')
-		for element in eleList:
-			Nodes = eleNodes(element)
-			if len(Nodes) == 2:
-				# 3D beam-column elements
-				iNode = nodeCoord(Nodes[0])
-				jNode = nodeCoord(Nodes[1])
-
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 4]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 4]
-				# Add original and deformed shape to get final node coordinates
-				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1], iNode[2]+ scale*iNode_Disp[2]]
-				jNode_final = [jNode[0]+ scale*jNode_Disp[0], jNode[1]+ scale*jNode_Disp[1], jNode[2]+ scale*jNode_Disp[2]]
-
-				x.append(iNode_final[0])  # list of x coordinates to define plot view area
-				y.append(iNode_final[1])	# list of y coordinates to define plot view area
-				z.append(iNode_final[2])	# list of z coordinates to define plot view area
-
-				if overlap == "yes":
-					ipltf._plotBeam3D(iNode, jNode, ax, show_element_tags, element, "wire")
-				
-				ipltf._plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, element, "solid")
-				
-			if len(Nodes) == 4:
-				# 3D four-node Quad/shell element
-				iNode = nodeCoord(Nodes[0])
-				jNode = nodeCoord(Nodes[1])
-				kNode = nodeCoord(Nodes[2])
-				lNode = nodeCoord(Nodes[3])
-
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 4]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 4]
-				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*3 + 1: nodeList.index(Nodes[2])*3 + 4]
-				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*3 + 1: nodeList.index(Nodes[3])*3 + 4]
-
-				# Add original and mode shape to get final node coordinates
-				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1], iNode[2]+ scale*iNode_Disp[2]]
-				jNode_final = [jNode[0]+ scale*jNode_Disp[0], jNode[1]+ scale*jNode_Disp[1], jNode[2]+ scale*jNode_Disp[2]]
-				kNode_final = [kNode[0]+ scale*kNode_Disp[0], kNode[1]+ scale*kNode_Disp[1], kNode[2]+ scale*kNode_Disp[2]]
-				lNode_final = [lNode[0]+ scale*lNode_Disp[0], lNode[1]+ scale*lNode_Disp[1], lNode[2]+ scale*lNode_Disp[2]]
-
-				if overlap == "yes":
-					ipltf._plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, "wire", fillSurface='no')
-					
-				ipltf._plotQuad3D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, element, "solid", fillSurface='yes')
-
-
-			if len(Nodes) == 8:
-				# 3D eight-node Brick element
-				# Nodes in CCW on bottom (0-3) and top (4-7) faces resp
-				iNode = nodeCoord(Nodes[0])
-				jNode = nodeCoord(Nodes[1])
-				kNode = nodeCoord(Nodes[2])
-				lNode = nodeCoord(Nodes[3])
-				iiNode = nodeCoord(Nodes[4])
-				jjNode = nodeCoord(Nodes[5])
-				kkNode = nodeCoord(Nodes[6])
-				llNode = nodeCoord(Nodes[7])
-
-				iNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[0])*3 + 1: nodeList.index(Nodes[0])*3 + 4]
-				jNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[1])*3 + 1: nodeList.index(Nodes[1])*3 + 4]
-				kNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[2])*3 + 1: nodeList.index(Nodes[2])*3 + 4]
-				lNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[3])*3 + 1: nodeList.index(Nodes[3])*3 + 4]
-				iiNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[4])*3 + 1: nodeList.index(Nodes[4])*3 + 4]
-				jjNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[5])*3 + 1: nodeList.index(Nodes[5])*3 + 4]
-				kkNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[6])*3 + 1: nodeList.index(Nodes[6])*3 + 4]
-				llNode_Disp = nodeDispArray[tstep - 1, nodeList.index(Nodes[7])*3 + 1: nodeList.index(Nodes[7])*3 + 4]
-
-				# Add original and mode shape to get final node coordinates
-				iNode_final = [iNode[0]+ scale*iNode_Disp[0], iNode[1]+ scale*iNode_Disp[1], iNode[2]+ scale*iNode_Disp[2]]
-				jNode_final = [jNode[0]+ scale*jNode_Disp[0], jNode[1]+ scale*jNode_Disp[1], jNode[2]+ scale*jNode_Disp[2]]
-				kNode_final = [kNode[0]+ scale*kNode_Disp[0], kNode[1]+ scale*kNode_Disp[1], kNode[2]+ scale*kNode_Disp[2]]
-				lNode_final = [lNode[0]+ scale*lNode_Disp[0], lNode[1]+ scale*lNode_Disp[1], lNode[2]+ scale*lNode_Disp[2]]
-				iiNode_final = [iiNode[0]+ scale*iiNode_Disp[0], iiNode[1]+ scale*iiNode_Disp[1], iiNode[2]+ scale*iiNode_Disp[2]]
-				jjNode_final = [jjNode[0]+ scale*jjNode_Disp[0], jjNode[1]+ scale*jjNode_Disp[1], jjNode[2]+ scale*jjNode_Disp[2]]
-				kkNode_final = [kkNode[0]+ scale*kkNode_Disp[0], kkNode[1]+ scale*kkNode_Disp[1], kkNode[2]+ scale*kkNode_Disp[2]]
-				llNode_final = [llNode[0]+ scale*llNode_Disp[0], llNode[1]+ scale*llNode_Disp[1], llNode[2]+ scale*llNode_Disp[2]]
-
-				if overlap == "yes":
-					ipltf._plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, element, "wire", fillSurface='no') # plot undeformed shape
-
-				ipltf._plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
-								ax, show_element_tags, element, "solid", fillSurface='yes')
-								
-		nodeMins = np.array([min(x),min(y),min(z)])
-		nodeMaxs = np.array([max(x),max(y),max(z)])
-		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-		zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
-		view_range = max(max(x)-min(x), max(y)-min(y), max(z)-min(z))
-		ax.set_xlim(xViewCenter-(view_range/4), xViewCenter+(view_range/4))
-		ax.set_ylim(yViewCenter-(view_range/4), yViewCenter+(view_range/4))
-		ax.set_zlim(zViewCenter-(view_range/3), zViewCenter+(view_range/3))
-		ax.text2D(0.10, 0.95, "Deformed shape", transform=ax.transAxes)
-		ax.text2D(0.10, 0.90, "Step: "+str(tstep), transform=ax.transAxes)
-    
-
-	plt.axis('off')
-	plt.show()
 	return fig
+	
+
+def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, overlap='no'):
+	"""
+	Command: plot_deformedshape(Model="modelName", LoadCase="loadCase name", <tstep = time (float)>, <scale = scaleFactor (float)>, <overlap='yes'>)
+	
+	Model   : Name of the model used in createODB() to read the displacement data from.
+	LoadCase: Name of the load case used in createODB().
+	tstep   : Optional value of the time stamp in the dynamic analysis. If no specific value is provided, the last step is used.
+	scale   : Optional input to change the scale factor of the deformed shape.
+	overlap : Optional input to plot the deformed shape overlapped with the original shape.
+	
+	Future Work: Add option to plot deformed shape based on "time" and "step number" separately.
+	
+	"""
+
+	if Model == "none" or LoadCase=="none":
+		print("No output database specified to plot the deformed shape.")
+		print("Command should be plot_deformedshape(Model='modelname',loadCase='loadcase',<tstep=time>,<scale=int>)")
+		print("Not plotting deformed shape. Exiting now.")
+		
+	else:
+		print("Reading displacement data from "+str(Model)+"_ODB/"+LoadCase)
+		nodeArray, elementArray = idbf._readNodesandElements(Model)
+		timeSteps, Disp_nodeArray = idbf._readNodeDispData(Model,LoadCase)
+		
+		if tstep == -1:
+			jj = len(timeSteps)-1
+			printLine = "Final deformed shape"
+		else:
+			jj, = np.where(timeSteps == float(tstep))			# index of the time step requested.
+			printLine = "Deformed shape at time: "+str(tstep)+" sec."
+		
+		DeflectedNodeCoordArray = nodeArray[:,1:]+ scale*Disp_nodeArray[int(jj),:,:]
+		nodetags = nodeArray[:,0]
+		
+		# overlap='yes'						# overlap the modeshape with a wireframe of original shape, set default "yes" for now.
+		show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
+		show_element_tags = 'no'
+
+		
+		def nodecoords(nodetag):
+			# Returns an array of node coordinates: works like nodeCoord() in opensees.
+			i, = np.where(nodeArray[:,0] == float(nodetag))
+			return nodeArray[int(i),1:]
+			
+		def nodecoordsFinal(nodetag):
+			# Returns an array of final deformed node coordinates
+			i, = np.where(nodeArray[:,0] == float(nodetag))				# Original coordinates
+			# ii, = np.where(Disp_nodeArray[:,0] == float(nodetag))		# deflected coordinates
+			return nodeArray[int(i),1:] + scale*Disp_nodeArray[int(jj),int(i),:]
+
+		# Check if the model is 2D or 3D
+		if len(nodecoords(nodetags[0])) == 2:
+			print('2D model')
+			fig = plt.figure()
+			ax = fig.add_subplot(1,1,1)
+			
+			for ele in elementArray:
+				eleTag = int(ele[0])
+				Nodes =ele[1:]
+				
+				if len(Nodes) == 2:
+					# 3D beam-column elements
+					iNode = nodecoords(Nodes[0])
+					jNode = nodecoords(Nodes[1])
+					
+					iNode_final = nodecoordsFinal(Nodes[0])
+					jNode_final = nodecoordsFinal(Nodes[1])
+					
+					if overlap == "yes":
+						ipltf._plotBeam2D(iNode, jNode, ax, show_element_tags, eleTag, "wire")
+					
+					ipltf._plotBeam2D(iNode_final, jNode_final, ax, show_element_tags, eleTag, "solid")
+					
+				if len(Nodes) == 3:
+					## 2D Planer three-node shell elements
+					iNode = nodeCoord(Nodes[0])
+					jNode = nodeCoord(Nodes[1])
+					kNode = nodeCoord(Nodes[2])
+					
+					iNode_final = nodecoordsFinal(Nodes[0])
+					jNode_final = nodecoordsFinal(Nodes[1])
+					kNode_final = nodecoordsFinal(Nodes[2])
+
+					if overlap == "yes":
+						ipltf._plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
+					
+					ipltf._plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
+					
+				if len(Nodes) == 4:
+					## 2D four-node Quad/shell element
+					iNode = nodecoords(Nodes[0])
+					jNode = nodecoords(Nodes[1])
+					kNode = nodecoords(Nodes[2])
+					lNode = nodecoords(Nodes[3])
+					
+					iNode_final = nodecoordsFinal(Nodes[0])
+					jNode_final = nodecoordsFinal(Nodes[1])
+					kNode_final = nodecoordsFinal(Nodes[2])
+					lNode_final = nodecoordsFinal(Nodes[3])
+					
+					if overlap == "yes":
+						ipltf._plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
+						
+					ipltf._plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
+					
+			nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1])])
+			nodeMaxs = np.array([max(DeflectedNodeCoordArray[:,0]),max(DeflectedNodeCoordArray[:,1])])
+			
+			xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
+			yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
+			view_range = max(max(DeflectedNodeCoordArray[:,0])-min(DeflectedNodeCoordArray[:,0]), max(DeflectedNodeCoordArray[:,1])-min(DeflectedNodeCoordArray[:,1]))
+			
+			ax.set_xlim(xViewCenter-(1.1*view_range/1), xViewCenter+(1.1*view_range/1))
+			ax.set_ylim(yViewCenter-(1.1*view_range/1), yViewCenter+(1.1*view_range/1))
+			
+			ax.text(0.05, 0.95, "Mode "+str(modeNumber), transform=ax.transAxes)
+			ax.text(0.05, 0.90, "T = "+str("%.3f" % Tn)+" s", transform=ax.transAxes)
+
+		
+		else:
+			print('3D model')
+			fig = plt.figure()
+			ax = fig.add_subplot(1,1,1, projection='3d')
+			
+			for ele in elementArray:
+				eleTag = int(ele[0])
+				Nodes =ele[1:]
+				
+				if len(Nodes) == 2:
+					## 3D beam-column elements
+					iNode = nodecoords(Nodes[0])
+					jNode = nodecoords(Nodes[1])
+					
+					iNode_final = nodecoordsFinal(Nodes[0])
+					jNode_final = nodecoordsFinal(Nodes[1])
+					
+					if overlap == "yes":
+						ipltf._plotBeam3D(iNode, jNode, ax, show_element_tags, eleTag, "wire")
+					
+					ipltf._plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, eleTag, "solid")
+					
+				if len(Nodes) == 4:
+					## 3D four-node Quad/shell element
+					iNode = nodecoords(Nodes[0])
+					jNode = nodecoords(Nodes[1])
+					kNode = nodecoords(Nodes[2])
+					lNode = nodecoords(Nodes[3])
+					
+					iNode_final = nodecoordsFinal(Nodes[0])
+					jNode_final = nodecoordsFinal(Nodes[1])
+					kNode_final = nodecoordsFinal(Nodes[2])
+					lNode_final = nodecoordsFinal(Nodes[3])
+					
+					if overlap == "yes":
+						ipltf._plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
+						
+					ipltf._plotQuad3D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
+
+				if len(Nodes) == 8:
+					## 3D eight-node Brick element
+					## Nodes in CCW on bottom (0-3) and top (4-7) faces resp
+					iNode = nodeCoord(Nodes[0])
+					jNode = nodeCoord(Nodes[1])
+					kNode = nodeCoord(Nodes[2])
+					lNode = nodeCoord(Nodes[3])
+					iiNode = nodeCoord(Nodes[4])
+					jjNode = nodeCoord(Nodes[5])
+					kkNode = nodeCoord(Nodes[6])
+					llNode = nodeCoord(Nodes[7])
+					
+					iNode_final = nodecoordsFinal(Nodes[0])
+					jNode_final = nodecoordsFinal(Nodes[1])
+					kNode_final = nodecoordsFinal(Nodes[2])
+					lNode_final = nodecoordsFinal(Nodes[3])
+					iiNode_final = nodecoordsFinal(Nodes[4])
+					jjNode_final = nodecoordsFinal(Nodes[5])
+					kkNode_final = nodecoordsFinal(Nodes[6])
+					llNode_final = nodecoordsFinal(Nodes[7])
+					
+					if overlap == "yes":
+						ipltf._plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, eleTag, "wire", fillSurface='no') # plot undeformed shape
+
+					ipltf._plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
+									ax, show_element_tags, eleTag, "solid", fillSurface='yes')
+									
+			nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1]),min(DeflectedNodeCoordArray[:,2])])
+			nodeMaxs = np.array([max(DeflectedNodeCoordArray[:,0]),max(DeflectedNodeCoordArray[:,1]),max(DeflectedNodeCoordArray[:,2])])
+					
+			xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
+			yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
+			zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
+			
+			view_range = max(max(DeflectedNodeCoordArray[:,0])-min(DeflectedNodeCoordArray[:,0]), 
+								max(DeflectedNodeCoordArray[:,1])-min(DeflectedNodeCoordArray[:,1]), 
+								max(DeflectedNodeCoordArray[:,2])-min(DeflectedNodeCoordArray[:,2]))
+
+			ax.set_xlim(xViewCenter-(view_range/2), xViewCenter+(view_range/2))
+			ax.set_ylim(yViewCenter-(view_range/2), yViewCenter+(view_range/2))
+			ax.set_zlim(zViewCenter-(view_range/2), zViewCenter+(view_range/2))
+			ax.text2D(0.10, 0.90, printLine, transform=ax.transAxes)
+					
+		plt.axis('on')
+		plt.show()
+		
+		return fig
