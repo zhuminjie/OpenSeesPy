@@ -86,7 +86,7 @@ def _saveNodesandElements(ModelName):
     ftype = '.out'
     
     ODBdir = ModelName+"_ODB"		# ODB Dir name
-            
+
     # Read noades and elements
     nodes, elements = getNodesandElements()
 
@@ -168,9 +168,9 @@ def _readNodesandElements(ModelName):
     try:
         nodes = np.loadtxt(nodeFile, dtype, delimiter = delim, unpack=False)
     except:
-        print("Reading Tcl output")
+        print("Reading node data from a OpenSees Tcl model")
         nodes = np.transpose(np.loadtxt(nodeFile, dtype=float, delimiter=None, converters=None, unpack=True))
-				    	
+			
     # Populate an array with the input element information
     TempEle = [[]]*4
     
@@ -182,7 +182,7 @@ def _readNodesandElements(ModelName):
                 try:
                     TempEle[ii] = np.loadtxt(FileName, dtype,  delimiter = delim, unpack=False)
                 except:
-                    print("Reading Tcl element data")
+                    print("Reading element data from a OpenSees Tcl model")
                     TempEle[ii] = np.transpose(np.loadtxt(FileName, dtype=float, delimiter=None, converters=None, unpack=True))
 
     # define the final element array
@@ -259,7 +259,37 @@ def _readModeShapeData(ModelName,modeNumber):
     try:
         nodes_modeshape = np.loadtxt(modeFile, dtype, delimiter = delim, unpack=False)
     except:
-        print("Reading Tcl output")
+        print("Reading modeshape data from a OpenSees Tcl model")
         nodes_modeshape = np.transpose(np.loadtxt(modeFile, dtype=float, delimiter=None, converters=None, unpack=True))
 
     return nodes_modeshape, periods
+
+
+############## Node Displacement Data ######################################
+
+def _readNodeDispData(ModelName,LoadCaseName):
+	
+    ODBdir = ModelName+"_ODB"		# ODB Dir name
+    LoadCaseDir = os.path.join(ODBdir, LoadCaseName)
+	
+    # Get number of nodes in the model to set a node displacement array
+    nodes,elements = _readNodesandElements(ModelName)
+    Nnodes = len(nodes)
+    ndm = len(nodes[0,1:])
+	
+    NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
+    Disp = np.transpose(np.loadtxt(NodeDispFile, dtype=float, delimiter=None, converters=None, unpack=True))
+	
+    timeSteps = Disp[:,0]
+    Ntime = len(Disp[:,0])
+
+    tempDisp = np.zeros([Ntime,Nnodes,ndm])
+    tempDisp[:,:,0] = Disp[:,1::ndm]
+    tempDisp[:,:,1] = Disp[:,2::ndm]
+	
+    if ndm == 3:
+         tempDisp[:,:,2] = Disp[:,3::ndm]
+		
+    nodes_displacement = tempDisp
+	
+    return timeSteps, nodes_displacement
