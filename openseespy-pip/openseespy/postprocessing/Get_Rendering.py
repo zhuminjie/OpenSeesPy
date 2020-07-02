@@ -37,7 +37,7 @@ import openseespy.opensees as ops
 ####
 #####################################################################
 
-def createODB(*argv, Nmodes=0, recorders=[]):
+def createODB(*argv, Nmodes=0, deltaT=0.0, recorders=[]):
 	
 	"""
 	This function creates a directory to save all the output data.
@@ -48,6 +48,9 @@ def createODB(*argv, Nmodes=0, recorders=[]):
 	LoadCase Name: (string), Optional. Name of the load case forder to be created inside the ModelName_ODB folder. If not provided,
 					no load case data will be read.
 	Nmodes		 : (int) Optional key argument to save modeshape data. Default is 0, no modeshape data is saved.
+	
+	deltaT		 : (float) Optional time interval for recording. will record when next step is deltaT greater than last recorder step. 
+					(default: records at every time step)
 	
 	recorders	 : (string) A list of additional quantities a users would like to record in the output database.
 					The arguments for these additional inputs match the standard OpenSees arguments to avoid any confusion.
@@ -120,29 +123,30 @@ def createODB(*argv, Nmodes=0, recorders=[]):
 		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
 		
 		# Save recorders in the ODB folder
-		ops.recorder('Node', '-file', NodeDispFile,  '-time', '-node', *nodeList, '-dof',*dofList, 'disp')
-		ops.recorder('Node', '-file', ReactionFile,  '-time', '-node', *nodeList, '-dof',*dofList, 'reaction')
+		ops.recorder('Node', '-file', NodeDispFile,  '-time', '-dT', deltaT, '-node', *nodeList, '-dof',*dofList, 'disp')
+		ops.recorder('Node', '-file', ReactionFile,  '-time', '-dT', deltaT, '-node', *nodeList, '-dof',*dofList, 'reaction')
 		
 		if 'localForce' in recorders:
-			ops.recorder('Element', '-file', EleForceFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'localForce')   
+			ops.recorder('Element', '-file', EleForceFile,  '-time', '-dT', deltaT, '-ele', *eleList, '-dof',*dofList, 'localForce')   
 		
 		if 'basicDeformation' in recorders:
-			ops.recorder('Element', '-file', EleBasicDefFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'basicDeformation')
+			ops.recorder('Element', '-file', EleBasicDefFile,  '-time', '-dT', deltaT, '-ele', *eleList, '-dof',*dofList, 'basicDeformation')
 
 		if 'plasticDeformation' in recorders:
-			ops.recorder('Element', '-file', ElePlasticDefFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')  
+			ops.recorder('Element', '-file', ElePlasticDefFile,  '-time', '-dT', deltaT, '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')  
 
 		if 'stresses' in recorders:
-			ops.recorder('Element','-file', EleStressFile,  '-time', '-ele', *eleList,'stresses')
+			ops.recorder('Element','-file', EleStressFile,  '-time', '-dT', deltaT, '-ele', *eleList,'stresses')
 		
 		if 'strains' in recorders:
-			ops.recorder('Element','-file', EleStrainFile,  '-time', '-ele', *eleList,'strains')
+			ops.recorder('Element','-file', EleStrainFile,  '-time', '-dT', deltaT, '-ele', *eleList,'strains')
 		
-		# ops.recorder('Element', '-file', EleIntPointsFile, '-time', '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
+		# ops.recorder('Element', '-file', EleIntPointsFile, '-time', '-dT', deltaT, '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
 		
 	else:
 		print("Insufficient arguments: ModelName and LoadCaseName are required.")
 		print("Output from any loadCase will not be saved")
+		
 		
 
 
