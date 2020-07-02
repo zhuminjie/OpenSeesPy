@@ -37,20 +37,24 @@ import openseespy.opensees as ops
 ####
 #####################################################################
 
-def createODB(*argv, Nmodes=0):
+def createODB(*argv, Nmodes=0, recorders=[]):
 	
 	"""
 	This function creates a directory to save all the output data.
 
-	Command: createODB("ModelName",<"LoadCase Name">)
+	Command: createODB("ModelName",<"LoadCase Name">, <Nmodes=Nmodes(int)>, <recorders=*recorder(list)>)
 	
 	ModelName    : (string) Name of the model. The main output folder will be named "ModelName_ODB" in the current directory.
 	LoadCase Name: (string), Optional. Name of the load case forder to be created inside the ModelName_ODB folder. If not provided,
 					no load case data will be read.
-	Nmodes		 : Optional key argument to save modeshape data. Default is 0, no modeshape data is saved.
+	Nmodes		 : (int) Optional key argument to save modeshape data. Default is 0, no modeshape data is saved.
 	
+	recorders	 : (string) A list of additional quantities a users would like to record in the output database.
+					The arguments for these additional inputs match the standard OpenSees arguments to avoid any confusion.
+					'localForce','basicDeformation', 'plasticDeformation','stresses','strains'
+					The recorders for node displacement and reactions are saved by default to help plot the deformed shape.
 	
-	Example: createODB(TwoSpanBridge, Pushover, Nmodes=3)
+	Example: createODB(TwoSpanBridge, Pushover, Nmodes=3, recorders=['stresses', 'strains'])
 	
 	Future: The integrationPoints output works only for nonlinear beam column elements. If a model has a combination 
 			of elastic and nonlienar elements, we need to create a method distinguish. 
@@ -116,14 +120,24 @@ def createODB(*argv, Nmodes=0):
 		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
 		
 		# Save recorders in the ODB folder
-
 		ops.recorder('Node', '-file', NodeDispFile,  '-time', '-node', *nodeList, '-dof',*dofList, 'disp')
 		ops.recorder('Node', '-file', ReactionFile,  '-time', '-node', *nodeList, '-dof',*dofList, 'reaction')
-		ops.recorder('Element', '-file', EleForceFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'localForce')   
-		ops.recorder('Element', '-file', EleBasicDefFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'basicDeformation')   
-		ops.recorder('Element', '-file', ElePlasticDefFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')   
-		ops.recorder('Element','-file', EleStressFile,  '-time', '-ele', *eleList,'stresses')
-		ops.recorder('Element','-file', EleStrainFile,  '-time', '-ele', *eleList,'strains')
+		
+		if 'localForce' in recorders:
+			ops.recorder('Element', '-file', EleForceFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'localForce')   
+		
+		if 'basicDeformation' in recorders:
+			ops.recorder('Element', '-file', EleBasicDefFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'basicDeformation')
+
+		if 'plasticDeformation' in recorders:
+			ops.recorder('Element', '-file', ElePlasticDefFile,  '-time', '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')  
+
+		if 'stresses' in recorders:
+			ops.recorder('Element','-file', EleStressFile,  '-time', '-ele', *eleList,'stresses')
+		
+		if 'strains' in recorders:
+			ops.recorder('Element','-file', EleStrainFile,  '-time', '-ele', *eleList,'strains')
+		
 		# ops.recorder('Element', '-file', EleIntPointsFile, '-time', '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
 		
 	else:
