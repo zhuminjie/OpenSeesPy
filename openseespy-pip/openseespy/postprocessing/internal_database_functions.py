@@ -293,3 +293,26 @@ def _readNodeDispData(ModelName,LoadCaseName):
     nodes_displacement = tempDisp
 	
     return timeSteps, nodes_displacement
+
+
+#### Read fibre data
+
+def _readFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber):
+    
+    # Consider making these optional arguements
+    FibreName = "FiberData"
+    delim = ' '
+    # fmt = '%.5e'
+    dtype ='float32'
+    ftype = '.out'    
+    
+    ODBdir = ModelName+"_ODB"		# ODB Dir name
+    FibreFileName = FibreName  + '_ele_' + str(eleNumber) + '_section_' + str(sectionNumber) + ftype
+    FiberDir = os.path.join(ODBdir, LoadCaseName, FibreFileName)
+    # Check if output database exists
+    if not os.path.exists(FiberDir):
+        print('Error: No file for Fiber data. Use saveFiberData2D() to create a recorder.')    
+    
+    FiberData = np.loadtxt(FiberDir, dtype=dtype, delimiter=delim)
+
+    return FiberData

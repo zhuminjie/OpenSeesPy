@@ -27,6 +27,10 @@ from math import asin, sqrt
 import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib.animation as animation
+from matplotlib.widgets import Slider
+
+
 #### CHANGE THESE BEFORE COMMITTING, call them before calling openseespy here ####
 import openseespy.postprocessing.internal_database_functions as idbf
 import openseespy.postprocessing.internal_plotting_functions as ipltf
@@ -201,10 +205,26 @@ def readODB(*argv):
 		return nodes, elements
 
 
+def saveFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber, deltaT = 0.0):
+    #TODO Allow for inputing more than one element/section?
+    
+	# Consider making these optional arguements
+    FibreName = "FiberData"
+    ftype = '.out'
+    
+    ODBdir = ModelName+"_ODB"		# ODB Dir name
+    FibreFileName = FibreName  + '_ele_' + str(eleNumber) + '_section_' + str(sectionNumber) + ftype
+    FiberDir = os.path.join(ODBdir, LoadCaseName, FibreFileName)
+	
+    ops.recorder('Element' , '-file', FiberDir, '-time', '-dT', deltaT, '-ele', eleNumber, 'section', str(sectionNumber), 'fiberData')
+
+
 ### All the plotting related definitions start here.
 
 ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
-node_style = {'color':'black', 'marker':'o', 'facecolor':'black','linewidth':0.} 
+node_style = {'color':'black', 'marker':'o', 'facecolor':'black','linewidth':0.}
+#node_style = {'color':'black', 'marker':'o', 'linewidth':0.} 
+
 node_text_style = {'fontsize':6, 'fontweight':'regular', 'color':'green'} 
 ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'} 
 
@@ -278,7 +298,7 @@ def plot_model(*argv,Model="none"):
 				jNode = nodecoords(Nodes[1])
 				kNode = nodecoords(Nodes[2])
 				
-				ipltf._plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, ele_style, fillSurface='yes')
+				ipltf._plotTri2D(iNode, jNode, kNode, iNode, ax, show_element_tags, eleTag, ele_style, fillSurface='yes')
 						
 			if len(Nodes) == 4:
 				# 2D Planer four-node shell elements
@@ -630,7 +650,8 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, o
 			# Returns an array of node coordinates: works like nodeCoord() in opensees.
 			i, = np.where(nodeArray[:,0] == float(nodetag))
 			return nodeArray[int(i),1:]
-			
+
+        # TODO C: Can we just return DeflectedNodeCoordArray here?
 		def nodecoordsFinal(nodetag):
 			# Returns an array of final deformed node coordinates
 			i, = np.where(nodeArray[:,0] == float(nodetag))				# Original coordinates
@@ -662,18 +683,18 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, o
 					
 				if len(Nodes) == 3:
 					## 2D Planer three-node shell elements
-					iNode = nodeCoord(Nodes[0])
-					jNode = nodeCoord(Nodes[1])
-					kNode = nodeCoord(Nodes[2])
+					iNode = nodecoords(Nodes[0])
+					jNode = nodecoords(Nodes[1])
+					kNode = nodecoords(Nodes[2])
 					
 					iNode_final = nodecoordsFinal(Nodes[0])
 					jNode_final = nodecoordsFinal(Nodes[1])
 					kNode_final = nodecoordsFinal(Nodes[2])
 
 					if overlap == "yes":
-						ipltf._plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
+						ipltf._plotTri2D(iNode, jNode, kNode, iNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
 					
-					ipltf._plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
+					ipltf._plotTri2D(iNode_final, jNode_final, kNode_final, iNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
 					
 				if len(Nodes) == 4:
 					## 2D four-node Quad/shell element
@@ -748,14 +769,14 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, o
 				if len(Nodes) == 8:
 					## 3D eight-node Brick element
 					## Nodes in CCW on bottom (0-3) and top (4-7) faces resp
-					iNode = nodeCoord(Nodes[0])
-					jNode = nodeCoord(Nodes[1])
-					kNode = nodeCoord(Nodes[2])
-					lNode = nodeCoord(Nodes[3])
-					iiNode = nodeCoord(Nodes[4])
-					jjNode = nodeCoord(Nodes[5])
-					kkNode = nodeCoord(Nodes[6])
-					llNode = nodeCoord(Nodes[7])
+					iNode = nodecoords(Nodes[0])
+					jNode = nodecoords(Nodes[1])
+					kNode = nodecoords(Nodes[2])
+					lNode = nodecoords(Nodes[3])
+					iiNode = nodecoords(Nodes[4])
+					jjNode = nodecoords(Nodes[5])
+					kkNode = nodecoords(Nodes[6])
+					llNode = nodecoords(Nodes[7])
 					
 					iNode_final = nodecoordsFinal(Nodes[0])
 					jNode_final = nodecoordsFinal(Nodes[1])
@@ -792,3 +813,580 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, o
 		plt.show()
 		
 		return fig
+
+
+def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1, 
+                           fps = 24, FrameInterval = 0, skipFrame =1, timeScale = 1,
+                           show_node_tags = 'no', show_element_tags = 'no'):
+    """
+    This defines the animation of an opensees model, given input data.
+    
+    For big models it's unlikely that the animation will actually run at the 
+    desired fps in "real time". Matplotlib just isn't built for high fps 
+    animation.
+
+    Parameters
+    ----------
+    dt : 1D array
+        The input time steps.
+    deltaAni : 3D array, [NtimeAni,Nnodes,ndm]
+        The input displacement of each node for all time, in every dimension.
+    nodes: 
+        The node list in standard format
+    elements: 1D list
+        The elements list in standard format.
+    NodeFileName : Str
+        Name of the input node information file.
+    ElementFileName : Str
+        Name of the input element connectivity file.
+    Scale :  float, optional
+        The scale on the xy/xyz displacements. The default is 1.
+    fps : TYPE, optional
+        The frames per second to be displayed. These values are dubious at best
+        The default is 24.
+    FrameInterval : float, optional
+        The time interval between frames to be used. The default is 0.
+    skipFrame : TYPE, optional
+        DESCRIPTION. The default is 1.
+    timeScale : TYPE, optional
+        DESCRIPTION. The default is 1.
+
+    Returns
+    -------
+    TYPE
+        Earthquake animation.
+
+    """
+       
+    # Read Disp From ODB
+    DBOutputs = readODB(Model,Loadcase)
+    nodes = DBOutputs[0]
+    elements = DBOutputs[1]
+    Disp = DBOutputs[2]
+    Disp = Disp*Scale
+    
+    # Reshape array
+    Ntime = len(Disp[:,0])
+    ndm = len(nodes[0,1:])
+    Nnodes = int((len(Disp[0,:]))/ndm)
+    
+    # Reshape Displacements [NtimeAni,Nnodes,ndm]
+    tempDisp = np.zeros([Ntime,Nnodes,ndm])
+    tempDisp[:,:,0] = Disp[:,0::ndm]
+    tempDisp[:,:,1] = Disp[:,1::ndm]
+    if ndm == 3:
+        tempDisp[:,:,2] = Disp[:,2::ndm]    
+    
+    Disp = tempDisp
+
+    
+    # Get nodes and elements
+    ndm = len(nodes[0,1:])
+    Nnodes = len(nodes[:,0])
+    Nele = len(elements)
+    
+    nodeLabels = nodes[:, 0]       
+    NodeText = [None]*Nnodes
+
+    # initialize figure
+    fig, ax = ipltf._initializeFig(nodes[:,1:], ndm)    
+    
+	# Adjust plot area.   
+    ipltf._setStandardViewport(fig, ax, nodes[:,1:], ndm, Disp[0,:,:])
+         
+       
+    # ========================================================================
+    # Initialize Plots
+    # ========================================================================
+    
+    initialDisp = nodes[:, 1:] + Disp[0,:,:]
+    
+    # Add Text
+    if ndm == 2:
+        time_text = ax.text(0.95, 0.01, '', verticalalignment='bottom', 
+                            horizontalalignment='right', transform=ax.transAxes, color='grey')
+        
+        EQObjects = ipltf._plotEle_2D(nodes, elements, initialDisp, fig, ax, show_element_tags)
+        [EqfigLines, EqfigSurfaces, EqfigText] = EQObjects 
+        EqfigNodes, = ax.plot(tempDisp[0,:,0],tempDisp[0,:,1], **node_style)  
+    
+        if show_node_tags == 'yes':
+            for j in range(Nnodes):
+                NodeText[j] = ax.text(*nodes[j,1:]*1.02, str(int(nodes[j,0])), **node_text_style)
+                
+    if ndm == 3:
+        
+        EQObjects = ipltf._plotEle_3D(nodes, elements, initialDisp, fig, ax, show_element_tags)
+        [EqfigLines, EqfigSurfaces, EqfigText] = EQObjects 
+        EqfigNodes, = ax.plot(tempDisp[0,:,0], tempDisp[0,:,1], tempDisp[0,:,2], **node_style)  
+
+        if show_node_tags == 'yes':
+            for j in range(Nnodes):
+                NodeText[j] = ax.text(*nodes[j,1:]*1.02, str(int(nodes[j,0])), **node_text_style)
+                
+    # EqfigNodes
+    Nsurf = len(EqfigSurfaces)
+
+    # ========================================================================
+    # Animation
+    # ========================================================================
+   
+    
+    # Scale on displacement
+    dtInput  = dt
+    dtFrames  = 1/fps
+    Ntime = len(Disp[:,0])
+    Frames = np.arange(0,Ntime)
+       
+    # If the interval is zero
+    if FrameInterval == 0:
+        FrameInterval = dtFrames*1000/timeScale
+    else: 
+        pass    
+        
+    FrameStart = Frames[0]
+    FrameEnd = Frames[-1]
+    
+    # Slider Location and size relative to plot
+    # [x, y, xsize, ysize]
+    axSlider = plt.axes([0.25, .03, 0.50, 0.02])
+    plotSlider = Slider(axSlider, 'Frame', FrameStart, FrameEnd, valinit=FrameStart)
+    
+    # Animation controls
+    global is_manual
+    is_manual = False # True if user has taken control of the animation   
+    
+    def on_click(event):
+        # Check where the click happened
+        (xm,ym),(xM,yM) = plotSlider.label.clipbox.get_points()
+        if xm < event.x < xM and ym < event.y < yM:
+            # Event happened within the slider, ignore since it is handled in update_slider
+            return
+        else:
+            # user clicked somewhere else on canvas = unpause
+            global is_manual
+            is_manual=False    
+        
+    def animate2D_slider(TimeStep):
+        """
+        The slider value is liked with the plot - we update the plot by updating
+        the slider.
+        """
+        global is_manual
+        is_manual=True
+        TimeStep = int(TimeStep)
+               
+        # The current node coordinants in (x,y) or (x,y,z)
+        CurrentNodeCoords =  nodes[:,1:] + Disp[TimeStep,:,:]
+        # Update Plots
+        
+        # update node locations
+        EqfigNodes.set_xdata(CurrentNodeCoords[:,0]) 
+        EqfigNodes.set_ydata(CurrentNodeCoords[:,1])
+           
+        # Get new node mapping
+        # I don't like doing this loop every time - there has to be a faster way
+        xy_labels = {}
+        for jj in range(Nnodes):
+            xy_labels[nodeLabels[jj]] = CurrentNodeCoords[jj,:]
+        
+        # Define the surface
+        SurfCounter = 0
+        
+        # print('loop start')
+        # update element locations
+        for jj in range(Nele):
+            # Get the node number for the first and second node connected by the element
+            TempNodes = elements[jj][1:]
+            # This is the xy coordinates of each node in the group
+            TempNodeCoords = [xy_labels[node] for node in TempNodes] 
+            coords_x = [xy[0] for xy in TempNodeCoords]
+            coords_y = [xy[1] for xy in TempNodeCoords]
+            
+            # Update element lines    
+            EqfigLines[jj].set_xdata(coords_x)
+            EqfigLines[jj].set_ydata(coords_y)
+            # print('loop start')
+            # Update the surface if necessary
+            if 2 < len(TempNodes):
+                tempxy = np.column_stack([coords_x, coords_y])
+                EqfigSurfaces[SurfCounter].xy = tempxy
+                SurfCounter += 1
+       
+        # update time Text
+        time_text.set_text(round(TimeStep*dtInput,1))
+        time_text.set_text(str(round(TimeStep*dtInput,1)) )        
+        
+        # redraw canvas while idle
+        fig.canvas.draw_idle()    
+            
+        return EqfigNodes, EqfigLines, EqfigSurfaces, EqfigText
+
+    def animate3D_slider(TimeStep):
+        
+        global is_manual
+        is_manual=True
+        TimeStep = int(TimeStep)
+        
+        # this is the most performance critical area of code
+        
+        # The current node coordinants in (x,y) or (x,y,z)
+        CurrentNodeCoords =  nodes[:,1:] + Disp[TimeStep,:,:]
+        # Update Plots
+        
+        # update node locations
+        EqfigNodes.set_data_3d(CurrentNodeCoords[:,0], CurrentNodeCoords[:,1], CurrentNodeCoords[:,2])
+               
+        # Get new node mapping
+        # I don't like doing this loop every time - there has to be a faster way
+        xyz_labels = {}
+        for jj in range(Nnodes):
+            xyz_labels[nodeLabels[jj]] = CurrentNodeCoords[jj,:]        
+    
+        SurfCounter = 0
+            
+        # update element locations
+        for jj in range(Nele):
+            # Get the node number for the first and second node connected by the element
+            TempNodes = elements[jj][1:]
+            # This is the xy coordinates of each node in the group
+            TempNodeCoords = [xyz_labels[node] for node in TempNodes] 
+            coords_x = [xyz[0] for xyz in TempNodeCoords]
+            coords_y = [xyz[1] for xyz in TempNodeCoords]
+            coords_z = [xyz[2] for xyz in TempNodeCoords]
+            
+            # Update element Plot    
+            EqfigLines[jj].set_data_3d(coords_x, coords_y, coords_z)
+            
+            if len(TempNodes) > 2:
+                # Update 3D surfaces
+                tempVec = np.zeros([4,4])
+                tempVec[0,:] = coords_x
+                tempVec[1,:] = coords_y
+                tempVec[2,:] = coords_z
+                tempVec[3,:] = EqfigSurfaces[SurfCounter]._vec[3,:]
+                EqfigSurfaces[SurfCounter]._vec = tempVec
+                SurfCounter += 1
+                
+        # redraw canvas while idle
+        fig.canvas.draw_idle()   
+
+        return EqfigNodes, EqfigLines, EqfigSurfaces, EqfigText
+
+    def update_plot(ii):
+        print(ii)
+        # If the control is manual, we don't change the plot    
+        global is_manual
+        if is_manual:
+            return EqfigNodes, EqfigLines, EqfigSurfaces, EqfigText
+       
+        # Find the close timeStep and plot that
+        CurrentFrame = int(np.floor(plotSlider.val))
+        CurrentFrame += 1
+        if CurrentFrame >= FrameEnd:
+            CurrentFrame = 0
+        
+        # Update the slider
+        plotSlider.set_val(CurrentFrame)
+        is_manual = False # the above line called update_slider, so we need to reset this
+        return EqfigNodes, EqfigLines, EqfigSurfaces, EqfigText
+
+    if ndm == 2:
+        plotSlider.on_changed(animate2D_slider)
+    elif ndm == 3:
+        plotSlider.on_changed(animate3D_slider)
+    
+    # assign click control
+    fig.canvas.mpl_connect('button_press_event', on_click)
+
+    ani = animation.FuncAnimation(fig, update_plot, Frames, interval = FrameInterval)
+    return ani
+
+
+def plotFiberResponse(FiberName, LoadStep):
+    
+    fiberData  = np.loadtxt(FiberName,delimiter=' ')
+    fiberYPosition = fiberData[:,1::5]
+    fiberStress = fiberData[:,4::5]
+    
+    fig, = plt.plot(fiberYPosition[LoadStep,:], fiberStress[LoadStep,:])
+    
+    pass
+    
+
+
+
+
+def animateFiber2D(Model, LoadCase, element, section, skipStart = 0, 
+                   skipEnd = 0, rFactor=1, outputFrames=0, fps = 24, Xbound = [], Ybound = []):
+    """
+    Parameters
+    ----------
+    xinput : 1d array
+        The input x coordinants. 
+    yinput : 1d array
+        The input y coordinants. 
+    skipStart : int, optional
+        If specified, this many datapoints will be skipped from the data start.
+        The default is 0.
+    skipEnd : int, optional
+        If specified, this many frames will be skipped at the end of 
+        the analysis. The default is 0.
+    rFactor : int, optional
+        If specified, only every "x" frames will be reduced by this factor. 
+        The default is 1.
+    outputFrames : int, optional
+        The number of frames to be included after all other reductions. If the
+        reduced number of frames is less than this value, no change is made.
+        The default is 0.
+    fps : int, optional
+        Number of animation frames to be displayed per second. The default is 24.
+    Xbound : [xmin, xmax], optional
+        The domain of the chart. The default is 1.1 the max and min values.
+    Ybound : [ymin, ymax], optional
+        The range of the chart. The default is 1.1 the max and min values.
+
+    
+    """
+    
+    fiberData  = idbf._readFiberData2D(Model, LoadCase, element, section)
+    fiberYPosition = fiberData[:,1::5]
+    fiberStress = fiberData[:,4::5]       
+    
+    # If end data is not being skipped, use the full vector length.
+    if skipEnd ==0:
+        skipEnd = len(fiberYPosition)
+    
+    
+    # Set up bounds based on data from 
+    if Xbound == []:
+        xmin = 1.1*np.min(fiberYPosition)
+        xmax = 1.1*np.max(fiberYPosition)
+    else:
+        xmin = Xbound[0]       
+        xmax = Xbound[1]
+    
+    if Ybound == []:
+        ymin = 1.1*np.min(fiberStress)  
+        ymax = 1.1*np.max(fiberStress)        
+    else:
+        ymin = Ybound[0]       
+        ymax = Ybound[1]          
+    
+    
+    # Remove unecessary data
+    xinputs = fiberYPosition[skipStart:skipEnd, :]
+    yinputs = fiberStress[skipStart:skipEnd, :]
+
+    # Reduce the data if the user specifies
+    if rFactor != 1:
+        xinputs = xinputs[::rFactor, :]
+        yinputs = yinputs[::rFactor, :]
+    
+    # If the Frames isn't specified, use the length of the reduced vector.
+    if outputFrames == 0:
+        outputFrames = len(xinputs[:, 0])
+    else:
+        outputFrames = min(outputFrames,len(xinputs[:, 0]))
+    
+    # Get the final output frames. X doesn't change
+    xinputs = xinputs[:outputFrames, :]
+    yinputs = yinputs[:outputFrames, :]    
+    xinput = xinputs[0,:]
+    
+    # Initialize the plot
+    fig, ax = plt.subplots()
+    line, = ax.plot(xinput, yinputs[0,:])
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
+    print(xmin)
+    
+    Frames = np.arange(0, outputFrames)
+    FrameStart = int(Frames[0])
+    FrameEnd = int(Frames[-1])
+    
+    # Slider Location and size relative to plot
+    # [x, y, xsize, ysize]
+    axSlider = plt.axes([0.25, .03, 0.50, 0.02])
+    plotSlider = Slider(axSlider, 'Frame', FrameStart, FrameEnd, valinit=FrameStart, valfmt = '%d')
+    
+    # Animation controls
+    global is_manual
+    is_manual = False # True if user has taken control of the animation   
+    
+    def on_click(event):
+        # Check where the click happened
+        (xm,ym),(xM,yM) = plotSlider.label.clipbox.get_points()
+        if xm < event.x < xM and ym < event.y < yM:
+            # Event happened within the slider, ignore since it is handled in update_slider
+            return
+        else:
+            # user clicked somewhere else on canvas = unpause
+            global is_manual
+            is_manual=False        
+    
+    # Define the update function
+    # def update_line(time, xinput, yinputs, line):
+    def update_line_slider(time):
+        global is_manual
+        is_manual=True
+
+        time = int(time)
+        # Get the current data        
+        y = yinputs[time,:]
+        
+        # Update the background line
+        line.set_data(xinput, y)
+        
+        fig.canvas.draw_idle()    
+        
+        return line,
+    
+    
+    def update_plot(ii):
+    
+        # If the control is manual, we don't change the plot    
+        global is_manual
+        if is_manual:
+            return line,
+       
+        # Find the close timeStep and plot that
+        CurrentFrame = int(np.floor(plotSlider.val))
+        CurrentFrame += 1
+        if CurrentFrame >= FrameEnd:
+            CurrentFrame = 0
+        
+        # Update the slider
+        plotSlider.set_val(CurrentFrame)
+        is_manual = False # the above line called update_slider, so we need to reset this
+        return line,  
+    
+    
+    plotSlider.on_changed(update_line_slider)
+    
+    # assign click control
+    fig.canvas.mpl_connect('button_press_event', on_click)    
+    
+    interval = 1000/fps
+    
+    line_ani = animation.FuncAnimation(fig, update_plot, outputFrames, 
+                                       # fargs=(xinput, yinputs, line), 
+                                       interval=interval)
+    return line_ani
+    
+    
+
+
+  
+def _sample_plot_model(ModelName = '', LoadCaseName = '', Scale = 1, 
+                      show_element_tags = 'no', show_node_tags = 'no',
+                      Plot_Displacements = 'no'):
+    
+    Input = False
+    # try to read a model the nodes and elements
+    try :
+        nodes, elements = idbf.getNodesandElements()
+        Input = True
+    except:
+        print("No model active.") 
+
+    # try to get the nodes and elements from the database
+    try :
+        nodes, elements = idbf._readNodesandElements(ModelName)
+        Input = True
+    except:
+        print("No database found.")
+    
+    if not Input:
+        raise Exception('No input model was specified')    
+    
+    
+    # Process Node information, Calulate number of degrees of freedom
+    nodeList = nodes[:,0]    
+    Nnodes = len(nodeList)
+    nodeCoordArray = nodes[:,1:]
+    ndm = len(nodes[0,1:])   
+
+    # Get displacements
+    if Plot_Displacements == 'yes':
+        # Get Node coordinants
+        OBD = readODB(ModelName, LoadCaseName)
+        
+        DispNodeArray = OBD[2]*Scale
+        
+    # Otherwise we use zero as our displacement
+    else:
+        DispNodeArray = np.zeros([Nnodes,ndm])
+    
+    DispNodeCoordArray = nodes[:,1:] + DispNodeArray
+
+    
+    Nele = len(elements)
+    figNodeTags = [None]*Nele
+    NodeText = [None]*Nnodes
+    
+    # Initialize figure
+    fig, ax = ipltf._initializeFig(DispNodeCoordArray, ndm)
+    
+    # Check if the model is 2D or 3D
+    if ndm == 2:
+        
+        # Plot elements
+        OutputObjects = ipltf._plotEle_2D(nodes, elements, DispNodeCoordArray, fig, ax, show_element_tags)
+
+        if show_node_tags == 'yes':
+            for j in range(Nnodes):
+                NodeText[j] = ax.text(*nodes[j,1:]*1.02, str(int(nodes[j,0])), **node_text_style) #label nodes
+			
+        nodeObjects = ax.scatter(nodeCoordArray[:,0], nodeCoordArray[:,1], **node_style)
+
+        #ResizePlot(fig, ax, ndm)
+        nodeMins = np.array([min(nodeCoordArray[:,0]), min(nodeCoordArray[:,1])])
+        nodeMaxs = np.array([max(nodeCoordArray[:,0]), max(nodeCoordArray[:,1])])
+		
+        xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
+        yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
+        view_range = max(max(nodeCoordArray[:,0])-min(nodeCoordArray[:,0]), max(nodeCoordArray[:,1])-min(nodeCoordArray[:,1]))
+		
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+			
+
+    if ndm == 3:
+        
+
+        print('3D model')
+		
+        # Plot Model and make Objects
+        OutputObjects = ipltf._plotEle_3D(nodes, elements, DispNodeCoordArray, fig, ax, show_element_tags)
+
+        if show_node_tags == 'yes':
+            for jj in range(Nnodes):
+                NodeText[jj] = ax.text(*nodes[jj,1:]*1.02, str(int(nodes[jj,0])), **node_text_style) #label nodes
+				
+        nodeObjects = ax.scatter(nodeCoordArray[:,0], nodeCoordArray[:,1], nodeCoordArray[:,2], **node_style)								#show nodes
+		
+        nodeMins = np.array([min(nodeCoordArray[:,0]),min(nodeCoordArray[:,1]),min(nodeCoordArray[:,2])])
+        nodeMaxs = np.array([max(nodeCoordArray[:,0]),max(nodeCoordArray[:,1]),max(nodeCoordArray[:,2])])
+		
+        xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
+        yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
+        zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
+		
+        view_range = max(max(nodeCoordArray[:,0])-min(nodeCoordArray[:,0]), max(nodeCoordArray[:,1])-min(nodeCoordArray[:,1]), max(nodeCoordArray[:,2])-min(nodeCoordArray[:,2]))
+
+        ax.set_xlim(xViewCenter-(view_range/4), xViewCenter+(view_range/4))
+        ax.set_ylim(yViewCenter-(view_range/4), yViewCenter+(view_range/4))
+        ax.set_zlim(zViewCenter-(view_range/3), zViewCenter+(view_range/3))
+		
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+	
+    plt.axis('on')
+    plt.show()
+    
+    OutputObjects = [nodeObjects, *OutputObjects, NodeText]
+    
+    return OutputObjects
+	
