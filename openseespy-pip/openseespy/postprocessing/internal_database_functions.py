@@ -5,7 +5,7 @@ import openseespy.opensees as ops
 
 
 
-def getNodesandElements():
+def _getNodesandElements():
     """
     This function returns the nodes and elments for an active model, in a 
     standardized format. The OpenSees model must be active in order for the 
@@ -88,7 +88,7 @@ def _saveNodesandElements(ModelName):
     ODBdir = ModelName+"_ODB"		# ODB Dir name
 
     # Read noades and elements
-    nodes, elements = getNodesandElements()
+    nodes, elements = _getNodesandElements()
 
     # Sort through the element arrays
     ele2Node = np.array([ele for ele in elements if len(ele) == 3])
@@ -179,10 +179,10 @@ def _readNodesandElements(ModelName):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 try:
-                    TempEle[ii] = np.loadtxt(FileName, dtype,  delimiter = delim, unpack=False)
+                    TempEle[ii] = np.loadtxt(FileName, dtype,  delimiter = delim, skiprows=0, ndmin=2, unpack=False)
                 except:
                     print("Reading element data from a OpenSees Tcl model")
-                    TempEle[ii] = np.transpose(np.loadtxt(FileName, dtype=float, delimiter=None, converters=None, unpack=True))
+                    TempEle[ii] = np.transpose(np.loadtxt(FileName, dtype=float, delimiter=None,  skiprows=0, ndmin=2,converters=None, unpack=True))
 
     # define the final element array
     elements = [*TempEle[0],*TempEle[1],*TempEle[2],*TempEle[3]]
@@ -196,7 +196,7 @@ def _readNodesandElements(ModelName):
 	
 ################ ModeShapes #############################
 
-def getModeShapeData(modeNumber):
+def _getModeShapeData(modeNumber):
 	
 	# Get nodes and elements
     nodeList = ops.getNodeTags()
@@ -216,7 +216,7 @@ def getModeShapeData(modeNumber):
 	
 def _saveModeShapeData(ModelName,modeNumber):
     
-    nodes_modeshape = getModeShapeData(modeNumber)
+    nodes_modeshape = _getModeShapeData(modeNumber)
 	
 	# Consider making these optional arguements
     modeName = "ModeShape"
