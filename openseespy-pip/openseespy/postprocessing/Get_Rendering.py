@@ -1,12 +1,12 @@
 ##########################################################################################
-## This script records the Nodes and Elements in order to render the OpenSees model.	##
-## As of now, this procedure does not work for 9 and 20 node brick elements, and 		##
+## *Only user functions are to be included in this file. For helper/internal functions	##
+## go to internal_database_functions.py and internal_plotting_functions.                ##
+## *As of now, this procedure does not work for 9 and 20 node brick elements, and       ##
 ## tetrahedron elements.																##
 ##																						##
 ##																						##
-## Created By - Anurag Upadhyay, University of Utah. 									##
+## Created By - Anurag Upadhyay, University of Utah. https://github.com/u-anurag		##
 ## 																						##
-## You can download more examples from https://github.com/u-anurag						##
 ##########################################################################################
 
 # Check if the script is executed on Jupyter Notebook Ipython. 
@@ -275,7 +275,7 @@ def plot_model(*argv,Model="none"):
 	if Model == "none":
 		print("No Model_ODB specified, trying to get data from the active model.")
 		try:
-			nodeArray, elementArray = idbf.getNodesandElements()
+			nodeArray, elementArray = idbf._getNodesandElements()
 		except:
 			raise Exception("No Model_ODB specified. No active model found.")
 	else:
@@ -286,7 +286,6 @@ def plot_model(*argv,Model="none"):
 			raise Exception("No Model_ODB found. No active model found.")
 		
 	nodetags = nodeArray[:,0]
- 	# offset = 0.05				# offset for text
 	
 	
 	def nodecoords(nodetag):
@@ -393,21 +392,22 @@ def plot_model(*argv,Model="none"):
 	return fig, ax
 
 
-def plot_modeshape(*argv,Model="none"):
+def plot_modeshape(*argv,overlap="yes",Model="none"):
 	"""
 	Command: plot_modeshape(modeNumber,<scale>, <Model="modelName">)
 	
-	modeNumber : Mode number to be plotted.
-	scale      : Optional input to change the scale factor of the deformed shape. Default is 200.
-	Model      : Optional input for the name of the model used in createODB() to read the modeshape data from.
-	              The default is "none" and the mode shape is plotted from the active model.
+	modeNumber : (int) Mode number to be plotted.
+	scale      : (int) Optional input to change the scale factor of the deformed shape. Default is 10.
+	overlap    : (str) Optional keyword argument to turn overlap off. Default value is "yes"
+	Model      : (str) Optional input for the name of the model used in createODB() to read the modeshape data from.
+	                   The default is "none" and the mode shape is plotted from the active model.
 	
 	"""
 	modeNumber = argv[0]
 	if len(argv) == 1:
-		print("No scale factor specified to plot modeshape, using dafault 200.")
+		print("No scale factor specified to plot modeshape, using dafault 10.")
 		print("Input arguments are plot_modeshape(modeNumber, scaleFactor, overlap='yes')")
-		scale = 200
+		scale = 10
 	elif len(argv) == 2:
 		scale = argv[1]
 	else:
@@ -417,22 +417,19 @@ def plot_modeshape(*argv,Model="none"):
 		print("No Model_ODB specified to plot modeshapes")
 		ops.wipeAnalysis()
 		eigenVal = ops.eigen(modeNumber+1)
-# 		eigenVal = ops.eigen(modeNumber-1)
 		Tn=4*asin(1.0)/(eigenVal[modeNumber-1])**0.5
-		nodeArray, elementArray = idbf.getNodesandElements()
-		Mode_nodeArray = idbf.getModeShapeData(modeNumber)		# DOES NOT GIVE MODAL PERIOD
+		nodeArray, elementArray = idbf._getNodesandElements()
+		Mode_nodeArray = idbf._getModeShapeData(modeNumber)		# DOES NOT GIVE MODAL PERIOD
 		ops.wipeAnalysis()
 	else:
 		print("Reading modeshape data from "+str(Model)+"_ODB")
 		nodeArray, elementArray = idbf._readNodesandElements(Model)
 		Mode_nodeArray, Periods = idbf._readModeShapeData(Model,modeNumber)
 		Tn = Periods[modeNumber-1]
-		
+				
 	DeflectedNodeCoordArray = nodeArray[:,1:]+ scale*Mode_nodeArray[:,1:]
 	nodetags = nodeArray[:,0]
-	overlap='yes'		# overlap the modeshape with a wireframe of original shape, set default "yes" for now.
-	# show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
-	show_element_tags = 'no'
+	show_element_tags = 'no'	# No node or element tags are to be displayed on modeshape plots.
 
 	def nodecoords(nodetag):
 		"""
@@ -516,7 +513,6 @@ def plot_modeshape(*argv,Model="none"):
 		for ele in elementArray:
 			eleTag = int(ele[0])
 			Nodes =ele[1:]
-			
 			if len(Nodes) == 2:
 				## 3D beam-column elements
 				iNode = nodecoords(Nodes[0])
@@ -588,11 +584,13 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 	"""
 	Command: plot_deformedshape(Model="modelName", LoadCase="loadCase name", <tstep = time (float)>, <scale = scaleFactor (float)>, <overlap='yes'>)
 	
+	Keyword arguments are used to make the command clear.
+	
 	Model   : Name of the model used in createODB() to read the displacement data from.
 	LoadCase: Name of the load case used in createODB().
 	tstep   : Optional value of the time stamp in the dynamic analysis. If no specific value is provided, the last step is used.
-	scale   : Optional input to change the scale factor of the deformed shape.
-	overlap : Optional input to plot the deformed shape overlapped with the original shape.
+	scale   : Optional input to change the scale factor of the deformed shape. Default is 10.
+	overlap : Optional input to plot the deformed shape overlapped with the wire frame of the original shape.
 	
 	Future Work: Add option to plot deformed shape based on "time" and "step number" separately.
 	
@@ -620,9 +618,7 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 		DeflectedNodeCoordArray = nodeArray[:,1:]+ scale*Disp_nodeArray[int(jj),:,:]
 		nodetags = nodeArray[:,0]
 		
-		# overlap='yes'						# overlap the modeshape with a wireframe of original shape, set default "yes" for now.
-		# show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
-		show_element_tags = 'no'
+		show_element_tags = 'no'			# Set show tags to "no" to plot deformed shapes.
 
 		
 		def nodecoords(nodetag):
@@ -634,7 +630,6 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 		def nodecoordsFinal(nodetag):
 			# Returns an array of final deformed node coordinates
 			i, = np.where(nodeArray[:,0] == float(nodetag))				# Original coordinates
-			# ii, = np.where(Disp_nodeArray[:,0] == float(nodetag))		# deflected coordinates
 			return nodeArray[int(i),1:] + scale*Disp_nodeArray[int(jj),int(i),:]
 
 		# Check if the model is 2D or 3D
@@ -692,7 +687,8 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 						
 					ipltf._plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
 					            
-# 			ax.text(0.1, 0.90, printLine, transform=ax.transAxes)		
+			ax.text(0.1, 0.90, printLine, transform=ax.transAxes)
+		
 		else:
 			print('3D model')
 			fig = plt.figure()
