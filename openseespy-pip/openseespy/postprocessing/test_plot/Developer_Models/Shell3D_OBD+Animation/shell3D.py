@@ -1,3 +1,17 @@
+
+import numpy as np
+import openseespy.opensees as ops
+import openseespy.postprocessing.Get_Rendering as opp
+
+
+## DEVELOPERS: Replace the above line to your own Get_Rendering library under development. 
+# from Development_Get_Rendering import * 
+
+
+# =============================================================================
+# Analysis
+# =============================================================================
+
 # 3D Shell Structure Example 7.1
 # ------------------------------
 #  Shell roof modeled with three-dimensional linear shell elements
@@ -8,13 +22,6 @@
 # Original Written: Andreas Schellenberg (andreas.schellenberg@gmail.com)
 # Date: September 2017
 # import the OpenSees Python module
-
-import openseespy.opensees as ops
-from openseespy.postprocessing.Get_Rendering import * 
-import openseespy.postprocessing.Get_Rendering_Animations as opp
-
-## DEVELOPERS: Replace the above line to your own Get_Rendering library under development. 
-# from Development_Get_Rendering import * 
 
 # ----------------------------
 # Start of model generation
@@ -95,6 +102,15 @@ ops.setTime(0.0)
 # Now remove the loads and let the beam vibrate
 ops.remove("loadPattern", 1)
 
+
+
+Model = '3D_Shell'
+LoadCase = 'Transient'
+LoadCase2 = 'Transient_5s'
+opp.createODB(Model, LoadCase, Nmodes = 3, recorders = [])
+opp.createODB(Model, LoadCase2, Nmodes = 3, deltaT = 5., recorders = [])
+
+
 # Create the transient analysis
 ops.test("EnergyIncr", 1.0E-10, 20, 0)
 ops.algorithm("Newton")
@@ -104,25 +120,53 @@ ops.system("SparseGeneral", "-piv")
 ops.integrator("Newmark", 0.50, 0.25)
 ops.analysis("Transient")
 
-Model = '3D_Shell'
-LoadCase = 'Transient'
 
-createODB(Model,LoadCase)
+
 
 
 # Perform the transient analysis (20 sec)
-ops.analyze(200, 0.2)
+ops.analyze(100, 0.2)
 
 ####### Model Visualization
 
-# plot_model(node,element)
-# plot_modeshape(1,100)
 
 dt = 0.2
 
+
+# =============================================================================
+# Function calls on the active model
+# =============================================================================
+
+
+# opp.plot_model('nodes','elements')
+# opp.plot_modeshape(2, 200)
+
+
+
+# =============================================================================
+# Function calls on the OBD
+# =============================================================================
+
 ops.wipe()
 
-opp.sample_plot_model(Model,LoadCase, show_node_tags = 'yes',show_element_tags = 'yes')
-ani = opp.getDispAnimationSlider(dt, Model, LoadCase, Scale=30)
+opp.plot_model('nodes','elements',Model = Model)
+
+# plot_deformedshape
+# Deformed shape time steps, one that uses an exact step and one that doesn't
+opp.plot_deformedshape(Model, LoadCase, tstep = 3.1231, overlap = 'yes')
+opp.plot_deformedshape(Model, LoadCase, tstep = 3., overlap = 'yes')
+opp.plot_deformedshape(Model, LoadCase, tstep = 3.)
+
+opp.plot_deformedshape(Model, LoadCase2, tstep = 3.1231, overlap = 'yes')
+opp.plot_deformedshape(Model, LoadCase2, tstep = 3., overlap = 'yes')
+opp.plot_deformedshape(Model, LoadCase2, tstep = 3.)
+
+
+# plot_modeshape
+opp.plot_modeshape(1, 200, Model = Model)
+opp.plot_modeshape(2, 200, Model = Model)
+
+
+ani = opp.animate_deformedshape( Model, LoadCase, dt, Scale=30)
 
 

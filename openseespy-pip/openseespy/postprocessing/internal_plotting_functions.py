@@ -73,7 +73,7 @@ def _plotTri2D(iNode, jNode, kNode, ax, show_element_tags, element, eleStyle, fi
 							
     # Initialize varables for matplotlib objects
     tempLines = [None]
-    tempSurf = [None]
+    tempSurface = [None]
     tempTag = [None]
     
     tempLines, = plt.plot((iNode[0], jNode[0], kNode[0], iNode[0]), 
@@ -86,19 +86,22 @@ def _plotTri2D(iNode, jNode, kNode, ax, show_element_tags, element, eleStyle, fi
     	plt.setp(tempLines,**ele_style)
     
     if fillSurface == 'yes':
-    	tempSurfaces = ax.fill(np.array([iNode[0], jNode[0], kNode[0]]), 
+    	tempSurface = ax.fill(np.array([iNode[0], jNode[0], kNode[0]]), 
                                         np.array([iNode[1], jNode[1], kNode[1]]), color='g', alpha=.6)
         
     if show_element_tags == 'yes':
     	tempTag = ax.text((iNode[0] + jNode[0] + kNode[0])*1.0/3, (iNode[1]+jNode[1]+kNode[1])*1.0/3, 
                            str(element), **ele_text_style) #label elements
-    return tempLines, tempSurfaces, tempTag
+    return tempLines, tempSurface, tempTag
 
 
 def _plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleStyle, fillSurface):
 	## procedure to render a 2D four node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
 	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
-	   
+    tempLines = [None]
+    tempSurface = [None]
+    tempTag = [None]
+
     tempLines, = plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
                (iNode[1], jNode[1], kNode[1], lNode[1], iNode[1]), marker='')
     
@@ -109,21 +112,23 @@ def _plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleS
         plt.setp(tempLines, **ele_style)
 
     if fillSurface == 'yes':
-        tempSurfaces = ax.fill(np.array([iNode[0], jNode[0], kNode[0], lNode[0]]), 
+        tempSurface = ax.fill(np.array([iNode[0], jNode[0], kNode[0], lNode[0]]), 
                                np.array([iNode[1], jNode[1], kNode[1], lNode[1]]), color='g', alpha=.6)
     
     tempTag = []
     if show_element_tags == 'yes':
         tempTag = ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0])*1.0/4, (iNode[1]+jNode[1]+kNode[1]+lNode[1])*1.0/4, 
                           str(element), **ele_text_style) #label elements
-    return tempLines, tempSurfaces, tempTag
+    return tempLines, tempSurface, tempTag
 
 
 def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleStyle, fillSurface):
 	## procedure to render a 3D four node shell element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
 	## USe fillSurface = "yes" for color fill in the elements. fillSurface="no" for wireframe.
 	
-    # [iNode, jNode, kNode, lNode] = [*nodesCords]
+    tempLines = [None]
+    tempSurface = [None]
+    tempTag = [None]
     
     # Create Lines
     tempLines, = plt.plot((iNode[0], jNode[0], kNode[0], lNode[0], iNode[0]), 
@@ -138,7 +143,7 @@ def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleS
 	
     # Get Surface
     if fillSurface == 'yes':
-        tempSurfaces = ax.plot_surface(np.array([[iNode[0], lNode[0]], [jNode[0], kNode[0]]]), 
+        tempSurface = ax.plot_surface(np.array([[iNode[0], lNode[0]], [jNode[0], kNode[0]]]), 
                                        np.array([[iNode[1], lNode[1]], [jNode[1], kNode[1]]]), 
                                        np.array([[iNode[2], lNode[2]], [jNode[2], kNode[2]]]), color='g', alpha=.6)
     tempTag = []
@@ -147,7 +152,7 @@ def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleS
         tempTag = ax.text((iNode[0]+jNode[0]+kNode[0]+lNode[0])*1.05/4, (iNode[1]+jNode[1]+kNode[1]+lNode[1])*1.05/4, 
                           (iNode[2]+jNode[2]+kNode[2]+lNode[2])*1.05/4, str(element), **ele_text_style) #label elements
 
-    return tempLines, tempSurfaces, tempTag
+    return tempLines, tempSurface, tempTag
 
 
 def _plotBeam2D(iNode, jNode, ax, show_element_tags, element, eleStyle):
@@ -324,7 +329,7 @@ def _plotEle_3D(nodes, elements, DispNodeCoordArray, fig, ax, show_element_tags)
     return figLines, figSurfaces, figTags
 
 
-def _initializeFig(nodeCords,ndm):
+def _initializeFig(nodeCords,ndm, Disp = np.array([])):
     
     # set the maximum figure size
     maxFigSize = 8
@@ -333,8 +338,26 @@ def _initializeFig(nodeCords,ndm):
     nodeMins = np.min(nodeCords, 0)
     nodeMaxs = np.max(nodeCords, 0)    
     
+    # Get the maximum displacement in each direction
+    if len(Disp) != 0:
+        
+        # if it's the animation
+        if len(Disp.shape) == 3:
+            dispmax = np.max(np.abs(Disp), (0,1))
+            # dispmax = np.max(Disp, (0,1))
+            # dispmin = np.min(Disp, (0,1))
+            
+        # if it's regular displacement 
+        else:
+            dispmax = np.max(np.abs(Disp), 0)
+            # dispmax = np.max(Disp, 0)
+            # dispmin = np.min(Disp, 0)
+        # nodeMins = np.min(nodeCords, 0) + dispmin
+        nodeMaxs = np.min(nodeCords, 0) - dispmax   
+        nodeMaxs = np.max(nodeCords, 0) + dispmax   
+        
     # Find the difference between each node.
-    nodeDelta = nodeMaxs - nodeMins
+    nodeDelta = np.abs(nodeMaxs - nodeMins)
     dmax = np.max(nodeDelta[:2])
     
     # Set the figure size
@@ -351,10 +374,18 @@ def _initializeFig(nodeCords,ndm):
     return fig, ax
 
 
-def _setStandardViewport(fig, ax, nodeCords, ndm, Disp = [], scale = 1):
+def _setStandardViewport(fig, ax, nodeCords, ndm, Disp = np.array([])):
     """
     This function sets the standard viewport size of a function, using the
     nodes as an input.
+    
+    The displacement is sperated from the node coordinants, because in the 
+    animation we want to find the bounds over all time. If displacement
+    was combined with node coordinants before the funciton starts, we couldn't
+    find the maximum over all time.
+    
+    Displcament is used in situations where nodeCoords hasn't been updated
+    already - most notably in the case of animations.
        
     Parameters
     ----------
@@ -380,25 +411,31 @@ def _setStandardViewport(fig, ax, nodeCords, ndm, Disp = [], scale = 1):
        
     # For the displacement function, the input is a vector
     
-    # Adjust plot area, get the bounds on both x and y
+    # Get the bounds on both x/y/z. These are vector outsputs
     nodeMins = np.min(nodeCords, 0)
     nodeMaxs = np.max(nodeCords, 0)
     
     # Get the maximum displacement in each direction
-    if Disp != []:
+    if len(Disp) != 0:
         
         # if it's the animation
         if len(Disp.shape) == 3:
-            dispmax = np.max(np.abs(Disp), (0,1))*scale
+            dispmax = np.max(np.abs(Disp), (0,1))
+            # dispmax = np.max(Disp, (0,1))
+            # dispmin = np.min(Disp, (0,1))
+            
         # if it's regular displacement 
         else:
-            dispmax = np.max(np.abs(Disp), 0)*scale
-        nodeMins = np.min(nodeCords, 0) - dispmax
-        nodeMaxs = np.max(nodeCords, 0) + dispmax
+            dispmax = np.max(np.abs(Disp), 0)
+            # dispmax = np.max(Disp, 0)
+            # dispmin = np.min(Disp, 0)
+        # nodeMins = np.min(nodeCords, 0) + dispmin
+        nodeMins = np.min(nodeCords, 0) - dispmax  
+        nodeMaxs = np.max(nodeCords, 0) + dispmax  
 
 
     viewCenter = np.average([nodeMins, nodeMaxs], 0)
-    viewDelta = 1.1*(nodeMaxs - nodeMins)
+    viewDelta = 1.1*(abs(nodeMaxs - nodeMins))
     viewRange = max(nodeMaxs - nodeMins)
         
     if ndm == 2:
@@ -409,9 +446,12 @@ def _setStandardViewport(fig, ax, nodeCords, ndm, Disp = [], scale = 1):
         ax.set_ylabel('Y')
         
     if ndm == 3:
-        ax.set_xlim(viewCenter[0]-(viewRange/4), viewCenter[0]+(viewRange/4))
-        ax.set_ylim(viewCenter[1]-(viewRange/4), viewCenter[1]+(viewRange/4))
-        ax.set_zlim(viewCenter[2]-(viewRange/3), viewCenter[2]+(viewRange/3))
+        # ax.set_xlim(viewCenter[0]-(viewRange/4), viewCenter[0]+(viewRange/4))
+        # ax.set_ylim(viewCenter[1]-(viewRange/4), viewCenter[1]+(viewRange/4))
+        # ax.set_zlim(viewCenter[2]-(viewRange/3), viewCenter[2]+(viewRange/3))
+        ax.set_xlim(viewCenter[0]-(viewRange/2), viewCenter[0]+(viewRange/2))
+        ax.set_ylim(viewCenter[1]-(viewRange/2), viewCenter[1]+(viewRange/2))
+        ax.set_zlim(viewCenter[2]-(viewRange/2), viewCenter[2]+(viewRange/2))
         
         ax.set_xlabel('X')
         ax.set_ylabel('Y')

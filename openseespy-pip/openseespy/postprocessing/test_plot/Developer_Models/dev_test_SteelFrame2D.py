@@ -312,6 +312,6 @@ if(AnalysisType=="Pushover"):
 	algorithm("Newton")
 	test('NormUnbalance',1e-8, 10)
 	analysis("Static")
-	analyze(NstepsPush):
+	analyze(NstepsPush)
 	
 	print("Pushover analysis complete")

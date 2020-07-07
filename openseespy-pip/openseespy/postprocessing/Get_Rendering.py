@@ -23,7 +23,7 @@ for line in range(0,len(sys.argv)):
         pass
 
 from mpl_toolkits.mplot3d import Axes3D
-from math import asin, sqrt
+from math import asin
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -124,7 +124,7 @@ def createODB(*argv, Nmodes=0, deltaT=0.0, recorders=[]):
 		EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
 		EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
 		ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
-		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
+# 		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
 		
 		# Save recorders in the ODB folder
 		ops.recorder('Node', '-file', NodeDispFile,  '-time', '-dT', deltaT, '-node', *nodeList, '-dof',*dofList, 'disp')
@@ -152,8 +152,6 @@ def createODB(*argv, Nmodes=0, deltaT=0.0, recorders=[]):
 		print("Output from any loadCase will not be saved")
 		
 		
-
-
 def readODB(*argv):
 	
 	"""
@@ -184,11 +182,11 @@ def readODB(*argv):
 		NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
 		EleForceFile = os.path.join(LoadCaseDir,"EleForce_All.out")
 		ReactionFile = os.path.join(LoadCaseDir,"Reaction_All.out")
-		EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
-		EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
-		EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
-		ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
-		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
+		# EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
+		# EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
+		# EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
+		# ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
+		# EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
 		
 		# Read recorders in the ODB folder
 		# FUTURE: Gives warning if the files are empty. Create a procedure to check if files are empty.
@@ -206,6 +204,20 @@ def readODB(*argv):
 
 
 def saveFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber, deltaT = 0.0):
+    """
+    Model : string
+        The name of the input model database.    
+    Loadcase : string
+        The name of the input loadcase.    
+    element : int
+        The input element to be recorded
+    section : int
+        The section in the input element to be recorded.
+    deltaT : float, optional
+        The time step to be plotted. The program will find the closed time 
+        step to the input value. The default is -1.    
+    """
+    
     #TODO Allow for inputing more than one element/section?
     
 	# Consider making these optional arguements
@@ -223,10 +235,10 @@ def saveFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber, deltaT = 
 
 ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
 node_style = {'color':'black', 'marker':'o', 'facecolor':'black','linewidth':0.}
-#node_style = {'color':'black', 'marker':'o', 'linewidth':0.} 
+node_style_animation = {'color':'black', 'marker':'o','markersize':2., 'linewidth':0.} 
 
-node_text_style = {'fontsize':6, 'fontweight':'regular', 'color':'green'} 
-ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'} 
+node_text_style = {'fontsize':8, 'fontweight':'regular', 'color':'green'} 
+ele_text_style = {'fontsize':8, 'fontweight':'bold', 'color':'darkred'} 
 
 WireEle_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
 Eig_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
@@ -249,6 +261,7 @@ def plot_model(*argv,Model="none"):
 	show_node_tags = 'no'
 	show_element_tags = 'no'
 
+	# Process inputs to allow for backwards compatibility
 	if len(argv)>0:
 		if any(nodeArg in argv for nodeArg in ["nodes","Nodes","node","Node"]):
 			show_node_tags = 'yes'
@@ -257,15 +270,23 @@ def plot_model(*argv,Model="none"):
 		if show_node_tags == "no" and show_element_tags == "no":
 			raise Exception("Wrong input arguments. Command should be plot_model(<'node'>,<'element'>,Model='model_name')")
 
+	# TODO make this a function?
+	# Check if their is an output database or not.
 	if Model == "none":
-		print("No Model_ODB specified, getting data from the active model.")
-		nodeArray, elementArray = idbf.getNodesandElements()
+		print("No Model_ODB specified, trying to get data from the active model.")
+		try:
+			nodeArray, elementArray = idbf.getNodesandElements()
+		except:
+			raise Exception("No Model_ODB specified. No active model found.")
 	else:
 		print("Reading data from the "+Model+"_ODB.")
-		nodeArray, elementArray = idbf._readNodesandElements(Model)
+		try:
+			nodeArray, elementArray = idbf._readNodesandElements(Model)
+		except:
+			raise Exception("No Model_ODB found. No active model found.")
 		
 	nodetags = nodeArray[:,0]
-	offset = 0.05				# offset for text
+ 	# offset = 0.05				# offset for text
 	
 	
 	def nodecoords(nodetag):
@@ -298,7 +319,7 @@ def plot_model(*argv,Model="none"):
 				jNode = nodecoords(Nodes[1])
 				kNode = nodecoords(Nodes[2])
 				
-				ipltf._plotTri2D(iNode, jNode, kNode, iNode, ax, show_element_tags, eleTag, ele_style, fillSurface='yes')
+				ipltf._plotTri2D(iNode, jNode, kNode, ax, show_element_tags, eleTag, ele_style, fillSurface='yes')
 						
 			if len(Nodes) == 4:
 				# 2D Planer four-node shell elements
@@ -315,15 +336,7 @@ def plot_model(*argv,Model="none"):
 				ax.text(nodecoords(node)[0]*1.02, nodecoords(node)[1]*1.02, str(int(node)),**node_text_style) #label nodes
 			
 			ax.scatter(nodeArray[:,1], nodeArray[:,2], **node_style)
-			
-	
-		nodeMins = np.array([min(nodeArray[:,1]),min(nodeArray[:,2])])
-		nodeMaxs = np.array([max(nodeArray[:,1]),max(nodeArray[:,2])])
-		
-		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-		view_range = max(max(nodeArray[:,1])-min(nodeArray[:,1]), max(nodeArray[:,2])-min(nodeArray[:,2]))
-		
+					
 		ax.set_xlabel('X')
 		ax.set_ylabel('Y')
 		
@@ -373,27 +386,12 @@ def plot_model(*argv,Model="none"):
 				
 			ax.scatter(nodeArray[:,1], nodeArray[:,2], nodeArray[:,3], **node_style)								# show nodes
 				
-		
-		nodeMins = np.array([min(nodeArray[:,1]),min(nodeArray[:,2]),min(nodeArray[:,3])])
-		nodeMaxs = np.array([max(nodeArray[:,1]),max(nodeArray[:,2]),max(nodeArray[:,3])])
-		
-		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-		zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
-		
-		view_range = max(max(nodeArray[:,1])-min(nodeArray[:,1]), max(nodeArray[:,2])-min(nodeArray[:,2]), max(nodeArray[:,3])-min(nodeArray[:,3]))
-
-		ax.set_xlim(xViewCenter-(view_range/2), xViewCenter+(view_range/2))
-		ax.set_ylim(yViewCenter-(view_range/2), yViewCenter+(view_range/2))
-		ax.set_zlim(zViewCenter-(view_range/2), zViewCenter+(view_range/2))
-		
-		ax.set_xlabel('X')
-		ax.set_ylabel('Y')
-		ax.set_zlabel('Z')
-
+        
+	ipltf._setStandardViewport(fig, ax, nodeArray[:,1:], len(nodecoords(nodetags[0])))
 	plt.axis('on')
 	plt.show()
-	return fig
+	return fig, ax
+
 
 def plot_modeshape(*argv,Model="none"):
 	"""
@@ -419,6 +417,7 @@ def plot_modeshape(*argv,Model="none"):
 		print("No Model_ODB specified to plot modeshapes")
 		ops.wipeAnalysis()
 		eigenVal = ops.eigen(modeNumber+1)
+# 		eigenVal = ops.eigen(modeNumber-1)
 		Tn=4*asin(1.0)/(eigenVal[modeNumber-1])**0.5
 		nodeArray, elementArray = idbf.getNodesandElements()
 		Mode_nodeArray = idbf.getModeShapeData(modeNumber)		# DOES NOT GIVE MODAL PERIOD
@@ -432,7 +431,7 @@ def plot_modeshape(*argv,Model="none"):
 	DeflectedNodeCoordArray = nodeArray[:,1:]+ scale*Mode_nodeArray[:,1:]
 	nodetags = nodeArray[:,0]
 	overlap='yes'		# overlap the modeshape with a wireframe of original shape, set default "yes" for now.
-	show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
+	# show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
 	show_element_tags = 'no'
 
 	def nodecoords(nodetag):
@@ -475,18 +474,18 @@ def plot_modeshape(*argv,Model="none"):
 				
 			if len(Nodes) == 3:
 				## 2D Planer three-node shell elements
-				iNode = nodeCoord(Nodes[0])
-				jNode = nodeCoord(Nodes[1])
-				kNode = nodeCoord(Nodes[2])
+				iNode = nodecoords(Nodes[0])
+				jNode = nodecoords(Nodes[1])
+				kNode = nodecoords(Nodes[2])
 				
 				iNode_final = nodecoordsEigen(Nodes[0])
 				jNode_final = nodecoordsEigen(Nodes[1])
 				kNode_final = nodecoordsEigen(Nodes[2])
 
 				if overlap == "yes":
-					ipltf._plotTri2D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
+					ipltf._plotTri2D(iNode, jNode, kNode, iNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
 				
-				ipltf._plotTri2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
+				ipltf._plotTri2D(iNode_final, jNode_final, kNode_final, iNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
 				
 			if len(Nodes) == 4:
 				## 2D four-node Quad/shell element
@@ -504,17 +503,7 @@ def plot_modeshape(*argv,Model="none"):
 					ipltf._plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
 					
 				ipltf._plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
-				
-		nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1])])
-		nodeMaxs = np.array([max(DeflectedNodeCoordArray[:,0]),max(DeflectedNodeCoordArray[:,1])])
-		
-		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-		view_range = max(max(DeflectedNodeCoordArray[:,0])-min(DeflectedNodeCoordArray[:,0]), max(DeflectedNodeCoordArray[:,1])-min(DeflectedNodeCoordArray[:,1]))
-		
-		ax.set_xlim(xViewCenter-(1.1*view_range/1), xViewCenter+(1.1*view_range/1))
-		ax.set_ylim(yViewCenter-(1.1*view_range/1), yViewCenter+(1.1*view_range/1))
-		
+				        
 		ax.text(0.05, 0.95, "Mode "+str(modeNumber), transform=ax.transAxes)
 		ax.text(0.05, 0.90, "T = "+str("%.3f" % Tn)+" s", transform=ax.transAxes)
 
@@ -561,14 +550,14 @@ def plot_modeshape(*argv,Model="none"):
 			if len(Nodes) == 8:
 				## 3D eight-node Brick element
 				## Nodes in CCW on bottom (0-3) and top (4-7) faces resp
-				iNode = nodeCoord(Nodes[0])
-				jNode = nodeCoord(Nodes[1])
-				kNode = nodeCoord(Nodes[2])
-				lNode = nodeCoord(Nodes[3])
-				iiNode = nodeCoord(Nodes[4])
-				jjNode = nodeCoord(Nodes[5])
-				kkNode = nodeCoord(Nodes[6])
-				llNode = nodeCoord(Nodes[7])
+				iNode = nodecoords(Nodes[0])
+				jNode = nodecoords(Nodes[1])
+				kNode = nodecoords(Nodes[2])
+				lNode = nodecoords(Nodes[3])
+				iiNode = nodecoords(Nodes[4])
+				jjNode = nodecoords(Nodes[5])
+				kkNode = nodecoords(Nodes[6])
+				llNode = nodecoords(Nodes[7])
 				
 				iNode_final = nodecoordsEigen(Nodes[0])
 				jNode_final = nodecoordsEigen(Nodes[1])
@@ -585,29 +574,17 @@ def plot_modeshape(*argv,Model="none"):
 				ipltf._plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
 								ax, show_element_tags, eleTag, "solid", fillSurface='yes')
 								
-		nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1]),min(DeflectedNodeCoordArray[:,2])])
-		nodeMaxs = np.array([max(DeflectedNodeCoordArray[:,0]),max(DeflectedNodeCoordArray[:,1]),max(DeflectedNodeCoordArray[:,2])])
-				
-		xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-		yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-		zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
-		
-		view_range = max(max(DeflectedNodeCoordArray[:,0])-min(DeflectedNodeCoordArray[:,0]), 
-							max(DeflectedNodeCoordArray[:,1])-min(DeflectedNodeCoordArray[:,1]), 
-							max(DeflectedNodeCoordArray[:,2])-min(DeflectedNodeCoordArray[:,2]))
-
-		ax.set_xlim(xViewCenter-(view_range/2), xViewCenter+(view_range/2))
-		ax.set_ylim(yViewCenter-(view_range/2), yViewCenter+(view_range/2))
-		ax.set_zlim(zViewCenter-(view_range/2), zViewCenter+(view_range/2))
 		ax.text2D(0.10, 0.95, "Mode "+str(modeNumber), transform=ax.transAxes)
 		ax.text2D(0.10, 0.90, "T = "+str("%.3f" % Tn)+" s", transform=ax.transAxes)
+
 				
+	ipltf._setStandardViewport(fig, ax, DeflectedNodeCoordArray, len(nodecoords(nodetags[0])))
 	plt.axis('on')
 	plt.show()
-	return fig
+	return fig, ax
 	
 
-def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, overlap='no'):
+def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, overlap='no'):
 	"""
 	Command: plot_deformedshape(Model="modelName", LoadCase="loadCase name", <tstep = time (float)>, <scale = scaleFactor (float)>, <overlap='yes'>)
 	
@@ -635,14 +612,16 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, o
 			jj = len(timeSteps)-1
 			printLine = "Final deformed shape"
 		else:
-			jj, = np.where(timeSteps == float(tstep))			# index of the time step requested.
-			printLine = "Deformed shape at time: "+str(tstep)+" sec."
+			jj = (np.abs(timeSteps - tstep)).argmin()			# index closest to the time step requested.
+			if timeSteps[-1] < tstep:
+				print("XX Warining: Time-Step has exceeded maximum analysis time step XX")
+			printLine = "Deformation at time: " + str(round(timeSteps[jj], 2))
 		
 		DeflectedNodeCoordArray = nodeArray[:,1:]+ scale*Disp_nodeArray[int(jj),:,:]
 		nodetags = nodeArray[:,0]
 		
 		# overlap='yes'						# overlap the modeshape with a wireframe of original shape, set default "yes" for now.
-		show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
+		# show_node_tags = 'no'				# Set show tags to "no" to plot modeshape.
 		show_element_tags = 'no'
 
 		
@@ -651,7 +630,7 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, o
 			i, = np.where(nodeArray[:,0] == float(nodetag))
 			return nodeArray[int(i),1:]
 
-        # TODO C: Can we just return DeflectedNodeCoordArray here?
+        # TODO C: Can we just return DeflectedNodeCoordArray here instead of summing?
 		def nodecoordsFinal(nodetag):
 			# Returns an array of final deformed node coordinates
 			i, = np.where(nodeArray[:,0] == float(nodetag))				# Original coordinates
@@ -712,21 +691,8 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, o
 						ipltf._plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
 						
 					ipltf._plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
-					
-			nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1])])
-			nodeMaxs = np.array([max(DeflectedNodeCoordArray[:,0]),max(DeflectedNodeCoordArray[:,1])])
-			
-			xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-			yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-			view_range = max(max(DeflectedNodeCoordArray[:,0])-min(DeflectedNodeCoordArray[:,0]), max(DeflectedNodeCoordArray[:,1])-min(DeflectedNodeCoordArray[:,1]))
-			
-			ax.set_xlim(xViewCenter-(1.1*view_range/1), xViewCenter+(1.1*view_range/1))
-			ax.set_ylim(yViewCenter-(1.1*view_range/1), yViewCenter+(1.1*view_range/1))
-			
-			ax.text(0.05, 0.95, "Mode "+str(modeNumber), transform=ax.transAxes)
-			ax.text(0.05, 0.90, "T = "+str("%.3f" % Tn)+" s", transform=ax.transAxes)
-
-		
+					            
+# 			ax.text(0.1, 0.90, printLine, transform=ax.transAxes)		
 		else:
 			print('3D model')
 			fig = plt.figure()
@@ -793,31 +759,16 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 200, o
 					ipltf._plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
 									ax, show_element_tags, eleTag, "solid", fillSurface='yes')
 									
-			nodeMins = np.array([min(DeflectedNodeCoordArray[:,0]),min(DeflectedNodeCoordArray[:,1]),min(DeflectedNodeCoordArray[:,2])])
-			nodeMaxs = np.array([max(DeflectedNodeCoordArray[:,0]),max(DeflectedNodeCoordArray[:,1]),max(DeflectedNodeCoordArray[:,2])])
-					
-			xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-			yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-			zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
-			
-			view_range = max(max(DeflectedNodeCoordArray[:,0])-min(DeflectedNodeCoordArray[:,0]), 
-								max(DeflectedNodeCoordArray[:,1])-min(DeflectedNodeCoordArray[:,1]), 
-								max(DeflectedNodeCoordArray[:,2])-min(DeflectedNodeCoordArray[:,2]))
-
-			ax.set_xlim(xViewCenter-(view_range/2), xViewCenter+(view_range/2))
-			ax.set_ylim(yViewCenter-(view_range/2), yViewCenter+(view_range/2))
-			ax.set_zlim(zViewCenter-(view_range/2), zViewCenter+(view_range/2))
-			ax.text2D(0.10, 0.90, printLine, transform=ax.transAxes)
-					
+			ax.text2D(0.1, 0.90, printLine, transform=ax.transAxes)
+		ipltf._setStandardViewport(fig, ax, DeflectedNodeCoordArray, len(nodecoords(nodetags[0])))					
 		plt.axis('on')
 		plt.show()
 		
-		return fig
+		return fig, ax
 
 
-def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1, 
-                           fps = 24, FrameInterval = 0, skipFrame =1, timeScale = 1,
-                           show_node_tags = 'no', show_element_tags = 'no'):
+def animate_deformedshape( Model = 'none', Loadcase = 'none', dt = 0, Scale = 10, fps = 24, 
+                          FrameInterval = 0, skipFrame =1, timeScale = 1):
     """
     This defines the animation of an opensees model, given input data.
     
@@ -827,14 +778,14 @@ def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1,
 
     Parameters
     ----------
+    Model : string
+        The name of the input model database.    
+    Loadcase : string
+        The name of the input loadcase.    
     dt : 1D array
-        The input time steps.
-    deltaAni : 3D array, [NtimeAni,Nnodes,ndm]
-        The input displacement of each node for all time, in every dimension.
-    nodes: 
-        The node list in standard format
-    elements: 1D list
-        The elements list in standard format.
+        The time step between frames in the input file. The input file should
+        have approximately the same number of time between each step or the
+        animation will appear to speed up or slow down.
     NodeFileName : Str
         Name of the input node information file.
     ElementFileName : Str
@@ -857,12 +808,16 @@ def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1,
         Earthquake animation.
 
     """
-       
+    
+    if (Model == 'none') or ( Loadcase == 'none') or ( dt == 0):
+        raise Exception('Invalid inputs given. Please specify a model database, a load case, and a timestep')
+    
+    
     # Read Disp From ODB
-    DBOutputs = readODB(Model,Loadcase)
-    nodes = DBOutputs[0]
-    elements = DBOutputs[1]
-    Disp = DBOutputs[2]
+    #TODO error handeling?
+    time, Disp = idbf._readNodeDispData(Model,Loadcase)
+    
+    nodes, elements = idbf._readNodesandElements(Model)
     Disp = Disp*Scale
     
     # Reshape array
@@ -870,29 +825,18 @@ def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1,
     ndm = len(nodes[0,1:])
     Nnodes = int((len(Disp[0,:]))/ndm)
     
-    # Reshape Displacements [NtimeAni,Nnodes,ndm]
-    tempDisp = np.zeros([Ntime,Nnodes,ndm])
-    tempDisp[:,:,0] = Disp[:,0::ndm]
-    tempDisp[:,:,1] = Disp[:,1::ndm]
-    if ndm == 3:
-        tempDisp[:,:,2] = Disp[:,2::ndm]    
-    
-    Disp = tempDisp
-
-    
     # Get nodes and elements
     ndm = len(nodes[0,1:])
     Nnodes = len(nodes[:,0])
     Nele = len(elements)
     
     nodeLabels = nodes[:, 0]       
-    NodeText = [None]*Nnodes
 
     # initialize figure
-    fig, ax = ipltf._initializeFig(nodes[:,1:], ndm)    
+    fig, ax = ipltf._initializeFig(nodes[:,1:], ndm, Disp)    
     
 	# Adjust plot area.   
-    ipltf._setStandardViewport(fig, ax, nodes[:,1:], ndm, Disp[0,:,:])
+    ipltf._setStandardViewport(fig, ax, nodes[:,1:], ndm, Disp)
          
        
     # ========================================================================
@@ -906,26 +850,15 @@ def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1,
         time_text = ax.text(0.95, 0.01, '', verticalalignment='bottom', 
                             horizontalalignment='right', transform=ax.transAxes, color='grey')
         
-        EQObjects = ipltf._plotEle_2D(nodes, elements, initialDisp, fig, ax, show_element_tags)
+        EQObjects = ipltf._plotEle_2D(nodes, elements, initialDisp, fig, ax, show_element_tags = 'no')
         [EqfigLines, EqfigSurfaces, EqfigText] = EQObjects 
-        EqfigNodes, = ax.plot(tempDisp[0,:,0],tempDisp[0,:,1], **node_style)  
-    
-        if show_node_tags == 'yes':
-            for j in range(Nnodes):
-                NodeText[j] = ax.text(*nodes[j,1:]*1.02, str(int(nodes[j,0])), **node_text_style)
-                
+        EqfigNodes, = ax.plot(Disp[0,:,0],Disp[0,:,1], **node_style_animation)  
+                    
     if ndm == 3:
         
-        EQObjects = ipltf._plotEle_3D(nodes, elements, initialDisp, fig, ax, show_element_tags)
+        EQObjects = ipltf._plotEle_3D(nodes, elements, initialDisp, fig, ax, show_element_tags = 'no')
         [EqfigLines, EqfigSurfaces, EqfigText] = EQObjects 
-        EqfigNodes, = ax.plot(tempDisp[0,:,0], tempDisp[0,:,1], tempDisp[0,:,2], **node_style)  
-
-        if show_node_tags == 'yes':
-            for j in range(Nnodes):
-                NodeText[j] = ax.text(*nodes[j,1:]*1.02, str(int(nodes[j,0])), **node_text_style)
-                
-    # EqfigNodes
-    Nsurf = len(EqfigSurfaces)
+        EqfigNodes, = ax.plot(Disp[0,:,0], Disp[0,:,1], Disp[0,:,2], **node_style_animation)  
 
     # ========================================================================
     # Animation
@@ -993,7 +926,6 @@ def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1,
         # Define the surface
         SurfCounter = 0
         
-        # print('loop start')
         # update element locations
         for jj in range(Nele):
             # Get the node number for the first and second node connected by the element
@@ -1074,7 +1006,6 @@ def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1,
         return EqfigNodes, EqfigLines, EqfigSurfaces, EqfigText
 
     def update_plot(ii):
-        print(ii)
         # If the control is manual, we don't change the plot    
         global is_manual
         if is_manual:
@@ -1103,29 +1034,112 @@ def getDispAnimationSlider(dt, Model, Loadcase, Scale = 1,
     return ani
 
 
-def plotFiberResponse(FiberName, LoadStep):
-    
-    fiberData  = np.loadtxt(FiberName,delimiter=' ')
-    fiberYPosition = fiberData[:,1::5]
-    fiberStress = fiberData[:,4::5]
-    
-    fig, = plt.plot(fiberYPosition[LoadStep,:], fiberStress[LoadStep,:])
-    
-    pass
+def plot_fiberResponse2D(Model, LoadCase, element, section, LocalAxis = 'y', InputType = 'stress', tstep = -1):
+    """
     
 
+    Parameters
+    ----------
+    Model : string
+        The name of the input model database.    
+    Loadcase : string
+        The name of the input loadcase.    
+    element : int
+        The input element to be plotted
+    section : TYPE
+        The section in the input element to be plotted.
+    LocalAxis : TYPE, optional
+        The local axis to be plotted on the figures x axis. 
+        The default is 'y', 'z' is also possible.
+    InputType : TYPE, optional
+        The quantity to be plotted. The default is 'stress', 'strain' is 
+        also possible
+    tstep : TYPE, optional
+        The time step to be plotted. The program will find the closed time 
+        step to the input value. The default is -1.
 
+    """
+    
+    
+    
+    # Catch invalid input types
+    if InputType not in ['stress', 'strain']:
+        raise Exception('Invalid input type. Valid Entries are "stress" and "strain"')
+    
+    # Catch invalid Direction types
+    if LocalAxis not in ['z', 'y']:
+        raise Exception('Invalid LocalAxis type. Valid Entries are "z" and "y"')
+        
 
+    if InputType == 'stress':
+        responseIndex = 3
+        axisYlabel = "Fiber Stress"
+    if InputType == 'strain':
+        responseIndex = 4
+        axisYlabel = "Fiber Strain"
+    
+    if LocalAxis == 'z':
+        axisIndex = 1
+        axisXlabel = "Local z value"
+    if LocalAxis == 'y':
+        axisIndex = 0
+        axisXlabel = "Local y value"
+    
+    timeSteps, fiberData  = idbf._readFiberData2D(Model, LoadCase, element, section)
+    
+    # find the appropriate time step
+    if tstep == -1:
+        LoadStep = -1
+        printLine = "Final deformed shape"
+    else:
+        LoadStep = (np.abs(timeSteps - tstep)).argmin()			# index closest to the time step requested.
+        if timeSteps[-1] < tstep:
+            print("XX Warining: Time-Step has exceeded maximum analysis time step XX")
+        printLine = 'Fibre '+  InputType + " at time: " + str(round(timeSteps[LoadStep], 2))
+            
 
-def animateFiber2D(Model, LoadCase, element, section, skipStart = 0, 
-                   skipEnd = 0, rFactor=1, outputFrames=0, fps = 24, Xbound = [], Ybound = []):
+    fiberYPosition = fiberData[LoadStep,axisIndex::5]
+    fiberResponse  = fiberData[LoadStep, responseIndex::5]
+    
+    # Sort indexes so they appear in an appropraiate location
+    sortedIndexes = np.argsort(fiberYPosition)
+    fibrePositionSorted = fiberYPosition[sortedIndexes]
+    fibreResponseSorted = fiberResponse[sortedIndexes]
+    
+    
+    fig, ax = plt.subplots()
+    Xline = ax.plot([fibrePositionSorted[0],fibrePositionSorted[-1]],[0, 0], c ='black', linewidth = 0.5)
+    line = ax.plot(fibrePositionSorted, fibreResponseSorted)
+    
+    xyinput = np.array([fibrePositionSorted,fibreResponseSorted]).T
+    ipltf._setStandardViewport(fig, ax, xyinput, 2)
+    
+    ax.set_ylabel(axisYlabel)  
+    ax.set_xlabel(axisXlabel)    
+    
+    print(printLine)
+    
+    return fig, ax
+    
+
+def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', InputType = 'stress', skipStart = 0, 
+                            skipEnd = 0, rFactor=1, outputFrames=0, fps = 24, Xbound = [], Ybound = []):
     """
     Parameters
     ----------
-    xinput : 1d array
-        The input x coordinants. 
-    yinput : 1d array
-        The input y coordinants. 
+    Model : string
+        The name of the input model database.    
+    Loadcase : string
+        The name of the input loadcase.    
+    element : int
+        The input element to be plotted
+    section : TYPE
+        The section in the input element to be plotted.
+    LocalAxis : string, optional
+        The local axis to be plotted on the figures x axis. 
+        The default is 'y', 'z' is also possible.
+    InputType : string, optional
+        The quantity 
     skipStart : int, optional
         If specified, this many datapoints will be skipped from the data start.
         The default is 0.
@@ -1149,34 +1163,63 @@ def animateFiber2D(Model, LoadCase, element, section, skipStart = 0,
     
     """
     
-    fiberData  = idbf._readFiberData2D(Model, LoadCase, element, section)
-    fiberYPosition = fiberData[:,1::5]
-    fiberStress = fiberData[:,4::5]       
+    # Catch invalid input types
+    if InputType not in ['stress', 'strain']:
+        raise Exception('Invalid input type. Valid Entries are "stress" and "strain"')
+    
+    # Catch invalid Direction types
+    if LocalAxis not in ['z', 'y']:
+        raise Exception('Invalid LocalAxis type. Valid Entries are "z" and "y"')
+        
+
+    if InputType == 'stress':
+        responseIndex = 3
+        axisYlabel = "Fiber Stress"
+    if InputType == 'strain':
+        responseIndex = 4
+        axisYlabel = "Fiber Strain"
+    
+    if LocalAxis == 'z':
+        axisIndex = 1
+        axisXlabel = "Local z value"
+    if LocalAxis == 'y':
+        axisIndex = 0
+        axisXlabel = "Local y value"
+    
+    timeSteps, fiberData  = idbf._readFiberData2D(Model, LoadCase, element, section)
+                
+
+    fiberYPosition = fiberData[:,axisIndex::5]
+    fiberResponse  = fiberData[:, responseIndex::5]
+    
+    # Sort indexes so they appear in an appropraiate location
+    sortedIndexes = np.argsort(fiberYPosition[0,:])
+    fibrePositionSorted = fiberYPosition[:,sortedIndexes]
+    fibreResponseSorted = fiberResponse[:,sortedIndexes]    
+    
     
     # If end data is not being skipped, use the full vector length.
     if skipEnd ==0:
-        skipEnd = len(fiberYPosition)
-    
+        skipEnd = len(fiberYPosition)    
     
     # Set up bounds based on data from 
     if Xbound == []:
-        xmin = 1.1*np.min(fiberYPosition)
-        xmax = 1.1*np.max(fiberYPosition)
+        xmin = 1.1*np.min(fibrePositionSorted)
+        xmax = 1.1*np.max(fibrePositionSorted)
     else:
         xmin = Xbound[0]       
         xmax = Xbound[1]
     
     if Ybound == []:
-        ymin = 1.1*np.min(fiberStress)  
-        ymax = 1.1*np.max(fiberStress)        
+        ymin = 1.1*np.min(fibreResponseSorted)  
+        ymax = 1.1*np.max(fibreResponseSorted)        
     else:
         ymin = Ybound[0]       
         ymax = Ybound[1]          
     
-    
     # Remove unecessary data
-    xinputs = fiberYPosition[skipStart:skipEnd, :]
-    yinputs = fiberStress[skipStart:skipEnd, :]
+    xinputs = fibrePositionSorted[skipStart:skipEnd, :]
+    yinputs = fibreResponseSorted[skipStart:skipEnd, :]
 
     # Reduce the data if the user specifies
     if rFactor != 1:
@@ -1197,10 +1240,13 @@ def animateFiber2D(Model, LoadCase, element, section, skipStart = 0,
     # Initialize the plot
     fig, ax = plt.subplots()
     line, = ax.plot(xinput, yinputs[0,:])
+    Xline = ax.plot([fibrePositionSorted[0,0],fibrePositionSorted[0,-1]], [0, 0], c ='black', linewidth = 0.5)
     plt.xlim(xmin, xmax)
     plt.ylim(ymin, ymax)
-    print(xmin)
-    
+        
+    ax.set_ylabel(axisYlabel)  
+    ax.set_xlabel(axisXlabel)    
+
     Frames = np.arange(0, outputFrames)
     FrameStart = int(Frames[0])
     FrameEnd = int(Frames[-1])
@@ -1226,7 +1272,6 @@ def animateFiber2D(Model, LoadCase, element, section, skipStart = 0,
             is_manual=False        
     
     # Define the update function
-    # def update_line(time, xinput, yinputs, line):
     def update_line_slider(time):
         global is_manual
         is_manual=True
@@ -1237,7 +1282,6 @@ def animateFiber2D(Model, LoadCase, element, section, skipStart = 0,
         
         # Update the background line
         line.set_data(xinput, y)
-        
         fig.canvas.draw_idle()    
         
         return line,
@@ -1273,9 +1317,6 @@ def animateFiber2D(Model, LoadCase, element, section, skipStart = 0,
                                        # fargs=(xinput, yinputs, line), 
                                        interval=interval)
     return line_ani
-    
-    
-
 
   
 def _sample_plot_model(ModelName = '', LoadCaseName = '', Scale = 1, 
@@ -1321,8 +1362,8 @@ def _sample_plot_model(ModelName = '', LoadCaseName = '', Scale = 1,
     DispNodeCoordArray = nodes[:,1:] + DispNodeArray
 
     
-    Nele = len(elements)
-    figNodeTags = [None]*Nele
+    # Nele = len(elements)
+    # figNodeTags = [None]*Nele
     NodeText = [None]*Nnodes
     
     # Initialize figure

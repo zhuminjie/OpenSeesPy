@@ -47,15 +47,28 @@ def GenerateTests():
         np.savetxt(File,tempArray)
 
     os.chdir(baseDir)
-# GenerateTests()
+# # GenerateTests()
+# [nodes, elements, NodeDisp, Reaction, EleForce] = opp.readODB('TestModel', 'TestLoadCase')
+# # [nodes, elements, NodeDisp] = opp.readODB('TestModel', 'TestLoadCase')
+    
+# # We don't check everything, we just do a few manual tests.
+# check1 = np.all(nodes == np.ones([10,3])*0)
+# check2 = np.all(elements[4] == np.array([1., 1., 1.]))
+# check3 = np.all(EleForce == np.ones([10,3])*6)
+# # check4 = len(EleStress[:,0]) == 10
 
+# check = np.all([check1,check2,check3])
+# # check = np.all([check1,check2])
+
+# assert check == True
 
 
 def test_readODB():
     
     
     
-    [nodes, elements, NodeDisp, Reaction, EleForce] = opp._readODB('TestModel', 'TestLoadCase')
+    [nodes, elements, NodeDisp, Reaction, EleForce] = opp.readODB('TestModel', 'TestLoadCase')
+    # [nodes, elements, NodeDisp] = opp.readODB('TestModel', 'TestLoadCase')
         
     # We don't check everything, we just do a few manual tests.
     check1 = np.all(nodes == np.ones([10,3])*0)
@@ -64,6 +77,7 @@ def test_readODB():
     # check4 = len(EleStress[:,0]) == 10
     
     check = np.all([check1,check2,check3])
+    # check = np.all([check1,check2])
     
     assert check == True
     # return check

@@ -114,7 +114,6 @@ def _saveNodesandElements(ModelName):
     np.savetxt(ele8File, ele8Node, delimiter = delim, fmt = fmt)
 
 
-    
 def _readNodesandElements(ModelName):
     """   
     This function reads input node/element information, assuming it is in the 
@@ -314,5 +313,7 @@ def _readFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber):
         print('Error: No file for Fiber data. Use saveFiberData2D() to create a recorder.')    
     
     FiberData = np.loadtxt(FiberDir, dtype=dtype, delimiter=delim)
+    timeSteps = FiberData[:,0]
+    FiberData = FiberData[:,1:]
 
-    return FiberData
+    return timeSteps, FiberData

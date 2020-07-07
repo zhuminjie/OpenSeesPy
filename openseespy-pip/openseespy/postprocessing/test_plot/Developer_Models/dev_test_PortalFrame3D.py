@@ -119,8 +119,8 @@ loadConst('-time', 0.0)
 
 wipeAnalysis()
 
-plot_model("nodes", "elements")
-plot_modeshape(1, 100)
+plot_model()
+plot_modeshape(1, 2000)
 
 ###############################
 ### PUSHOVER ANALYSIS

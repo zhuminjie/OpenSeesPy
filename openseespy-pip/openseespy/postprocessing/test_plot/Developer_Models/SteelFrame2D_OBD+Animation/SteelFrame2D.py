@@ -14,7 +14,7 @@ print("Start 2D Steel Frame Example")
 
 from openseespy.opensees import *
 from openseespy.postprocessing.Get_Rendering import * 
-import openseespy.postprocessing.Get_Rendering_Animations as opp
+import openseespy.postprocessing.Get_Rendering as opp
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -296,6 +296,12 @@ if(AnalysisType=="Pushover"):
 	DispIncr=0.1
 	NstepsPush=int(MaxDisp/DispIncr)
 	
+	Model = '2D_Steel'
+	LoadCase = 'Pushover'   
+	dt=0.2       
+	createODB(Model, LoadCase, Nmodes = 3)
+ 
+    
 	system("ProfileSPD")
 	numberer("Plain")
 	constraints("Plain")
@@ -303,16 +309,20 @@ if(AnalysisType=="Pushover"):
 	algorithm("Newton")
 	test('NormUnbalance',1e-8, 10)
 	analysis("Static")
-	Model = '2D_Steel'
-	LoadCase = 'Pushover'
+
 	
-	createODB(Model,LoadCase)
-	dt=0.2
+
     
-    
-    
-    
-	analyze(NstepsPush)
+# 	analyze(NstepsPush)
+	analyze(170)
 	wipe()
 	print("Pushover analysis complete")
-	ani = opp.getDispAnimationSlider(dt, Model, LoadCase, Scale=1)
+    
+# =============================================================================
+# Plot outputs
+# =============================================================================
+	opp.plot_model('nodes','elements',Model = Model)
+	opp.plot_modeshape(2, 200, Model = Model)
+	opp.plot_deformedshape(Model, LoadCase, tstep = 12, scale = 10, overlap = 'yes')
+	opp.plot_deformedshape(Model, LoadCase, tstep = 3.1231, overlap = 'yes')
+	ani = opp.animate_deformedshape( Model, LoadCase, dt, Scale=10)

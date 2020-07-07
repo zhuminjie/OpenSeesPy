@@ -86,7 +86,6 @@ def Model_3D():
         op.element('stdBrick', eleTag, *eleNodes, mat1)
         
 
-
 def test_plot_fn(monkeypatch):
     # repress the show plot attribute
     monkeypatch.setattr(plt, 'show', lambda: None)

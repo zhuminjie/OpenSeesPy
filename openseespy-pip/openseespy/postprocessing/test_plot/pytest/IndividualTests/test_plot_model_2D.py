@@ -77,7 +77,9 @@ def Model_2D():
         # op.element('quad', eleTag, *eleNodes, thick, type, matTag[, pressure=0.0, rho=0.0, b1=0.0, b2=0.0])
         op.element('quad', eleTag, nodej, nodek, nodel, nodem, 1., 'PlaneStrain', mat1)
 
-    
+# Model_2D()
+# opp.plot_model()
+
 def test_plot_fn(monkeypatch):
     # repress the show plot attribute
     monkeypatch.setattr(plt, 'show', lambda: None)

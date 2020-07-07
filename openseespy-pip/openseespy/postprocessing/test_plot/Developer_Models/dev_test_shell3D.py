@@ -1,4 +1,4 @@
-3D Shell Structure Example 7.1
+# 3D Shell Structure Example 7.1
 # ------------------------------
 #  Shell roof modeled with three-dimensional linear shell elements
 # 
