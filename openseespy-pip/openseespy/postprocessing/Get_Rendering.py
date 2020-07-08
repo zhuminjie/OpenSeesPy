@@ -784,10 +784,10 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
         The time step between frames in the input file. The input file should
         have approximately the same number of time between each step or the
         animation will appear to speed up or slow down.
-	tStart: float, optional
+    tStart: float, optional
 		The start time for animation. It can be approximate value and the program 
 		will find the closest matching time step.
-	tEnd: float, optional
+    tEnd: float, optional
 		The end time for animation. It can be approximate value and the program 
 		will find the closest matching time step.
     NodeFileName : Str
@@ -805,7 +805,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
         DESCRIPTION. The default is 1.
     timeScale : TYPE, optional
         DESCRIPTION. The default is 1.
-	Movie : str, optional (PLACEHOLDER)
+    Movie : str, optional (PLACEHOLDER)
 		Name of the movie file if the user wants to save the animation as .mp4 file.
 		This is a PLACEHOLDER for now until Matplotlib's compatibility with 
 		ffmpeg writer is figured out.
