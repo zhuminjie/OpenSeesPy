@@ -765,8 +765,8 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 		return fig, ax
 
 
-def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10, fps = 24, 
-                          FrameInterval = 0, skipFrame =1, timeScale = 1):
+def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0, tEnd = 0, Scale = 10, fps = 24, 
+                          FrameInterval = 0, skipFrame =1, timeScale = 1, Movie='none'):
     """
     This defines the animation of an opensees model, given input data.
     
@@ -784,6 +784,12 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10
         The time step between frames in the input file. The input file should
         have approximately the same number of time between each step or the
         animation will appear to speed up or slow down.
+	tStart: float, optional
+		The start time for animation. It can be approximate value and the program 
+		will find the closest matching time step.
+	tEnd: float, optional
+		The end time for animation. It can be approximate value and the program 
+		will find the closest matching time step.
     NodeFileName : Str
         Name of the input node information file.
     ElementFileName : Str
@@ -799,6 +805,10 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10
         DESCRIPTION. The default is 1.
     timeScale : TYPE, optional
         DESCRIPTION. The default is 1.
+	Movie : str, optional (PLACEHOLDER)
+		Name of the movie file if the user wants to save the animation as .mp4 file.
+		This is a PLACEHOLDER for now until Matplotlib's compatibility with 
+		ffmpeg writer is figured out.
 
     Returns
     -------
@@ -846,14 +856,15 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10
     # Add Text
     if ndm == 2:
         time_text = ax.text(0.95, 0.01, '', verticalalignment='bottom', 
-                            horizontalalignment='right', transform=ax.transAxes, color='grey')
+                            horizontalalignment='right', transform=ax.transAxes, color='blue')
         
         EQObjects = ipltf._plotEle_2D(nodes, elements, initialDisp, fig, ax, show_element_tags = 'no')
         [EqfigLines, EqfigSurfaces, EqfigText] = EQObjects 
         EqfigNodes, = ax.plot(Disp[0,:,0],Disp[0,:,1], **node_style_animation)  
                     
     if ndm == 3:
-        
+        time_text = ax.text2D(0.95, 0.01, '', verticalalignment='bottom', 
+                            horizontalalignment='right', transform=ax.transAxes, color='blue')
         EQObjects = ipltf._plotEle_3D(nodes, elements, initialDisp, fig, ax, show_element_tags = 'no')
         [EqfigLines, EqfigSurfaces, EqfigText] = EQObjects 
         EqfigNodes, = ax.plot(Disp[0,:,0], Disp[0,:,1], Disp[0,:,2], **node_style_animation)  
@@ -877,7 +888,24 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10
         
     FrameStart = Frames[0]
     FrameEnd = Frames[-1]
-    
+	
+    if tStart != 0:
+        jj = (np.abs(time - tStart)).argmin()
+        FrameStart = Frames[jj]
+	
+    if tEnd != 0:
+        if time[-1] < tEnd:
+            print("XX Warining: tEnd has exceeded maximum analysis time step XX")
+            print("XX tEnd has been set to final analysis time step XX")
+        elif tEnd <= tStart:
+            print("XX Input Warning: tEnd should be greater than tStart XX")
+            print("XX tEnd has been set to final analysis time step XX")
+        else:
+            kk = (np.abs(time - tEnd)).argmin()
+            FrameEnd = Frames[kk]
+
+    aniFrames = FrameEnd-FrameStart  # Number of frames to be animated
+	
     # Slider Location and size relative to plot
     # [x, y, xsize, ysize]
     axSlider = plt.axes([0.25, .03, 0.50, 0.02])
@@ -944,8 +972,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10
                 SurfCounter += 1
        
         # update time Text
-        time_text.set_text(round(TimeStep*dtInput,1))
-        time_text.set_text(str(round(TimeStep*dtInput,1)) )        
+        time_text.set_text("Time= "+'%.2f' % time[TimeStep]+ " s")
         
         # redraw canvas while idle
         fig.canvas.draw_idle()    
@@ -998,6 +1025,8 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10
                 EqfigSurfaces[SurfCounter]._vec = tempVec
                 SurfCounter += 1
                 
+        # update time Text
+        time_text.set_text("Time= "+'%.2f' % time[TimeStep]+ " s")
         # redraw canvas while idle
         fig.canvas.draw_idle()   
 
@@ -1028,7 +1057,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10
     # assign click control
     fig.canvas.mpl_connect('button_press_event', on_click)
 
-    ani = animation.FuncAnimation(fig, update_plot, Frames, interval = FrameInterval)
+    ani = animation.FuncAnimation(fig, update_plot, aniFrames, interval = FrameInterval, repeat=False)
     plt.show()
 	
     return ani
