@@ -785,11 +785,11 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
         have approximately the same number of time between each step or the
         animation will appear to speed up or slow down.
     tStart: float, optional
-		The start time for animation. It can be approximate value and the program 
-		will find the closest matching time step.
+        The start time for animation. It can be approximate value and the program 
+        will find the closest matching time step.
     tEnd: float, optional
-		The end time for animation. It can be approximate value and the program 
-		will find the closest matching time step.
+        The end time for animation. It can be approximate value and the program 
+        will find the closest matching time step.
     NodeFileName : Str
         Name of the input node information file.
     ElementFileName : Str
@@ -805,10 +805,8 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
         DESCRIPTION. The default is 1.
     timeScale : TYPE, optional
         DESCRIPTION. The default is 1.
-    Movie : str, optional (PLACEHOLDER)
-		Name of the movie file if the user wants to save the animation as .mp4 file.
-		This is a PLACEHOLDER for now until Matplotlib's compatibility with 
-		ffmpeg writer is figured out.
+    Movie : str, optional 
+        Name of the movie file if the user wants to save the animation as .mp4 file.
 
     Returns
     -------
@@ -1042,7 +1040,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
         CurrentFrame = int(np.floor(plotSlider.val))
         CurrentFrame += 1
         if CurrentFrame >= FrameEnd:
-            CurrentFrame = 0
+            CurrentFrame = FrameStart
         
         # Update the slider
         plotSlider.set_val(CurrentFrame)
@@ -1058,8 +1056,15 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
     fig.canvas.mpl_connect('button_press_event', on_click)
 
     ani = animation.FuncAnimation(fig, update_plot, aniFrames, interval = FrameInterval, repeat=False)
-    plt.show()
 	
+    if Movie != "none":
+        MovefileName = Movie + '.mp4'
+        ODBdir = Model+"_ODB"		# ODB Dir name
+        Movfile = os.path.join(ODBdir, LoadCase, MovefileName)
+        print("Saving the animation movie as "+MovefileName+" in "+ODBdir+"->"+LoadCase+" folder")
+        ani.save(Movfile, writer='ffmpeg')
+
+    plt.show()
     return ani
 
 
