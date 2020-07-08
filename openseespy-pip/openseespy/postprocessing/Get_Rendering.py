@@ -207,7 +207,7 @@ def saveFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber, deltaT = 
     """
     Model : string
         The name of the input model database.    
-    Loadcase : string
+    LoadCase : string
         The name of the input loadcase.    
     element : int
         The input element to be recorded
@@ -763,7 +763,7 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 		return fig, ax
 
 
-def animate_deformedshape( Model = 'none', Loadcase = 'none', dt = 0, Scale = 10, fps = 24, 
+def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, Scale = 10, fps = 24, 
                           FrameInterval = 0, skipFrame =1, timeScale = 1):
     """
     This defines the animation of an opensees model, given input data.
@@ -776,7 +776,7 @@ def animate_deformedshape( Model = 'none', Loadcase = 'none', dt = 0, Scale = 10
     ----------
     Model : string
         The name of the input model database.    
-    Loadcase : string
+    LoadCase : string
         The name of the input loadcase.    
     dt : 1D array
         The time step between frames in the input file. The input file should
@@ -805,13 +805,13 @@ def animate_deformedshape( Model = 'none', Loadcase = 'none', dt = 0, Scale = 10
 
     """
     
-    if (Model == 'none') or ( Loadcase == 'none') or ( dt == 0):
+    if (Model == 'none') or ( LoadCase == 'none') or ( dt == 0):
         raise Exception('Invalid inputs given. Please specify a model database, a load case, and a timestep')
     
     
     # Read Disp From ODB
     #TODO error handeling?
-    time, Disp = idbf._readNodeDispData(Model,Loadcase)
+    time, Disp = idbf._readNodeDispData(Model,LoadCase)
     
     nodes, elements = idbf._readNodesandElements(Model)
     Disp = Disp*Scale
@@ -1027,6 +1027,8 @@ def animate_deformedshape( Model = 'none', Loadcase = 'none', dt = 0, Scale = 10
     fig.canvas.mpl_connect('button_press_event', on_click)
 
     ani = animation.FuncAnimation(fig, update_plot, Frames, interval = FrameInterval)
+    plt.show()
+	
     return ani
 
 
@@ -1038,7 +1040,7 @@ def plot_fiberResponse2D(Model, LoadCase, element, section, LocalAxis = 'y', Inp
     ----------
     Model : string
         The name of the input model database.    
-    Loadcase : string
+    LoadCase : string
         The name of the input loadcase.    
     element : int
         The input element to be plotted
@@ -1112,9 +1114,8 @@ def plot_fiberResponse2D(Model, LoadCase, element, section, LocalAxis = 'y', Inp
     
     ax.set_ylabel(axisYlabel)  
     ax.set_xlabel(axisXlabel)    
-    
-    print(printLine)
-    
+        
+    plt.show()
     return fig, ax
     
 
@@ -1125,7 +1126,7 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
     ----------
     Model : string
         The name of the input model database.    
-    Loadcase : string
+    LoadCase : string
         The name of the input loadcase.    
     element : int
         The input element to be plotted
@@ -1312,118 +1313,7 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
     line_ani = animation.FuncAnimation(fig, update_plot, outputFrames, 
                                        # fargs=(xinput, yinputs, line), 
                                        interval=interval)
+									   
+    plt.show()
     return line_ani
 
-  
-def _sample_plot_model(ModelName = '', LoadCaseName = '', Scale = 1, 
-                      show_element_tags = 'no', show_node_tags = 'no',
-                      Plot_Displacements = 'no'):
-    
-    Input = False
-    # try to read a model the nodes and elements
-    try :
-        nodes, elements = idbf.getNodesandElements()
-        Input = True
-    except:
-        print("No model active.") 
-
-    # try to get the nodes and elements from the database
-    try :
-        nodes, elements = idbf._readNodesandElements(ModelName)
-        Input = True
-    except:
-        print("No database found.")
-    
-    if not Input:
-        raise Exception('No input model was specified')    
-    
-    
-    # Process Node information, Calulate number of degrees of freedom
-    nodeList = nodes[:,0]    
-    Nnodes = len(nodeList)
-    nodeCoordArray = nodes[:,1:]
-    ndm = len(nodes[0,1:])   
-
-    # Get displacements
-    if Plot_Displacements == 'yes':
-        # Get Node coordinants
-        OBD = readODB(ModelName, LoadCaseName)
-        
-        DispNodeArray = OBD[2]*Scale
-        
-    # Otherwise we use zero as our displacement
-    else:
-        DispNodeArray = np.zeros([Nnodes,ndm])
-    
-    DispNodeCoordArray = nodes[:,1:] + DispNodeArray
-
-    
-    # Nele = len(elements)
-    # figNodeTags = [None]*Nele
-    NodeText = [None]*Nnodes
-    
-    # Initialize figure
-    fig, ax = ipltf._initializeFig(DispNodeCoordArray, ndm)
-    
-    # Check if the model is 2D or 3D
-    if ndm == 2:
-        
-        # Plot elements
-        OutputObjects = ipltf._plotEle_2D(nodes, elements, DispNodeCoordArray, fig, ax, show_element_tags)
-
-        if show_node_tags == 'yes':
-            for j in range(Nnodes):
-                NodeText[j] = ax.text(*nodes[j,1:]*1.02, str(int(nodes[j,0])), **node_text_style) #label nodes
-			
-        nodeObjects = ax.scatter(nodeCoordArray[:,0], nodeCoordArray[:,1], **node_style)
-
-        #ResizePlot(fig, ax, ndm)
-        nodeMins = np.array([min(nodeCoordArray[:,0]), min(nodeCoordArray[:,1])])
-        nodeMaxs = np.array([max(nodeCoordArray[:,0]), max(nodeCoordArray[:,1])])
-		
-        xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-        yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-        view_range = max(max(nodeCoordArray[:,0])-min(nodeCoordArray[:,0]), max(nodeCoordArray[:,1])-min(nodeCoordArray[:,1]))
-		
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-			
-
-    if ndm == 3:
-        
-
-        print('3D model')
-		
-        # Plot Model and make Objects
-        OutputObjects = ipltf._plotEle_3D(nodes, elements, DispNodeCoordArray, fig, ax, show_element_tags)
-
-        if show_node_tags == 'yes':
-            for jj in range(Nnodes):
-                NodeText[jj] = ax.text(*nodes[jj,1:]*1.02, str(int(nodes[jj,0])), **node_text_style) #label nodes
-				
-        nodeObjects = ax.scatter(nodeCoordArray[:,0], nodeCoordArray[:,1], nodeCoordArray[:,2], **node_style)								#show nodes
-		
-        nodeMins = np.array([min(nodeCoordArray[:,0]),min(nodeCoordArray[:,1]),min(nodeCoordArray[:,2])])
-        nodeMaxs = np.array([max(nodeCoordArray[:,0]),max(nodeCoordArray[:,1]),max(nodeCoordArray[:,2])])
-		
-        xViewCenter = (nodeMins[0]+nodeMaxs[0])/2
-        yViewCenter = (nodeMins[1]+nodeMaxs[1])/2
-        zViewCenter = (nodeMins[2]+nodeMaxs[2])/2
-		
-        view_range = max(max(nodeCoordArray[:,0])-min(nodeCoordArray[:,0]), max(nodeCoordArray[:,1])-min(nodeCoordArray[:,1]), max(nodeCoordArray[:,2])-min(nodeCoordArray[:,2]))
-
-        ax.set_xlim(xViewCenter-(view_range/4), xViewCenter+(view_range/4))
-        ax.set_ylim(yViewCenter-(view_range/4), yViewCenter+(view_range/4))
-        ax.set_zlim(zViewCenter-(view_range/3), zViewCenter+(view_range/3))
-		
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-	
-    plt.axis('on')
-    plt.show()
-    
-    OutputObjects = [nodeObjects, *OutputObjects, NodeText]
-    
-    return OutputObjects
-	
