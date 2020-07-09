@@ -27,8 +27,8 @@ opp.createODB(Model, LoadCase)
 opp.saveFiberData2D(Model, LoadCase, element1, section1)
 opp.saveFiberData2D(Model, LoadCase, element2, section2)
 
-# Run Analysis
-af.PushoverLcD(0.07)
+# # Run Analysis
+af.PushoverLcD(0.05)
 
 op.wipe()
 

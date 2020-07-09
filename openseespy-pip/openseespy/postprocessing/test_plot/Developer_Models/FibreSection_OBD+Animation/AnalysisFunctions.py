@@ -81,7 +81,7 @@ def PushoverLcD(dispMax):
     
     ControlNode = 4
     ControlNodeDof = 1
-    du = 0.00001*m
+    du = 0.00002*m
     
     # Define time series
     #  timeSeries('Constant', tag, '-factor', factor=1.0)
@@ -109,7 +109,7 @@ def PushoverLcD(dispMax):
     op.analysis("Static")
 
     # Create Test
-    op.test('NormDispIncr', 1.*10**-8, 50)
+    op.test('NormDispIncr', 1.*10**-6, 50)
     
     # Run Analysis
     

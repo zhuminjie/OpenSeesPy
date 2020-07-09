@@ -840,6 +840,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
 
     # initialize figure
     fig, ax = ipltf._initializeFig(nodes[:,1:], ndm, Disp)    
+    plt.subplots_adjust(bottom=.15) # Add extra space bellow graph
     
 	# Adjust plot area.   
     ipltf._setStandardViewport(fig, ax, nodes[:,1:], ndm, Disp)
@@ -871,13 +872,13 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
     # Animation
     # ========================================================================
    
-    
     # Scale on displacement
     dtInput  = dt
     dtFrames  = 1/fps
     Ntime = len(Disp[:,0])
     Frames = np.arange(0,Ntime)
-       
+    framesTime = Frames*dt
+
     # If the interval is zero
     if FrameInterval == 0:
         FrameInterval = dtFrames*1000/timeScale
@@ -907,11 +908,11 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
     # Slider Location and size relative to plot
     # [x, y, xsize, ysize]
     axSlider = plt.axes([0.25, .03, 0.50, 0.02])
-    plotSlider = Slider(axSlider, 'Frame', FrameStart, FrameEnd, valinit=FrameStart)
+    plotSlider = Slider(axSlider, 'Time', framesTime[FrameStart], framesTime[FrameEnd], valinit=framesTime[FrameStart])
     
     # Animation controls
-    global is_manual
-    is_manual = False # True if user has taken control of the animation   
+    global is_paused
+    is_paused = False # True if user has taken control of the animation   
     
     def on_click(event):
         # Check where the click happened
@@ -920,18 +921,22 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
             # Event happened within the slider, ignore since it is handled in update_slider
             return
         else:
-            # user clicked somewhere else on canvas = unpause
-            global is_manual
-            is_manual=False    
-        
-    def animate2D_slider(TimeStep):
+            # Toggle on off based on clicking
+            global is_paused
+            if is_paused == True:
+                is_paused=False
+            elif is_paused == False:
+                is_paused=True
+                
+    def animate2D_slider(Time):
         """
         The slider value is liked with the plot - we update the plot by updating
         the slider.
         """
-        global is_manual
-        is_manual=True
-        TimeStep = int(TimeStep)
+        global is_paused
+        is_paused=True
+        # Convert time to frame
+        TimeStep = (np.abs(framesTime - Time)).argmin()
                
         # The current node coordinants in (x,y) or (x,y,z)
         CurrentNodeCoords =  nodes[:,1:] + Disp[TimeStep,:,:]
@@ -970,18 +975,19 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
                 SurfCounter += 1
        
         # update time Text
-        time_text.set_text("Time= "+'%.2f' % time[TimeStep]+ " s")
+        # time_text.set_text("Time= "+'%.2f' % time[TimeStep]+ " s")
         
         # redraw canvas while idle
         fig.canvas.draw_idle()    
             
         return EqfigNodes, EqfigLines, EqfigSurfaces, EqfigText
 
-    def animate3D_slider(TimeStep):
+    def animate3D_slider(Time):
         
-        global is_manual
-        is_manual=True
-        TimeStep = int(TimeStep)
+        
+        global is_paused
+        is_paused=True
+        TimeStep = (np.abs(framesTime - Time)).argmin()
         
         # this is the most performance critical area of code
         
@@ -1024,7 +1030,8 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
                 SurfCounter += 1
                 
         # update time Text
-        time_text.set_text("Time= "+'%.2f' % time[TimeStep]+ " s")
+        # time_text.set_text("Time= "+'%.3f' % time[TimeStep]+ " s")
+        
         # redraw canvas while idle
         fig.canvas.draw_idle()   
 
@@ -1032,19 +1039,22 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
 
     def update_plot(ii):
         # If the control is manual, we don't change the plot    
-        global is_manual
-        if is_manual:
+        global is_paused
+        if is_paused:
             return EqfigNodes, EqfigLines, EqfigSurfaces, EqfigText
        
         # Find the close timeStep and plot that
-        CurrentFrame = int(np.floor(plotSlider.val))
+        CurrentTime = plotSlider.val
+        CurrentFrame = (np.abs(framesTime - CurrentTime)).argmin()
+
         CurrentFrame += 1
         if CurrentFrame >= FrameEnd:
             CurrentFrame = FrameStart
         
         # Update the slider
-        plotSlider.set_val(CurrentFrame)
-        is_manual = False # the above line called update_slider, so we need to reset this
+        plotSlider.set_val(framesTime[CurrentFrame])
+        
+        is_paused = False # the above line called update_slider, so we need to reset this
         return EqfigNodes, EqfigLines, EqfigSurfaces, EqfigText
 
     if ndm == 2:
@@ -1055,7 +1065,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
     # assign click control
     fig.canvas.mpl_connect('button_press_event', on_click)
 
-    ani = animation.FuncAnimation(fig, update_plot, aniFrames, interval = FrameInterval, repeat=False)
+    ani = animation.FuncAnimation(fig, update_plot, aniFrames, interval = FrameInterval)
 	
     if Movie != "none":
         MovefileName = Movie + '.mp4'
@@ -1174,13 +1184,15 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
     InputType : string, optional
         The quantity 
     skipStart : int, optional
-        If specified, this many datapoints will be skipped from the data start.
-        The default is 0.
+        If specified, this many datapoints will be skipped from the analysis
+        data set, before reductions.
+        The default is 0, or no reduction
     skipEnd : int, optional
-        If specified, this many frames will be skipped at the end of 
-        the analysis. The default is 0.
+        If specified, this many frames will be skipped at the end of the 
+        analysis dataset, before reduction. The default is 0, or no reduction.
     rFactor : int, optional
-        If specified, only every "x" frames will be reduced by this factor. 
+        If specified, only every "x" frames will be plotted. e.g. x = 2, every 
+        other frame is shown.
         The default is 1.
     outputFrames : int, optional
         The number of frames to be included after all other reductions. If the
@@ -1257,7 +1269,8 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
     # Reduce the data if the user specifies
     if rFactor != 1:
         xinputs = xinputs[::rFactor, :]
-        yinputs = yinputs[::rFactor, :]
+        yinputs = yinputs[::rFactor, :]    
+        timeSteps = timeSteps[::rFactor]
     
     # If the Frames isn't specified, use the length of the reduced vector.
     if outputFrames == 0:
@@ -1272,6 +1285,8 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
     
     # Initialize the plot
     fig, ax = plt.subplots()
+    plt.subplots_adjust(bottom=.15) # Add extra space bellow graph
+    
     line, = ax.plot(xinput, yinputs[0,:])
     Xline = ax.plot([fibrePositionSorted[0,0],fibrePositionSorted[0,-1]], [0, 0], c ='black', linewidth = 0.5)
     plt.xlim(xmin, xmax)
@@ -1287,11 +1302,11 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
     # Slider Location and size relative to plot
     # [x, y, xsize, ysize]
     axSlider = plt.axes([0.25, .03, 0.50, 0.02])
-    plotSlider = Slider(axSlider, 'Frame', FrameStart, FrameEnd, valinit=FrameStart, valfmt = '%d')
-    
+    plotSlider = Slider(axSlider, 'Time', timeSteps[FrameStart], timeSteps[FrameEnd], valinit=timeSteps[FrameStart])
+
     # Animation controls
-    global is_manual
-    is_manual = False # True if user has taken control of the animation   
+    global is_paused
+    is_paused = False # True if user has taken control of the animation   
     
     def on_click(event):
         # Check where the click happened
@@ -1300,18 +1315,21 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
             # Event happened within the slider, ignore since it is handled in update_slider
             return
         else:
-            # user clicked somewhere else on canvas = unpause
-            global is_manual
-            is_manual=False        
+            # Toggle on/off based on click
+            global is_paused
+            if is_paused == True:
+                is_paused=False
+            elif is_paused == False:
+                is_paused=True       
     
     # Define the update function
-    def update_line_slider(time):
-        global is_manual
-        is_manual=True
+    def update_line_slider(Time):
+        global is_paused
+        is_paused=True
 
-        time = int(time)
+        TimeStep = (np.abs(timeSteps - Time)).argmin()
         # Get the current data        
-        y = yinputs[time,:]
+        y = yinputs[TimeStep,:]
         
         # Update the background line
         line.set_data(xinput, y)
@@ -1323,19 +1341,26 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
     def update_plot(ii):
     
         # If the control is manual, we don't change the plot    
-        global is_manual
-        if is_manual:
+        global is_paused
+        if is_paused:
             return line,
        
         # Find the close timeStep and plot that
-        CurrentFrame = int(np.floor(plotSlider.val))
+        # CurrentFrame = int(np.floor(plotSlider.val))
+
+        # Find the close timeStep and plot that
+        CurrentTime = plotSlider.val
+        CurrentFrame = (np.abs(timeSteps - CurrentTime)).argmin()
+
         CurrentFrame += 1
         if CurrentFrame >= FrameEnd:
-            CurrentFrame = 0
+            CurrentFrame = FrameStart
         
         # Update the slider
-        plotSlider.set_val(CurrentFrame)
-        is_manual = False # the above line called update_slider, so we need to reset this
+        plotSlider.set_val(timeSteps[CurrentFrame])        
+        
+        # Update the slider
+        is_paused = False # the above line called update_slider, so we need to reset this
         return line,  
     
     

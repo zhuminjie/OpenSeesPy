@@ -138,8 +138,8 @@ dt = 0.2
 # =============================================================================
 
 
-# opp.plot_model('nodes','elements')
-# opp.plot_modeshape(2, 200)
+opp.plot_model('nodes','elements')
+opp.plot_modeshape(2, 200)
 
 
 
@@ -167,6 +167,6 @@ opp.plot_modeshape(1, 200, Model = Model)
 opp.plot_modeshape(2, 200, Model = Model)
 
 
-ani = opp.animate_deformedshape( Model, LoadCase, dt, Scale=30)
+ani = opp.animate_deformedshape( Model, LoadCase, dt, Scale=30, Movie = 'Test')
 
 
