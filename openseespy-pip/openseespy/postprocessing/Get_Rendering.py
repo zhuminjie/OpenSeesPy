@@ -765,7 +765,7 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 		return fig, ax
 
 
-def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0, tEnd = 0, Scale = 10, fps = 24, 
+def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0, tEnd = 0, scale = 10, fps = 24, 
                           FrameInterval = 0, skipFrame =1, timeScale = 1, Movie='none'):
     """
     This defines the animation of an opensees model, given input data.
@@ -773,7 +773,6 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
     For big models it's unlikely that the animation will actually run at the 
     desired fps in "real time". Matplotlib just isn't built for high fps 
     animation.
-
     Parameters
     ----------
     Model : string
@@ -794,7 +793,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
         Name of the input node information file.
     ElementFileName : Str
         Name of the input element connectivity file.
-    Scale :  float, optional
+    scale :  float, optional
         The scale on the xy/xyz displacements. The default is 1.
     fps : TYPE, optional
         The frames per second to be displayed. These values are dubious at best
@@ -807,12 +806,10 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
         DESCRIPTION. The default is 1.
     Movie : str, optional 
         Name of the movie file if the user wants to save the animation as .mp4 file.
-
     Returns
     -------
     TYPE
         Earthquake animation.
-
     """
     
     if (Model == 'none') or ( LoadCase == 'none') or ( dt == 0):
@@ -824,7 +821,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
     time, Disp = idbf._readNodeDispData(Model,LoadCase)
     
     nodes, elements = idbf._readNodesandElements(Model)
-    Disp = Disp*Scale
+    Disp = Disp*scale
     
     # Reshape array
     Ntime = len(Disp[:,0])
@@ -872,7 +869,7 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
     # Animation
     # ========================================================================
    
-    # Scale on displacement
+    # scale on displacement
     dtInput  = dt
     dtFrames  = 1/fps
     Ntime = len(Disp[:,0])
