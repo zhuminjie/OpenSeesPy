@@ -92,5 +92,6 @@ def test_plot_fn(monkeypatch):
     Model_3D()    
     
     opp.plot_model()
-
+    plt.close()
+    
     assert True

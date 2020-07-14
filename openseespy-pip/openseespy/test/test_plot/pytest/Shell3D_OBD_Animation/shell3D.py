@@ -4,16 +4,6 @@ import openseespy.opensees as ops
 import openseespy.postprocessing.Get_Rendering as opp
 import matplotlib.pyplot as plt
 
-# import openseespy.postprocessing.Get_Rendering as opp
-# import openseespy.postprocessing.Get_Rendering.internal_database_functions as idbf
-
-## DEVELOPERS: Replace the above line to your own Get_Rendering library under development. 
-# from Development_Get_Rendering import * 
-
-
-# =============================================================================
-# Analysis
-# =============================================================================
 
 # 3D Shell Structure Example 7.1
 # ------------------------------
@@ -110,7 +100,7 @@ def RunAnalysis():
     
     
     
-    Model = '3D_Shell'
+    Model = 'test'
     LoadCase = 'Transient'
     LoadCase2 = 'Transient_5s'
     opp.createODB(Model, LoadCase, Nmodes = 3, recorders = [])
@@ -132,111 +122,3 @@ def RunAnalysis():
     
     # Perform the transient analysis (20 sec)
     ops.analyze(100, 0.2)
-
-
-
-
-
-# =============================================================================
-# Function calls on the active model
-# =============================================================================
-Model = '3D_Shell'
-LoadCase = 'Transient'
-LoadCase2 = 'Transient_5s'
-
-
-def test_plot_model_3D_Active(monkeypatch):
-    # repress the show plot attribute
-    monkeypatch.setattr(plt, 'show', lambda: None)
-    
-    RunAnalysis()    
-    
-    opp.plot_model('nodes','elements')
-   
-    assert True == True
-
-def test_plot_model_3D_ODB(monkeypatch):
-    # repress the show plot attribute
-    monkeypatch.setattr(plt, 'show', lambda: None)
-    
-    RunAnalysis()
-    ops.wipe()
-    Model = '3D_Shell'
-    opp.plot_model('nodes','elements',Model = Model)
-   
-    assert True == True
-
-    
-def test_plot_modeshape_3D_Active(monkeypatch):
-    # repress the show plot attribute
-    monkeypatch.setattr(plt, 'show', lambda: None)
-
-    RunAnalysis()    
-    opp.plot_modeshape(1, 200)
-    opp.plot_modeshape(2, 200)    
-   
-    assert True == True    
-    
-    
-def test_plot_modeshape_3D_ODB(monkeypatch):
-    # repress the show plot attribute
-    monkeypatch.setattr(plt, 'show', lambda: None)
-
-    RunAnalysis()
-    ops.wipe()
-    Model = '3D_Shell'
-    opp.plot_modeshape(1, 200, Model = Model)
-    opp.plot_modeshape(2, 200, Model = Model)    
-   
-    assert True == True    
-    
-    
-    
-def test_plot_deformedshape_3D(monkeypatch):
-    # repress the show plot attribute
-    monkeypatch.setattr(plt, 'show', lambda: None)
-
-    RunAnalysis()
-    ops.wipe()
-    Model = '3D_Shell'
-    LoadCase = 'Transient'
-    LoadCase2 = 'Transient_5s'
-    
-    # Deformed shape time steps, one that uses an exact step and one that doesn't
-    opp.plot_deformedshape(Model, LoadCase, tstep = 3.1231, overlap = 'yes')
-    opp.plot_deformedshape(Model, LoadCase, tstep = 3., overlap = 'yes')
-    opp.plot_deformedshape(Model, LoadCase, tstep = 3.)
-    
-    opp.plot_deformedshape(Model, LoadCase2, tstep = 3.1231, overlap = 'yes')
-    opp.plot_deformedshape(Model, LoadCase2, tstep = 3., overlap = 'yes')
-    opp.plot_deformedshape(Model, LoadCase2, tstep = 3.)  
-   
-    assert True == True    
-    
-
-# =============================================================================
-# Function calls on the OBD
-# =============================================================================
-
-# ops.wipe()
-# dt = 0.2
-# opp.plot_model('nodes','elements',Model = Model)
-# Model = '3D_Shell'
-# LoadCase = 'Transient'
-
-# ani = opp.animate_deformedshape( Model, LoadCase, dt, Scale=30)
-
-
-def test_plot_deformedshape_3D(monkeypatch):
-    # repress the show plot attribute
-    monkeypatch.setattr(plt, 'show', lambda: None)
-
-    RunAnalysis()
-    
-    ops.wipe()
-    dt = 0.2
-    Model = '3D_Shell'
-    LoadCase = 'Transient'
-    
-    ani = opp.animate_deformedshape( Model, LoadCase, dt, Scale=30)
-    assert True == True 
