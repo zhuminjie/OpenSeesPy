@@ -766,7 +766,7 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 
 
 def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0, tEnd = 0, scale = 10, fps = 24, 
-                          FrameInterval = 0, skipFrame =1, timeScale = 1, Movie='none'):
+                          FrameInterval = 0, timeScale = 1, Movie='none'):
     """
     This defines the animation of an opensees model, given input data.
     
@@ -800,8 +800,6 @@ def animate_deformedshape( Model = 'none', LoadCase = 'none', dt = 0, tStart = 0
         The default is 24.
     FrameInterval : float, optional
         The time interval between frames to be used. The default is 0.
-    skipFrame : TYPE, optional
-        DESCRIPTION. The default is 1.
     timeScale : TYPE, optional
         DESCRIPTION. The default is 1.
     Movie : str, optional 
