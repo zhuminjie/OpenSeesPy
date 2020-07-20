@@ -10,3 +10,4 @@ dist
 .idea
 *.dylib
 .vscode
+test_ODB/
