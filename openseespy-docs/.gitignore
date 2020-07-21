@@ -1,0 +1,12 @@
+Makefile
+make.bat
+*~
+_build
+*.pvd
+obstacle
+dambreak
+*.out
+__pycache__
+*.xml
+.idea
+html
