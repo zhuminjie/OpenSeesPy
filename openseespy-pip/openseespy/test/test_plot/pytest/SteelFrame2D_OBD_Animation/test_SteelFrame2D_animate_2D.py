@@ -32,5 +32,5 @@ def test_animation_2D(monkeypatch):
     dt = 0.2
     RunAnalysis()
     ops.wipe()
-    ani = opp.animate_deformedshape( Model, LoadCase, dt, Scale=10)
+    ani = opp.animate_deformedshape( Model, LoadCase, dt, scale=10)
     plt.close()

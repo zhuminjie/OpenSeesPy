@@ -17,6 +17,6 @@ def test_animate_deformedshape_3D(monkeypatch):
     Model = 'test'
     LoadCase = 'Transient'
     
-    ani = opp.animate_deformedshape( Model, LoadCase, dt, Scale=30)
+    ani = opp.animate_deformedshape( Model, LoadCase, dt, scale=30)
     plt.close()
     assert True == True 
