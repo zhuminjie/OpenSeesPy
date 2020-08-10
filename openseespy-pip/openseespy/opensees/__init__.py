@@ -14,20 +14,24 @@ if sys.platform.startswith('linux'):
 
 elif sys.platform.startswith('win'):
 
+    try:
+        from openseespy.opensees.win.opensees import *
+    except: 
+        raise RuntimeError('Failed to import openseespy.')
     # python 3.7 is required
-    if sys.version_info[0] == 3 and sys.version_info[1] == 7:
+    # if sys.version_info[0] == 3 and sys.version_info[1] == 7:
 
-        try:
-            from openseespy.opensees.win.opensees import *
+    #     try:
+    #         from openseespy.opensees.win.opensees import *
 
-        except:
+    #     except:
 
-            raise RuntimeError(
-                'Failed to import openseespy. Anaconda is recommended https://www.anaconda.com/distribution/')
+    #         raise RuntimeError(
+    #             'Failed to import openseespy. Anaconda is recommended https://www.anaconda.com/distribution/')
 
-    else:
-        raise RuntimeError(
-            'Python version 3.7 is needed for Windows (Anaconda is recommended https://www.anaconda.com/distribution/)')
+    # else:
+    #     raise RuntimeError(
+    #         'Python version 3.7 is needed for Windows (Anaconda is recommended https://www.anaconda.com/distribution/)')
 
     # if sys.version_info[1] == 6:
 
