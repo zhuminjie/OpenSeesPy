@@ -29,7 +29,7 @@ elif sys.platform.startswith('win'):
             raise RuntimeError(
                 'Failed to import openseespy on Windows for Python 3.7')
 
-    if sys.version_info[0] == 3 and sys.version_info[1] == 8:
+    elif sys.version_info[0] == 3 and sys.version_info[1] == 8:
 
         try:
             from openseespy.opensees.win.py38.opensees import *
