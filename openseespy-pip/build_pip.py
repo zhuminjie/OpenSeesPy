@@ -46,6 +46,11 @@ def copy_library(so, pyd, pyd37):
 
 def build_pip():
 
+    print('==============================================================')
+    print('Did you remember to update version number in opensees source?')
+    print('\n\n\n\n\n')
+    print('==============================================================')
+
     # clean folders
     subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
