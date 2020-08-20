@@ -28,16 +28,16 @@ import matplotlib.tri as tri
 # check documentation on matplotlib's plot
 
 # continuous interpolated shape line
-fmtc = 'b-'  # blue solid line, no markers
+fmt_interp = 'b-'  # blue solid line, no markers
 
 # element end nodes
-fmte = 'rs'  # red square markers, no line
+fmt_nodes = 'rs'  # red square markers, no line
 
 # undeformed model
-fmtu = 'g--'  # green dashed line, no markers
+fmt_undefo = 'g--'  # green dashed line, no markers
 
 # section forces
-fmtsf = 'b-'  # blue solid line
+fmt_secforce = 'b-'  # blue solid line
 
 # figure left right bottom top offsets
 fig_lbrt = (.04, .04, .96, .96)
@@ -573,8 +573,8 @@ def plot_model(node_labels=1, element_labels=1, offset_nd_label=False,
     # plt.show()  # call this from main py file for more control
 
 
-def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                       endDispFlag, fmtc, fmte):
+def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
+                       endDispFlag, fmt_interp, fmt_nodes):
 
     ele_tags = ops.getEleTags()
 
@@ -613,9 +613,9 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                 edy = np.array([ey[0] + sfac*euy[0], ey[1] + sfac*euy[1]])
 
                 if unDefoFlag:
-                    plt.plot(ex, ey, fmtu)
+                    plt.plot(ex, ey, fmt_undefo)
 
-                plt.plot(edx, edy, fmtc)
+                plt.plot(edx, edy, fmt_interp)
 
         # beam/frame element
         elif ndf == 3:
@@ -645,17 +645,17 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                                    ops.nodeDisp(nd2)[2]])
 
                 if unDefoFlag:
-                    plt.plot(ex, ey, fmtu)
+                    plt.plot(ex, ey, fmt_undefo)
 
                 # interpolated displacement field
                 if interpFlag:
                     xcdi, ycdi = beam_defo_interp_2d(ex, ey, ed, sfac, nep)
-                    plt.plot(xcdi, ycdi, fmtc)
+                    plt.plot(xcdi, ycdi, fmt_interp)
 
                 # translations of ends
                 if endDispFlag:
                     xdi, ydi = beam_disp_ends(ex, ey, ed, sfac)
-                    plt.plot(xdi, ydi, fmte)
+                    plt.plot(xdi, ydi, fmt_nodes)
 
         plt.axis('equal')
         # plt.show()  # call this from main py file for more control
@@ -689,7 +689,8 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                                ops.nodeDisp(nd3)[1]])
 
             if unDefoFlag:
-                plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]), fmtu)
+                plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]),
+                         fmt_undefo)
 
             # xcdi, ycdi = beam_defo_interp_2d(ex, ey, ed, sfac, nep)
             # xdi, ydi = beam_disp_ends(ex, ey, ed, sfac)
@@ -744,7 +745,8 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                                ops.nodeDisp(nd4)[1]])
 
             if unDefoFlag:
-                plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]), fmtu)
+                plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]),
+                         fmt_undefo)
 
             # xcdi, ycdi = beam_defo_interp_2d(ex, ey, ed, sfac, nep)
             # xdi, ydi = beam_disp_ends(ex, ey, ed, sfac)
@@ -775,8 +777,8 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
         print(f'\nWarning! Elements not supported yet. nen: {nen}; must be: 2, 3, 4, 8.')  # noqa: E501
 
 
-def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                       endDispFlag, fmtc, fmte, az_el, fig_wi_he,
+def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
+                       endDispFlag, fmt_interp, fmt_nodes, az_el, fig_wi_he,
                        fig_lbrt):
 
     ele_tags = ops.getEleTags()
@@ -852,13 +854,13 @@ def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                 g = np.vstack((xloc, yloc, zloc))
 
                 if unDefoFlag:
-                    plt.plot(ex, ey, ez, fmtu)
+                    plt.plot(ex, ey, ez, fmt_undefo)
 
                 # interpolated displacement field
                 if interpFlag:
                     xcd, ycd, zcd = beam_defo_interp_3d(ex, ey, ez, g,
                                                         ed, sfac, nep)
-                    ax.plot(xcd, ycd, zcd, fmtc)
+                    ax.plot(xcd, ycd, zcd, fmt_interp)
                     ax.set_xlabel('X')
                     ax.set_ylabel('Y')
                     ax.set_zlabel('Z')
@@ -866,7 +868,7 @@ def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                 # translations of ends
                 if endDispFlag:
                     xd, yd, zd = beam_disp_ends3d(ex, ey, ez, ed, sfac)
-                    ax.plot(xd, yd, zd, fmte)
+                    ax.plot(xd, yd, zd, fmt_nodes)
 
         # # work-around fix because of aspect equal bug
         # xmin, xmax = ax.get_xlim()
@@ -940,7 +942,7 @@ def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                     ax.plot(np.append(ex, ex[0]),
                             np.append(ey, ey[0]),
                             np.append(ez, ez[0]),
-                            fmtu)
+                            fmt_undefo)
 
                 x = ex+sfac*ed[[0, 3, 6, 9]]
                 y = ey+sfac*ed[[1, 4, 7, 10]]
@@ -1049,22 +1051,22 @@ def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
             if unDefoFlag:
                 ax.plot(np.append(ex[0:4], ex[0]),
                         np.append(ey[0:4], ey[0]),
-                        np.append(ez[0:4], ez[0]), fmtu)
+                        np.append(ez[0:4], ez[0]), fmt_undefo)
                 ax.plot(np.append(ex[4:8], ex[4]),
                         np.append(ey[4:8], ey[4]),
-                        np.append(ez[4:8], ez[4]), fmtu)
+                        np.append(ez[4:8], ez[4]), fmt_undefo)
                 ax.plot(np.array([ex[0], ex[4]]),
                         np.array([ey[0], ey[4]]),
-                        np.array([ez[0], ez[4]]), fmtu)
+                        np.array([ez[0], ez[4]]), fmt_undefo)
                 ax.plot(np.array([ex[1], ex[5]]),
                         np.array([ey[1], ey[5]]),
-                        np.array([ez[1], ez[5]]), fmtu)
+                        np.array([ez[1], ez[5]]), fmt_undefo)
                 ax.plot(np.array([ex[2], ex[6]]),
                         np.array([ey[2], ey[6]]),
-                        np.array([ez[2], ez[6]]), fmtu)
+                        np.array([ez[2], ez[6]]), fmt_undefo)
                 ax.plot(np.array([ex[3], ex[7]]),
                         np.array([ey[3], ey[7]]),
-                        np.array([ez[3], ez[7]]), fmtu)
+                        np.array([ez[3], ez[7]]), fmt_undefo)
 
             x = ex+sfac*ed[[0, 3, 6, 9, 12, 15, 18, 21]]
             y = ey+sfac*ed[[1, 4, 7, 10, 13, 16, 19, 22]]
@@ -1108,9 +1110,10 @@ def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
         ax.set_zlim(0.0, _max_overall)
 
 
-def plot_defo(sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu, interpFlag=1,
-              endDispFlag=1, fmtc=fmtc, fmte=fmte, Eo=0, az_el=az_el,
-              fig_wi_he=fig_wi_he, fig_lbrt=fig_lbrt):
+def plot_defo(sfac=False, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
+              interpFlag=1, endDispFlag=1, fmt_interp=fmt_interp,
+              fmt_nodes=fmt_nodes, Eo=0, az_el=az_el, fig_wi_he=fig_wi_he,
+              fig_lbrt=fig_lbrt):
     """Plot deformed shape of the structure.
 
     Args:
@@ -1177,8 +1180,8 @@ def plot_defo(sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu, interpFlag=1,
 sfac value yourself.
 This usually happens when translational DOFs are too small\n\n""")
 
-        _plot_defo_mode_2d(0, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                           endDispFlag, fmtc, fmte)
+        _plot_defo_mode_2d(0, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
+                           endDispFlag, fmt_interp, fmt_nodes)
 
     elif ndim == 3:
         if not sfac:
@@ -1207,16 +1210,17 @@ This usually happens when translational DOFs are too small\n\n""")
             edmax = max(max_ux, max_uy, max_uz)
             sfac = ratio * dlmax/edmax
 
-        _plot_defo_mode_3d(0, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                           endDispFlag, fmtc, fmte, az_el, fig_wi_he,
-                           fig_lbrt)
+        _plot_defo_mode_3d(0, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
+                           endDispFlag, fmt_interp, fmt_nodes, az_el,
+                           fig_wi_he, fig_lbrt)
 
     else:
         print(f'\nWarning! ndim: {ndim} not supported yet.')
 
 
-def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                  endDispFlag, fmtc, fmte, fig_wi_he, xlim, ylim, lw):
+def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
+                  endDispFlag, fmt_interp, fmt_nodes, fig_wi_he, xlim, ylim,
+                  lw):
 
     fig_wi, fig_he = fig_wi_he
     ele_tags = ops.getEleTags()
@@ -1256,9 +1260,9 @@ def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                 edy = np.array([ey[0] + sfac*euy[0], ey[1] + sfac*euy[1]])
 
                 if unDefoFlag:
-                    plt.plot(ex, ey, fmtu)
+                    plt.plot(ex, ey, fmt_undefo)
 
-                plt.plot(edx, edy, fmtc)
+                plt.plot(edx, edy, fmt_interp)
 
         # beam/frame element anim eigen
         elif ndf == 3:
@@ -1293,7 +1297,7 @@ def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                                      ops.nodeEigenvector(nd2, modeNo)[1],
                                      ops.nodeEigenvector(nd2, modeNo)[2]])
 
-                lines.append(ax.plot([], [], fmte, lw=lw)[0])
+                lines.append(ax.plot([], [], fmt_nodes, lw=lw)[0])
 
             def init():
                 for j, ele_tag in enumerate(ele_tags):
@@ -1315,7 +1319,7 @@ def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                                                   sfac*np.cos(t[i]))
                         lines[j].set_data(xdi, ydi)
 
-                    # plt.plot(xcdi, ycdi, fmtc)
+                    # plt.plot(xcdi, ycdi, fmt_interp)
 
                 return lines
 
@@ -1367,7 +1371,8 @@ def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
                                ops.nodeDisp(nd4)[1]])
 
             if unDefoFlag:
-                plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]), fmtu)
+                plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]),
+                         fmt_undefo)
 
             # xcdi, ycdi = beam_defo_interp_2d(ex, ey, ed, sfac, nep)
             # xdi, ydi = beam_disp_ends(ex, ey, ed, sfac)
@@ -1398,10 +1403,10 @@ def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
         print(f'\nWarning! Elements not supported yet. nen: {nen}; must be: 2, 3, 4, 8.')  # noqa: E501
 
 
-def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu,
-              interpFlag=1, endDispFlag=1, fmtc=fmtc, fmte='b-', Eo=0,
-              az_el=az_el, fig_wi_he=fig_wi_he, fig_lbrt=fig_lbrt,
-              xlim=[0, 1], ylim=[0, 1], lw=3.):
+def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
+              interpFlag=1, endDispFlag=1, fmt_interp=fmt_interp,
+              fmt_nodes='b-', Eo=0, az_el=az_el, fig_wi_he=fig_wi_he,
+              fig_lbrt=fig_lbrt, xlim=[0, 1], ylim=[0, 1], lw=3.):
     """Make animation of a mode shape obtained from eigenvalue solution.
 
     Args:
@@ -1425,11 +1430,11 @@ def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu,
 
         endDispFlag (integer): 1 - plot marks at element ends, 0 - no marks
 
-        fmtc (string): format line string for interpolated (continuous)
+        fmt_interp (string): format line string for interpolated (continuous)
             deformated shape. The format contains information on line color,
             style and marks as in the standard matplotlib plot function.
 
-        fmte (string): format string for the marks of element ends
+        fmt_nodes (string): format string for the marks of element ends
 
         az_el (tuple): a tuple containing the azimuth and elevation
 
@@ -1478,8 +1483,9 @@ def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu,
             edmax = max(max_ux, max_uy)
             sfac = ratio * dlmax/edmax
 
-        _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                      endDispFlag, fmtc, fmte, fig_wi_he, xlim, ylim, lw)
+        _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
+                      endDispFlag, fmt_interp, fmt_nodes, fig_wi_he, xlim,
+                      ylim, lw)
 
     # elif ndim == 3:
     #     if not sfac:
@@ -1508,16 +1514,17 @@ def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu,
     #         edmax = max(max_ux, max_uy, max_uz)
     #         sfac = ratio * dlmax/edmax
 
-    #     _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
-    #                        endDispFlag, fmtc, fmte, Eo, az_el, fig_wi_he,
-    #                        fig_lbrt)
+    #     _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_undefo,
+    #                        interpFlag, endDispFlag, fmt_interp, fmt_nodes,
+    #                        Eo, az_el, fig_wi_he, fig_lbrt)
 
     else:
         print(f'\nWarning! ndim: {ndim} not supported yet.')
 
 
-def plot_mode_shape(modeNo, sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu,
-                    interpFlag=1, endDispFlag=1, fmtc=fmtc, fmte=fmte, Eo=0,
+def plot_mode_shape(modeNo, sfac=False, nep=17, unDefoFlag=1,
+                    fmt_undefo=fmt_undefo, interpFlag=1, endDispFlag=1,
+                    fmt_interp=fmt_interp, fmt_nodes=fmt_nodes, Eo=0,
                     az_el=az_el, fig_wi_he=fig_wi_he, fig_lbrt=fig_lbrt):
     """Plot mode shape of the structure obtained from eigenvalue analysis.
 
@@ -1591,8 +1598,8 @@ def plot_mode_shape(modeNo, sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu,
             edmax = max(max_ux, max_uy)
             sfac = ratio * dlmax/edmax
 
-        _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                           endDispFlag, fmtc, fmte)
+        _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo,
+                           interpFlag, endDispFlag, fmt_interp, fmt_nodes)
 
     elif ndim == 3:
         if not sfac:
@@ -1621,9 +1628,9 @@ def plot_mode_shape(modeNo, sfac=False, nep=17, unDefoFlag=1, fmtu=fmtu,
             edmax = max(max_ux, max_uy, max_uz)
             sfac = ratio * dlmax/edmax
 
-        _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                           endDispFlag, fmtc, fmte, az_el, fig_wi_he,
-                           fig_lbrt)
+        _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_undefo,
+                           interpFlag, endDispFlag, fmt_interp, fmt_nodes,
+                           az_el, fig_wi_he, fig_lbrt)
 
     else:
         print(f'\nWarning! ndim: {ndim} not supported yet.')
@@ -1940,8 +1947,8 @@ def fib_sec_list_to_cmds(fib_sec_list):
                 ops.patch('rect', matTag, nIJ, nJK, Iy, Iz, Ky, Kz)
 
 
-def _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmtu,
-                  interpFlag, endDispFlag, fmtc, fmte, fig_wi_he,
+def _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmt_undefo,
+                  interpFlag, endDispFlag, fmt_interp, fmt_nodes, fig_wi_he,
                   xlim, ylim):
 
     fig_wi, fig_he = fig_wi_he
@@ -1976,9 +1983,9 @@ def _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmtu,
                 edy = np.array([ey[0] + sfac*euy[0], ey[1] + sfac*euy[1]])
 
                 if unDefoFlag:
-                    plt.plot(ex, ey, fmtu)
+                    plt.plot(ex, ey, fmt_undefo)
 
-                plt.plot(edx, edy, fmtc)
+                plt.plot(edx, edy, fmt_interp)
 
         # beam/frame element anim defo
         elif ndf == 3:
@@ -2007,7 +2014,7 @@ def _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmtu,
                 Ey[i, :] = np.array([ops.nodeCoord(nd1)[1],
                                      ops.nodeCoord(nd2)[1]])
 
-                lines.append(ax.plot([], [], fmte, lw=3)[0])
+                lines.append(ax.plot([], [], fmt_nodes, lw=3)[0])
 
             def init():
                 for j, ele_tag in enumerate(ele_tags):
@@ -2032,7 +2039,7 @@ def _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmtu,
                                                   Eds[i, j, :], sfac)
                         lines[j].set_data(xdi, ydi)
 
-                    # plt.plot(xcdi, ycdi, fmtc)
+                    # plt.plot(xcdi, ycdi, fmt_interp)
 
                 # time_text.set_text(f'f')
                 time_text.set_text(f'frame: {i+1}/{n_frames}, \
@@ -2088,7 +2095,8 @@ time: {timeV[i]:.3f} s')
                            ops.nodeDisp(nd4)[1]])
 
             if unDefoFlag:
-                plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]), fmtu)
+                plt.plot(np.append(ex, ex[0]), np.append(ey, ey[0]),
+                         fmt_undefo)
 
             # xcdi, ycdi = beam_defo_interp_2d(ex, ey, ed, sfac, nep)
             # xdi, ydi = beam_disp_ends(ex, ey, ed, sfac)
@@ -2119,10 +2127,10 @@ time: {timeV[i]:.3f} s')
         print(f'\nWarning! Elements not supported yet. nen: {nen}; must be: 2, 3, 4, 8.')  # noqa: E501
 
 
-def anim_defo(Eds, timeV, sfac, nep=17, unDefoFlag=1, fmtu=fmtu,
-              interpFlag=1, endDispFlag=1, fmtc=fmtc, fmte='b-',
-              az_el=az_el, fig_lbrt=fig_lbrt, fig_wi_he=fig_wi_he,
-              xlim=[0, 1], ylim=[0, 1]):
+def anim_defo(Eds, timeV, sfac, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
+              interpFlag=1, endDispFlag=1, fmt_interp=fmt_interp,
+              fmt_nodes='b-', az_el=az_el, fig_lbrt=fig_lbrt,
+              fig_wi_he=fig_wi_he, xlim=[0, 1], ylim=[0, 1]):
     """Make animation of the deformed shape computed by transient analysis
 
     Args:
@@ -2144,11 +2152,11 @@ def anim_defo(Eds, timeV, sfac, nep=17, unDefoFlag=1, fmtu=fmtu,
 
         endDispFlag (integer): 1 - plot marks at element ends, 0 - no marks
 
-        fmtc (string): format line string for interpolated (continuous)
+        fmt_interp (string): format line string for interpolated (continuous)
             deformated shape. The format contains information on line color,
             style and marks as in the standard matplotlib plot function.
 
-        fmte (string): format string for the marks of element ends
+        fmt_nodes (string): format string for the marks of element ends
 
         az_el (tuple): a tuple containing the azimuth and elevation
 
@@ -2168,8 +2176,9 @@ def anim_defo(Eds, timeV, sfac, nep=17, unDefoFlag=1, fmtu=fmtu,
     ndim = np.shape(ops.nodeCoord(node_tags[0]))[0]
 
     if ndim == 2:
-        _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmtu, interpFlag,
-                      endDispFlag, fmtc, fmte, fig_wi_he, xlim, ylim)
+        _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmt_undefo,
+                      interpFlag, endDispFlag, fmt_interp, fmt_nodes,
+                      fig_wi_he, xlim, ylim)
 
     else:
         print(f'\nWarning! ndim: {ndim} not supported yet.')
@@ -2299,7 +2308,8 @@ def section_force_distribution_3d(ex, ey, ez, pl, nep=2,
     return s, xl
 
 
-def section_force_diagram_2d(sf_type, Ew, sfac=1., nep=17, fmtsf=fmtsf):
+def section_force_diagram_2d(sf_type, Ew, sfac=1., nep=17,
+                             fmt_secforce=fmt_secforce):
     """Display section forces diagram for 2d beam column model.
 
     This function plots a section forces diagram for 2d beam column elements
@@ -2320,10 +2330,10 @@ def section_force_diagram_2d(sf_type, Ew, sfac=1., nep=17, fmtsf=fmtsf):
         nep (int): number of evaluation points including both end nodes
             (default: 17)
 
-        fmtsf (str): format line string for section force distribution curve.
-            The format contains information on line color, style and marks as
-            in the standard matplotlib plot function.
-            (default: fmtsf = 'b-'  # blue solid line)
+        fmt_secforce (str): format line string for section force distribution
+            curve. The format contains information on line color, style and
+            marks as in the standard matplotlib plot function.
+            (default: fmt_secforce = 'b-'  # blue solid line)
 
     Usage:
     ::
@@ -2397,7 +2407,7 @@ def section_force_diagram_2d(sf_type, Ew, sfac=1., nep=17, fmtsf=fmtsf):
         plt.axis('equal')
 
         # section force curve
-        plt.plot(s_p[:, 0], s_p[:, 1], fmtsf,
+        plt.plot(s_p[:, 0], s_p[:, 1], fmt_secforce,
                  solid_capstyle='round', solid_joinstyle='round',
                  dash_capstyle='butt', dash_joinstyle='round')
 
@@ -2407,14 +2417,16 @@ def section_force_diagram_2d(sf_type, Ew, sfac=1., nep=17, fmtsf=fmtsf):
 
         # reference perpendicular lines
         for i in np.arange(nep):
-            plt.plot([s_0[i, 0], s_p[i, 0]], [s_0[i, 1], s_p[i, 1]], fmtsf,
-                     solid_capstyle='round', solid_joinstyle='round',
-                     dash_capstyle='butt', dash_joinstyle='round')
+            plt.plot([s_0[i, 0], s_p[i, 0]], [s_0[i, 1], s_p[i, 1]],
+                     fmt_secforce, solid_capstyle='round',
+                     solid_joinstyle='round', dash_capstyle='butt',
+                     dash_joinstyle='round')
 
     return minVal, maxVal
 
 
-def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17, fmtsf=fmtsf):
+def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17,
+                             fmt_secforce=fmt_secforce):
     """Display section forces diagram of a 3d beam column model.
 
     This function plots section forces diagrams for 3d beam column elements
@@ -2436,10 +2448,10 @@ def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17, fmtsf=fmtsf):
         nep (int): number of evaluation points including both end nodes
             (default: 17)
 
-        fmtsf (str): format line string for section force distribution curve.
-            The format contains information on line color, style and marks as
-            in the standard matplotlib plot function.
-            (default: fmtsf = 'b-'  # blue solid line)
+        fmt_secforce (str): format line string for section force distribution
+            curve. The format contains information on line color, style and
+            marks as in the standard matplotlib plot function.
+            (default: fmt_secforce = 'b-'  # blue solid line)
 
     Usage:
     ::
@@ -2555,7 +2567,7 @@ def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17, fmtsf=fmtsf):
         # plt.axis('equal')
 
         # section force curve
-        plt.plot(s_p[:, 0], s_p[:, 1], s_p[:, 2], fmtsf,
+        plt.plot(s_p[:, 0], s_p[:, 1], s_p[:, 2], fmt_secforce,
                  solid_capstyle='round', solid_joinstyle='round',
                  dash_capstyle='butt', dash_joinstyle='round')
 
@@ -2568,7 +2580,7 @@ def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17, fmtsf=fmtsf):
         for i in np.arange(nep):
             plt.plot([s_0[i, 0], s_p[i, 0]],
                      [s_0[i, 1], s_p[i, 1]],
-                     [s_0[i, 2], s_p[i, 2]], fmtsf,
+                     [s_0[i, 2], s_p[i, 2]], fmt_secforce,
                      solid_capstyle='round', solid_joinstyle='round',
                      dash_capstyle='butt', dash_joinstyle='round')
 
