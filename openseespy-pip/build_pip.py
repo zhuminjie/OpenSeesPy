@@ -5,25 +5,19 @@ import os.path
 import sys
 
 
-def copy_library(so, pyd, pyd37):
+def copy_library(so, pyd):
 
     # change to script's folder
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # replace new libraries
     linux = './openseespy/opensees/linux/'
-    win = './openseespy/opensees/win/py38/'
-    win37 = './openseespy/opensees/win/py37/'
+    win = './openseespy/opensees/win/'
 
     if os.path.exists(pyd):
         if os.path.exists(win+'opensees.pyd'):
             os.remove(win+'opensees.pyd')
         shutil.copy(pyd, win)
-
-    if os.path.exists(pyd37):
-        if os.path.exists(win37+'opensees.pyd'):
-            os.remove(win37+'opensees.pyd')
-        shutil.copy(pyd37, win37+'opensees.pyd')
 
     if os.path.exists(so):
         if os.path.exists(linux+'opensees.so'):
