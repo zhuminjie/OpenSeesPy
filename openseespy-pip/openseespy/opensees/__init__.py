@@ -10,6 +10,7 @@ if sys.platform.startswith('linux'):
 
     try:
         from openseespy.opensees.linux.opensees import *
+        from openseespy.opensees.linux.opensees import __version__
     except:
         raise RuntimeError('Failed to import openseespy on Linux.')
 
@@ -26,6 +27,7 @@ elif sys.platform.startswith('win'):
 
         try:
             from openseespy.opensees.win.opensees import *
+            from openseespy.opensees.win.opensees import __version__
 
         except:
 
