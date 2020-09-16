@@ -1,4 +1,5 @@
 import sys
+import ctypes
 
 # only work for 64 bit system
 if sys.maxsize < 2**31:
@@ -14,12 +15,14 @@ if sys.platform.startswith('linux'):
 
 elif sys.platform.startswith('win'):
 
-    # try:
-    #     from openseespy.opensees.win.opensees import *
-    # except:
-    #     raise RuntimeError('Failed to import openseespy.')
-    # python 3.7 is required
     if sys.version_info[0] == 3 and sys.version_info[1] == 8:
+
+        dll_path = ''
+        for path in sys.path:
+            if 'DLLs' in path:
+                dll_path = path
+                break
+        ctypes.cdll.LoadLibrary(dll_path + '\\tcl86t.dll')
 
         try:
             from openseespy.opensees.win.opensees import *
@@ -32,18 +35,6 @@ elif sys.platform.startswith('win'):
     else:
         raise RuntimeError(
             'Python version 3.8 is needed for Windows')
-
-    # if sys.version_info[1] == 6:
-
-    #    from openseespy.opensees.winpy36.opensees import *
-
-    # elif sys.version_info[1] == 7:
-
-    #    from openseespy.opensees.winpy37.opensees import *
-
-    # elif sys.version_info[1] == 8:
-
-    #    from openseespy.opensees.winpy38.opensees import *
 
 elif sys.platform.startswith('darwin'):
 
