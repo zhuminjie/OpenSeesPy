@@ -70,7 +70,7 @@ def copy_mac_library(so):
             os.remove(mac+'lib/Python')
 
 
-def build_pip():
+def build_pip(pyexe='python'):
 
     print('==============================================================')
     print('Did you remember to update version number in opensees source?')
@@ -81,35 +81,35 @@ def build_pip():
     subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
     # update tools
-    subprocess.run(['python3', '-m', 'pip', 'install', '--upgrade',
+    subprocess.run([pyexe, '-m', 'pip', 'install', '--upgrade',
                     'setuptools', 'wheel', 'twine', 'pytest'])
 
     # compile wheel
-    subprocess.run(['python3', 'setup.py', 'bdist_wheel'])
+    subprocess.run([pyexe, 'setup.py', 'bdist_wheel'])
 
 
-def upload_pip():
+def upload_pip(pyexe='python')
     # upload
-    subprocess.run(['python3', '-m', 'twine', 'upload', 'dist/*'])
+    subprocess.run([pyexe, '-m', 'twine', 'upload', 'dist/*'])
 
 
 def clean_pip():
     subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
 
-def upload_pip_test():
+def upload_pip_test(pyexe='python'):
     # upload
-    subprocess.run(['python3', '-m', 'twine', 'upload',
+    subprocess.run([pyexe, '-m', 'twine', 'upload',
                     '--repository', 'testpypi', 'dist/*'])
 
 
-def install_pip_test():
-    subprocess.run(['python3', '-m', 'pip', 'uninstall', '-y', 'openseespy'])
-    subprocess.run(['python3', '-m', 'pip',  'install', '--pre', '--no-cache-dir', '--index-url',
+def install_pip_test(pyexe='python'):
+    subprocess.run([pyexe, '-m', 'pip', 'uninstall', '-y', 'openseespy'])
+    subprocess.run([pyexe, '-m', 'pip',  'install', '--pre', '--no-cache-dir', '--index-url',
                     'https://test.pypi.org/simple/', 'openseespy'])
 
 
-def install_pip():
-    subprocess.run(['python3', '-m', 'pip', 'uninstall', '-y', 'openseespy'])
-    subprocess.run(['python3', '-m', 'pip', 'install',
+def install_pip(pyexe='python'):
+    subprocess.run([pyexe, '-m', 'pip', 'uninstall', '-y', 'openseespy'])
+    subprocess.run([pyexe, '-m', 'pip', 'install',
                     '--pre', '--no-cache-dir', 'openseespy'])
