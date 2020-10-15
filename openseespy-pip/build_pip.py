@@ -6,19 +6,13 @@ import sys
 import glob
 
 
-def copy_library(so, pyd):
+def copy_linux_library(so):
 
     # change to script's folder
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # replace new libraries
     linux = './openseespy/opensees/linux/'
-    win = './openseespy/opensees/win/'
-
-    if os.path.exists(pyd):
-        if os.path.exists(win+'opensees.pyd'):
-            os.remove(win+'opensees.pyd')
-        shutil.copy(pyd, win)
 
     if os.path.exists(so):
         if os.path.exists(linux+'opensees.so'):

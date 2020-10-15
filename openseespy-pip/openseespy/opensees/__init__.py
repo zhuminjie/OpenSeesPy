@@ -40,9 +40,14 @@ elif sys.platform.startswith('win'):
 
 elif sys.platform.startswith('darwin'):
 
-    # from openseespy.opensees.mac.opensees import *
-    raise RuntimeError(
-        'Please install Mac version from openseespymac package (pip install openseespymac)')
+    if sys.version_info[0] == 3 and sys.version_info[1] == 8:
+        try:
+            from openseespy.opensees.mac.opensees import *
+            from openseespy.opensees.win.opensees import __version__
+        except:
+            raise RuntimeError('Failed to import, try use Python from HomeBrew')
+    else:
+        raise RuntimeError('Python version 3.8 is needed for Mac')
 
 
 else:
