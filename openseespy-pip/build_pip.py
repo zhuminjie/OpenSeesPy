@@ -88,7 +88,7 @@ def build_pip(pyexe='python'):
     subprocess.run([pyexe, 'setup.py', 'bdist_wheel'])
 
 
-def upload_pip(pyexe='python')
+def upload_pip(pyexe='python'):
     # upload
     subprocess.run([pyexe, '-m', 'twine', 'upload', 'dist/*'])
 
