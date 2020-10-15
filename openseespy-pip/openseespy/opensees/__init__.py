@@ -43,7 +43,7 @@ elif sys.platform.startswith('darwin'):
     if sys.version_info[0] == 3 and sys.version_info[1] == 8:
         try:
             from openseespy.opensees.mac.opensees import *
-            from openseespy.opensees.win.opensees import __version__
+            from openseespy.opensees.mac.opensees import __version__
         except:
             raise RuntimeError('Failed to import, try use Python from HomeBrew')
     else:
