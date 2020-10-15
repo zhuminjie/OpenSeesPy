@@ -64,6 +64,8 @@ def copy_mac_library(so):
             shutil.copy(line[i:j], mac+'lib/')
             lib_name = line[i:j].split('/')
             lib_name = lib_name[-1]
+            if lib_name == 'Python':
+                continue
             print('changing rpath from '+line[i:j]+' to lib/'+lib_name)
             subprocess.run(
                 ['install_name_tool', '-change', line[i:j],

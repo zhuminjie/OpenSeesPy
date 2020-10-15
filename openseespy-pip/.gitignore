@@ -11,3 +11,4 @@ dist
 *.dylib
 .vscode
 test_ODB/
+*.pyc
