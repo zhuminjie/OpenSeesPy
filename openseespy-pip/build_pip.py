@@ -69,7 +69,7 @@ def copy_mac_library(so):
             print('changing rpath from '+line[i:j]+' to lib/'+lib_name)
             subprocess.run(
                 ['install_name_tool', '-change', line[i:j],
-                    'lib/'+lib_name, mac+'opensees.so']
+                    '@loader_path/lib/'+lib_name, mac+'opensees.so']
             )
 
         if os.path.exists(mac+'lib/Python'):
