@@ -35,6 +35,17 @@
 ! by D. Sze and Filip C. Filippou in 1994
 -----------------------------------------------------------------------*/
 
+//-----------------------------------------------------------------------
+//Modified in 2020 by:
+// Juan D. Pozo (jpozo@nd.edu)
+// Department of Civil and Environmental Engineering and Earth Sciences, University of Notre Dame, Notre Dame, Indiana, USA and 
+// Department of Structural and Geotechnical Engineering, Pontificia Universidad Catolica de Chile, Macul, Santiago, Chile
+// Yahya C. Kurama (ykurama@nd.edu)
+// Department of Civil and Environmental Engineering and Earth Sciences, University of Notre Dame, Notre Dame, Indiana
+// Matias A. Hube (mhube@ing.puc.cl)
+// Department of Structural and Geotechnical Engineering, Pontificia Universidad Catolica de Chile, Macul, Santiago, Chile
+//-----------------------------------------------------------------------
+
 
 
 #ifndef Concrete02_h
@@ -45,6 +56,11 @@
 class Concrete02 : public UniaxialMaterial
 {
   public:
+    //Constructor for Popovics Equation:  jdPozo
+    Concrete02(int tag, double _fc, double _epsc0, double _fcu,
+         double _epscu, double _rat, double _ft, double _Ets, double _ec0);
+
+    //Constructor for Hognestad parabola:  jdPozo
     Concrete02(int tag, double _fc, double _epsc0, double _fcu,
 	     double _epscu, double _rat, double _ft, double _Ets);
 
@@ -87,6 +103,7 @@ class Concrete02 : public UniaxialMaterial
     double rat;   // ratio between unloading slope at epscu and original slope : mp(5)
     double ft;    // concrete tensile strength               : mp(6)
     double Ets;   // tension stiffening slope                : mp(7)
+    double ec0;   // initial stiffness                       : mp(8)  jdPozo
 
     // hstvP : Concerete HISTORY VARIABLES last committed step
     double ecminP;  //  hstP(1)
@@ -101,6 +118,9 @@ class Concrete02 : public UniaxialMaterial
     double sig;   
     double e;     
     double eps;   
+
+    // Auxiliary variable to define which equation to use for the pre-peak compression envelope: jdPozo
+    double Eq;
 };
 
 
