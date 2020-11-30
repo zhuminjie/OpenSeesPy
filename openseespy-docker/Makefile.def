@@ -20,7 +20,7 @@
 # Specify the location and name of the OpenSees interpreter program
 # that will be created (if this all works!)
 binpath = /home/bin
-paralleldir = /home/petsc/arch-linux2-c-opt
+paralleldir = /home/petsc/arch-linux-c-opt
 minjie = /home/openseespy
 libpath = /home/lib
 
@@ -326,10 +326,6 @@ else
 
 MUMPS_LIB = -L$(mumpsdir)/lib \
           -L$(scalapackdir)/lib \
-	$(FE)/system_of_eqn/linearSOE/mumps/MumpsSOE.o \
-	$(FE)/system_of_eqn/linearSOE/mumps/MumpsSolver.o \
-	$(FE)/system_of_eqn/linearSOE/mumps/MumpsParallelSOE.o \
-	$(FE)/system_of_eqn/linearSOE/mumps/MumpsParallelSolver.o \
 	-ldmumps -lmumps_common \
 	-lpord -lscalapack
 MUMPS_INCLUDE = -I$(mumpsdir)/include
@@ -375,7 +371,7 @@ PARALLEL_LIB = $(MUMPS_LIB) $(MPI_LIB) $(OTHER_PARA_LIB) $(PETSC_LIB)
 MACHINE_INCLUDES        = -I/usr/include \
 			  -I/usr/local/include \
 			  -I/usr/include/cxx  \
-			  -I/usr/include/python3.7m
+			  -I/usr/include/python3.8
 #			  -I/data2/Minjie/bin/python3.6/include/python3.6m
 #			  -I/scratch/bin/anaconda3-5.1.0/include/python3.6m
 #			  -I/usr/include/python2.7

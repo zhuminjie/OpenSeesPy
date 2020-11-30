@@ -1,17 +1,16 @@
-FROM ubuntu:18.04 AS development
+FROM ubuntu:18.04 AS compile
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y
-RUN apt-get -y install make gcc g++ gfortran git tcl8.6 tcl8.6-dev libboost-all-dev python3.7 python3.7-dev libblas-dev python3-pip
+RUN apt-get -y install make gcc g++ gfortran git tcl8.6 tcl8.6-dev libboost-all-dev libblas-dev python3.8 python3.8-dev python3-pip
 
 
 WORKDIR /home
 
-RUN git clone https://github.com/OpenSees/OpenSees.git openseespy
-RUN git clone -b maint https://gitlab.com/petsc/petsc.git petsc
-RUN mkdir /home/bin
-RUN mkdir /home/lib
-
+RUN git clone https://github.com/OpenSees/OpenSees.git openseespy && \
+    git clone -b release https://gitlab.com/petsc/petsc.git petsc && \
+    mkdir /home/bin && \
+    mkdir /home/lib
 
 COPY Makefile.def /home/openseespy/
 
@@ -21,37 +20,38 @@ RUN ./configure --download-cmake --download-mpich --download-fblaslapack --downl
 WORKDIR /home/openseespy
 RUN make -j
 
-WORKDIR /home/openseespy/SRC/interpreter
-RUN make -j
-
-WORKDIR /home
-RUN git clone https://github.com/OpenSeesPy-pip/openseespy-pip.git
+## Build openseespy package
+COPY openseespy-pip /home/openseespy-pip/
 
 WORKDIR /home/openseespy-pip
-RUN python3.7 build_pip.py
+RUN python3.8 build_pip.py \
+    ../openseespy/SRC/interpreter/opensees.so \
+    copy_dep \
+    python3.8
 
 
 #######################################################
 # openseespy
-FROM python:3.7-slim AS openseespy
+FROM ubuntu:18.04  AS openseespy
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y
-RUN apt-get -y install libquadmath0
-RUN mkdir /app
-WORKDIR /app
-COPY --from=0 /home/openseespy-pip/dist/openseespy-3.1.5.12-py3-none-any.whl /app/
-COPY --from=0 /home/petsc/arch-linux2-c-opt/bin/mpiexec* /app/
-COPY --from=0 /home/petsc/arch-linux2-c-opt/bin/hydra_* /app/
-RUN python3.7 -m pip install openseespy-3.1.5.12-py3-none-any.whl
-RUN rm -f openseespy-3.1.5.12-py3-none-any.whl
+RUN apt-get -y install python3.8 python3-pip
 WORKDIR /home
-CMD python3.7
+COPY --from=0 /home/openseespy-pip/dist/openseespy-*.whl /home/
+COPY --from=0 /home/petsc/arch-linux2-c-opt/bin/mpiexec* /usr/local/bin/
+COPY --from=0 /home/petsc/arch-linux2-c-opt/bin/hydra_* /usr/local/bin/
+COPY hello.py /home/
+RUN python3.8 -m pip install openseespy-*.whl
+RUN rm -f openseespy-*.whl
+WORKDIR /
+CMD python3.8
 #######################################################
 
 #######################################################
 # openseespy
 FROM openseespy AS openseespy-notebook
-RUN python3.7 -m pip install notebook
-WORKDIR /home
+RUN python3.8 -m pip install notebook
+WORKDIR /
 CMD jupyter notebook --ip=0.0.0.0 --no-browser --allow-root
 #######################################################
 
