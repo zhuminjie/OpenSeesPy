@@ -36,7 +36,7 @@ def update_version(version):
                     'openseespy-docker/build_docker.py'])
 
     # push to github
-    # subprocess.run(['git', 'push'])
+    subprocess.run(['git', 'push'])
 
 
 if __name__ == '__main__':
