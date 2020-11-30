@@ -38,8 +38,8 @@ RUN apt-get update -y
 RUN apt-get -y install python3.8 python3-pip
 WORKDIR /home
 COPY --from=0 /home/openseespy-pip/dist/openseespy-*.whl /home/
-COPY --from=0 /home/petsc/arch-linux2-c-opt/bin/mpiexec* /usr/local/bin/
-COPY --from=0 /home/petsc/arch-linux2-c-opt/bin/hydra_* /usr/local/bin/
+COPY --from=0 /home/petsc/arch-linux-c-opt/bin/mpiexec* /usr/local/bin/
+COPY --from=0 /home/petsc/arch-linux-c-opt/bin/hydra_* /usr/local/bin/
 COPY hello.py /home/
 RUN python3.8 -m pip install openseespy-*.whl
 RUN rm -f openseespy-*.whl
