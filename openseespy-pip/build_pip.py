@@ -6,7 +6,7 @@ import sys
 import glob
 
 
-def copy_linux_library(so):
+def copy_linux_library(so, copy_dep=True):
 
     # change to script's folder
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -19,18 +19,19 @@ def copy_linux_library(so):
             os.remove(linux+'opensees.so')
         shutil.copy(so, linux)
 
-        # get dependent library for linux
-        p = subprocess.run(
-            ["ldd", so], capture_output=True)
+        if copy_dep:
+            # get dependent library for linux
+            p = subprocess.run(
+                ["ldd", so], capture_output=True)
 
-        for line in p.stdout.decode('utf-8').split('\n'):
-            i = line.find('/')
-            j = line.find(' ', i)
-            if i < 0 or j < 0 or i >= j:
-                continue
+            for line in p.stdout.decode('utf-8').split('\n'):
+                i = line.find('/')
+                j = line.find(' ', i)
+                if i < 0 or j < 0 or i >= j:
+                    continue
 
-            print('copying '+line[i:j]+' to '+linux+'lib/')
-            shutil.copy(line[i:j], linux+'lib/')
+                print('copying '+line[i:j]+' to '+linux+'lib/')
+                shutil.copy(line[i:j], linux+'lib/')
 
 
 def copy_mac_library(so):
@@ -113,3 +114,33 @@ def install_pip(pyexe='python'):
     subprocess.run([pyexe, '-m', 'pip', 'uninstall', '-y', 'openseespy'])
     subprocess.run([pyexe, '-m', 'pip', 'install',
                     '--pre', '--no-cache-dir', 'openseespy'])
+
+
+if __name__ == "__main__":
+
+    if len(sys.argv) < 2:
+        print('build_pip upload-test/build')
+        exit()
+
+    if sys.argv[1] == 'build':
+        if len(sys.argv) < 5:
+            print('buld_pip build so copy_dep/no_copy pyexe')
+            exit()
+
+        so = sys.argv[2]
+        copy_dep = False
+        if sys.argv[3] == 'copy-dep':
+            copy_dep = True
+        pyexe = sys.argv[4]
+
+        copy_linux_library(so, copy_dep=copy_dep)
+        build_pip(pyexe)
+
+    elif sys.argv[1] == 'upload-test':
+
+        if len(sys.argv) < 3:
+            print('buld_pip upload-test pyexe')
+            exit()
+
+        pyexe = sys.argv[2]
+        upload_pip_test(pyexe)
