@@ -21,7 +21,7 @@
 # that will be created (if this all works!)
 binpath = /home/bin
 paralleldir = /home/petsc/arch-linux-c-opt
-minjie = /home/openseespy
+minjie = /home/opensees
 libpath = /home/lib
 
 OpenSees_PROGRAM = $(binpath)/openseestcl
