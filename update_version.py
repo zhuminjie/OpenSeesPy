@@ -32,8 +32,8 @@ def update_version(version):
                     f'update version {version}'])
 
     # update docker image
-    subprocess.run(['python3.8', 'openseespy-docker',
-                    'build_docker.py'])
+    subprocess.run(['python3.8',
+                    'openseespy-docker/build_docker.py'])
 
     # push to github
     # subprocess.run(['git', 'push'])
