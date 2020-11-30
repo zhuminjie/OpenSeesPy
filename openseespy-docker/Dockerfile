@@ -18,13 +18,13 @@ WORKDIR /home/petsc
 RUN ./configure --download-cmake --download-mpich --download-fblaslapack --download-scalapack --download-mumps --download-metis --download-parmetis --with-shared-libraries=0 --with-debugging=0 COPTFLAGS='-O3 -march=native -mtune=native -fPIC' CXXOPTFLAGS='-O3 -march=native -mtune=native -fPIC' FOPTFLAGS='-O3 -march=native -mtune=native -fPIC'
 
 WORKDIR /home/openseespy
-RUN make -j
+RUN make -j python
 
 ## Build openseespy package
 COPY openseespy-pip /home/openseespy-pip/
 
 WORKDIR /home/openseespy-pip
-RUN python3.8 build_pip.py \
+RUN python3.8 build_pip.py build \
     ../openseespy/SRC/interpreter/opensees.so \
     copy_dep \
     python3.8
