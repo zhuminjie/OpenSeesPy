@@ -4,13 +4,13 @@
  setNodeDisp command
 ======================
 
-.. function:: setNodeDisp(nodeTag, dim, value, '-commit')
+.. function:: setNodeDisp(nodeTag, dof, value, '-commit')
 
-   set the nodal displacement at the specified dimension.
+   set the nodal displacement at the specified DOF.
 
    ========================   ===========================================================================
    ``nodeTag`` |int|          node tag.
-   ``dim`` |int|              the dimension of the dispinate to be set.
+   ``dof`` |int|              the DOF of the displacement to be set.
    ``value`` |float|          displacement value
    ``'-commit'`` |str|        commit nodal state. (optional)
    ========================   ===========================================================================
