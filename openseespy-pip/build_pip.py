@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
         so = sys.argv[2]
         copy_dep = False
-        if sys.argv[3] == 'copy-dep':
+        if sys.argv[3] == 'copy_dep':
             copy_dep = True
         pyexe = sys.argv[4]
 
