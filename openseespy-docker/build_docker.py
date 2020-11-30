@@ -53,7 +53,7 @@ def build_docker(dry_run=True, push=False):
         if push:
             print(f'docker login')
             print(f'docker image push {tag_openseespy}')
-            print(f'docker image push {tag_notebook'})
+            print(f'docker image push {tag_notebook}')
 
 
 if __name__ == "__main__":
