@@ -29,7 +29,7 @@ def update_version(version):
     # commit pip version
     subprocess.run(['git', 'add', 'openseespy-pip'])
     subprocess.run(['git', 'commit', '-m',
-                    f'"update version {version}'])
+                    f'update version {version}'])
 
     # update docker image
     subprocess.run(['python3.8', 'openseespy-docker',
