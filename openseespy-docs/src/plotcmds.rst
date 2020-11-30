@@ -1,12 +1,12 @@
-.. include:: src/sub.txt
+.. include:: sub.txt
 
 =========================
- Postprocessing Commands
+ Get_Rendering Commands
 =========================
 
-The source code is maintained by `Anurag Upadhyay <https://github.com/u-anurag>`_ from University of Utah.
+The source code is maintained by `Anurag Upadhyay <https://github.com/u-anurag>`_ from University of Utah. 
 
-**For Developers** : If you are interested in developing visualization functions and contributing to ``Get_Rendering`` library, please go through :doc:`Plotting_Development_Guide` to understand the existing code. This will be helpful in reducing changes while merging the new codes.
+**For Developers** : If you are interested in developing visualization functions and contributing to ``Get_Rendering`` library, please go through :doc:`Plotting_Development_Guide` to understand the existing code. This will be helpful in reducing changes while merging the new codes. There is a dedicated branch of OpenSeesPy for developement of Get_Rendering library (https://github.com/u-anurag/OpenSeesPy). All the new code should be added to this dedicated branch, and not the main OpenSeesPy branch.
 
 Model visualization is an ongoing development to make OpenSeesPy more user friendly.
 It utilizes `Matplotlib 3.0 <https://matplotlib.org>`_ library to plot 2D and 3D models in a dedicated interactive window. You can use click-and-hold to change the view angle and zoom the plot. The model image can be saved with the desired orientation directly from the interactive plot window. If you did not install matplotlib using Anaconda, you will have to install PyQt or PySide to enable an interactive window (`Matplotlib Dependencies <https://matplotlib.org/users/installing.html>`_).  

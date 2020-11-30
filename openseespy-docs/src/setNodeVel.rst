@@ -4,13 +4,13 @@
  setNodeVel command
 ======================
 
-.. function:: setNodeVel(nodeTag, dim, value, '-commit')
+.. function:: setNodeVel(nodeTag, dof, value, '-commit')
 
-   set the nodal velocity at the specified dimension.
+   set the nodal velocity at the specified DOF.
 
    ========================   ===========================================================================
    ``nodeTag`` |int|          node tag.
-   ``dim`` |int|              the dimension of the velinate to be set.
+   ``dof`` |int|              the DOF of the velocity to be set.
    ``value`` |float|          velocity value
    ``'-commit'`` |str|        commit nodal state. (optional)
    ========================   ===========================================================================

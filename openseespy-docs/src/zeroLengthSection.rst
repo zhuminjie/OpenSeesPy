@@ -20,7 +20,7 @@ zeroLengthSection Element
    ``rFlag`` |float|                     optional, default = 0
 
                                          * ``rFlag`` = 0 NO RAYLEIGH DAMPING (default)
-					 * ``rFlag`` = 1 include rayleigh damping
+                                         * ``rFlag`` = 1 include rayleigh damping
    ===================================   ===========================================================================
 
 .. seealso::

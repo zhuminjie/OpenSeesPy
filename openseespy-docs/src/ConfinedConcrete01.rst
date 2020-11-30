@@ -13,13 +13,13 @@
                                          see image below.
 
                                          * ``'S1'`` square section with S1 type of transverse reinforcement with or without external FRP wrapping
-					 * ``'S2'`` square section with S2 type of transverse reinforcement with or without external FRP wrapping
-					 * ``'S3'`` square section with S3 type of transverse reinforcement with or without external FRP wrapping
-					 * ``'S4a'`` square section with S4a type of transverse reinforcement with or without external FRP wrapping
-					 * ``'S4b'`` square section with S4b type of transverse reinforcement with or without external FRP wrapping
-					 * ``'S5'`` square section with S5 type of transverse reinforcement with or without external FRP wrapping
-					 * ``'C'`` circular section with or without external FRP wrapping
-					 * ``'R'`` rectangular section with or without external FRP wrapping.
+                                         * ``'S2'`` square section with S2 type of transverse reinforcement with or without external FRP wrapping
+                                         * ``'S3'`` square section with S3 type of transverse reinforcement with or without external FRP wrapping
+                                         * ``'S4a'`` square section with S4a type of transverse reinforcement with or without external FRP wrapping
+                                         * ``'S4b'`` square section with S4b type of transverse reinforcement with or without external FRP wrapping
+                                         * ``'S5'`` square section with S5 type of transverse reinforcement with or without external FRP wrapping
+                                         * ``'C'`` circular section with or without external FRP wrapping
+                                         * ``'R'`` rectangular section with or without external FRP wrapping.
 
    ``fpc`` |float|                       unconfined cylindrical strength of concrete specimen.
    ``Ec`` |float|                        initial elastic modulus of unconfined concrete.
@@ -27,12 +27,12 @@
                                          * ``-epscu`` then value is confined concrete ultimate strain,
                                          * ``-gamma`` then value is the ratio of the strength corresponding to ultimate
                                          strain to the peak strength of the confined concrete
-                                        stress-strain curve. If ``gamma`` cannot be achieved
-                                        in the range [0, epscuLimit] then epscuLimit
-					                    (optional, default: 0.05) will be assumed as
-					                    ultimate strain.
-   ``epscu_val`` |float|                Value for the definition of the concrete ultimate strain
-   ``nu`` |str or list|                  Definition for Poisson's Ratio.
+                                         stress-strain curve. If ``gamma`` cannot be achieved
+                                         in the range [0, epscuLimit] then epscuLimit
+                                         (optional, default: 0.05) will be assumed as
+                                         ultimate strain.
+   ``epscu_val`` |float|                 Value for the definition of the concrete ultimate strain
+   ``nu`` |str| or |list|                Definition for Poisson's Ratio.
                                          * ``*['-nu', <value of Poisson's ratio>]``
                                          * ``'-varub'`` Poisson's ratio is defined as a function of axial
                                          strain by means of the expression proposed by Braga et al. (2006) with the
@@ -54,19 +54,19 @@
    ``phiLon`` |float|                    diameter of longitudinal bars.
    ``internalArgs`` |listf|              ``internalArgs= [phisi, Si, fyhi, Es0i, haRatioi, mui]``
                                          optional parameters for defining the internal
-					 transverse reinforcement. If they are not specified
-					 they will be assumed equal to the external ones
-					 (for ``S2``, ``S3``, ``S4a``, ``S4b`` and ``S5`` typed).
+                                         transverse reinforcement. If they are not specified
+                                         they will be assumed equal to the external ones
+                                         (for ``S2``, ``S3``, ``S4a``, ``S4b`` and ``S5`` typed).
    ``wrapArgs`` |listf|                  ``wrapArgs=[cover, Am, Sw, ful, Es0w]``
                                          optional parameters required when section is
-					 strengthened with FRP wraps.
+                                         strengthened with FRP wraps.
 
 
-					 * ``cover`` cover thickness measured from the outer line of hoop.
-					 * ``Am`` total area of FRP wraps (number of layers x wrap thickness x wrap width).
-					 * ``Sw`` spacing of FRP wraps (if continuous wraps are used the spacing is equal to the wrap width).
-					 * ``ful`` ultimate strength of FRP wraps.
-					 * ``Es0w`` elastic modulus of FRP wraps.
+                                         * ``cover`` cover thickness measured from the outer line of hoop.
+                                         * ``Am`` total area of FRP wraps (number of layers x wrap thickness x wrap width).
+                                         * ``Sw`` spacing of FRP wraps (if continuous wraps are used the spacing is equal to the wrap width).
+                                         * ``ful`` ultimate strength of FRP wraps.
+                                         * ``Es0w`` elastic modulus of FRP wraps.
    ``'-gravel'`` |str|                   Unknown
    ``'-silica'`` |str|                   Unknown
    ``tol``       |float|                 Unknown

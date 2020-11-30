@@ -1,5 +1,5 @@
 
-.. include:: src/sub.txt
+.. include:: sub.txt
 
 ===============================
 Visualization Development Guide

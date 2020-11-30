@@ -4,13 +4,13 @@
  setNodeAccel command
 ======================
 
-.. function:: setNodeAccel(nodeTag, dim, value, '-commit')
+.. function:: setNodeAccel(nodeTag, dof, value, '-commit')
 
-   set the nodal acceleration at the specified dimension.
+   set the nodal acceleration at the specified DOF.
 
    ========================   ===========================================================================
    ``nodeTag`` |int|          node tag.
-   ``dim`` |int|              the dimension of the accelinate to be set.
+   ``dof`` |int|              the DOF of the acceleration to be set.
    ``value`` |float|          acceleration value
    ``'-commit'`` |str|        commit nodal state. (optional)
    ========================   ===========================================================================

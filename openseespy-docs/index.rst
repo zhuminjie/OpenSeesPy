@@ -11,16 +11,18 @@
 
    OpenSeesPy is on :doc:`src/pypi`.
 
-   OpenSeesPy is official in :doc:`src/designsafe`.
+   OpenSeesPy runs on :doc:`src/designsafe`.
 
-   OpenSeesPy can now run on :doc:`src/wsl`.
+   OpenSeesPy runs on :doc:`src/wsl`.
+
+   OpenSeesPy runs on Mac now!
 
    The latest version of this document can be found at
    `<https://openseespydoc.readthedocs.io/en/latest/>`_.
 
 .. note::
 
-   Questions including modeling issues and the use of `OpenSeesPy`_,
+   Questions including modeling issues and the use of OpenSeesPy,
    please post on `OpenSeesPy Forum <https://opensees.berkeley.edu/community/viewforum.php?f=12>`_.
 
    You are very welcome to contribute to OpenSeesPy with new command
@@ -90,7 +92,7 @@ To run a test of the pip installation:
    src/reliabilitycmds
    src/parallelcmds
    src/preprocessing
-   src/plotcmds
+   src/postprocessing
    src/examples
 
 

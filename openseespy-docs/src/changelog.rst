@@ -4,6 +4,36 @@
   Change Log
 ==============
 
+* **Version 3.2.2.6** (10/15/2020)
+
+  * OpenSeesPy is available now on Mac, just type `import openseespy.opensees as ops` on the MacOS. Python3.8 is required and HomeBrew Python is strongly recommended.
+  * SixNodeTri element by Seweryn
+  * PostProcessing package ops_vis by Seweryn
+  
+
+* **Version 3.2.2.5** (9/16/2020)
+
+  * Fix a Windows issue for virtual environment
+
+* **Version 3.2.2.4** (9/10/2020)
+
+  * Bug fixes in Truss and ForceBeamColumn2d
+  * Adding `ops.__version__` variable
+  * Bug fixes in 3D elastic beam
+  * Bug fixes in Tri31
+  * Adding `ops_vis` module for plotting
+  * OpenSees commit b0f6b06
+
+* **Version 3.2.2.3** (8/11/2020)
+
+  * Fix typos in documentation
+  * Add `testNorm` and `testIter` commands
+  * Add Python3.7 and Python 3.8 support
+  * Support latest Anaconda
+  * Improvements of ploting commands
+  * `ShellDKGT` command
+  * Include OpenSees commits upto 380239c on 8/9
+
 * **Version 3.2.2.1** (5/18/2020)
 
   * add gimmeMCK integrator
@@ -33,7 +63,7 @@
 * **Version 0.5.4**
 
   * Support Mac
-  * Support Python3.8 on Windows and Linux
+  * Support Python3.7 on Windows and Linux
 
 * **Version 0.5.3**
 
