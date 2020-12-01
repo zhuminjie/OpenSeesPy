@@ -71,7 +71,7 @@ def copy_mac_library(so):
             os.remove(mac+'lib/Python')
 
 
-def build_pip(pyexe='python'):
+def build_pip(pyexe='python', use_zip=False):
 
     print('==============================================================')
     print('Did you remember to update version number in opensees source?')
@@ -86,7 +86,10 @@ def build_pip(pyexe='python'):
                     'setuptools', 'wheel', 'twine', 'pytest'])
 
     # compile wheel
-    subprocess.run([pyexe, 'setup.py', 'bdist_wheel'])
+    if use_zip:
+        subprocess.run([pyexe, 'setup.py', 'bdist', 'format=zip'])
+    else:
+        subprocess.run([pyexe, 'setup.py', 'bdist_wheel'])
 
 
 def upload_pip(pyexe='python'):
@@ -123,8 +126,8 @@ if __name__ == "__main__":
         exit()
 
     if sys.argv[1] == 'build':
-        if len(sys.argv) < 5:
-            print('buld_pip build so copy_dep/no_copy pyexe')
+        if len(sys.argv) < 6:
+            print('buld_pip build so copy_dep/no_copy pyexe use_zip')
             exit()
 
         so = sys.argv[2]
@@ -132,9 +135,12 @@ if __name__ == "__main__":
         if sys.argv[3] == 'copy_dep':
             copy_dep = True
         pyexe = sys.argv[4]
+        use_zip = False
+        if sys.argv[5] == 'use_zip':
+            use_zip = True
 
         copy_linux_library(so, copy_dep=copy_dep)
-        build_pip(pyexe)
+        build_pip(pyexe, use_zip=use_zip)
 
     elif sys.argv[1] == 'upload-test':
 
