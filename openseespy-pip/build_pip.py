@@ -87,7 +87,7 @@ def build_pip(pyexe='python', use_zip=False):
 
     # compile wheel
     if use_zip:
-        subprocess.run([pyexe, 'setup.py', 'bdist', 'format=zip'])
+        subprocess.run([pyexe, 'setup.py', 'bdist', '--format=zip'])
     else:
         subprocess.run([pyexe, 'setup.py', 'bdist_wheel'])
 
