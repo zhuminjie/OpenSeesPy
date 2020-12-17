@@ -1853,12 +1853,6 @@ def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
     Args:
         modeNo (int): indicates which mode shape to animate.
 
-        Eds (ndarray): A 3d array (n_steps x n_eles x n_dof_per_element)
-            containing the collected displacements per element for all
-            time steps.
-
-        timeV (1darray): vector of discretized time values
-
         sfac (float): scale factor
 
         nep (integer): number of evaluation points inside the element and
@@ -2600,8 +2594,9 @@ def anim_defo(Eds, timeV, sfac, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
     """Make animation of the deformed shape computed by transient analysis
 
     Args:
-        Eds (ndarray): An array (n_eles x n_dof_per_element) containing
-            displacements per element.
+        Eds (ndarray): A 3d array (n_steps x n_eles x n_dof_per_element)
+            containing the collected displacements per element for all
+            time steps.
 
         timeV (1darray): vector of discretized time values
 
