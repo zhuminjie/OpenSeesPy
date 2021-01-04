@@ -3,7 +3,7 @@
 .. _ops_vis_ex2:
 
 ======================================================
-Plotting features of ops_vis - 3d 3-element cantilever
+Statics of a 3d 3-element cantilever beam (ops_vis)
 ======================================================
 
 Example ``.py`` file can be downloaded :download:`here </pyExamples/demo_cantilever_3el_3d.py>`:

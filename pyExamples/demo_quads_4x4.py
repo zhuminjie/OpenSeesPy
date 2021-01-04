@@ -82,7 +82,7 @@ opsv.plot_defo()
 plt.axis('equal')
 
 # get values at OpenSees nodes
-sig_out = opsv.quad_sig_out_per_node()
+sig_out = opsv.sig_out_per_node()
 print(f'sig_out:\n{sig_out}')
 
 # - visu stress map
@@ -117,7 +117,7 @@ print(f'\neles_nds_crd:\n{eles_nds_crd}')
 print(f'\nnds_crd:\n{nds_crd}')
 print(f'\nquads_conn:\n{quads_conn}')
 
-eles_ips_sig_out, eles_nds_sig_out = opsv.quad_sig_out_per_ele()
+eles_ips_sig_out, eles_nds_sig_out = opsv.sig_out_per_ele_quad()
 
 print(f'\neles_ips_sig_out:\n{eles_ips_sig_out}')
 print(f'\neles_nds_sig_out:\n{eles_nds_sig_out}')

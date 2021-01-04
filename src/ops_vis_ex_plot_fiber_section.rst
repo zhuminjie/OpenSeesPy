@@ -2,9 +2,9 @@
 
 .. _ops_vis_ex4:
 
-======================================================
-Plotting features of ops_vis - plot fiber sections
-======================================================
+============================================================
+Plot steel and reinforced concrete fiber sections (ops_vis)
+============================================================
 
 Example ``.py`` file can be downloaded :download:`here </pyExamples/demo_plot_fiber_section.py>`:
 

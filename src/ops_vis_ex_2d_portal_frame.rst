@@ -3,7 +3,7 @@
 .. _ops_vis_ex1:
 
 ==============================================
-Plotting features of ops_vis - 2d Portal Frame
+Statics of a 2d Portal Frame (ops_vis)
 ==============================================
 
 Example ``.py`` file can be downloaded :download:`here </pyExamples/demo_portal_frame.py>`:
