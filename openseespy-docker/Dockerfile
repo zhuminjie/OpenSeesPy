@@ -21,7 +21,7 @@ FROM ubuntu-petsc AS ubuntu-openseespy
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /home
-COPY opensees /home/opensees
+RUN git clone https://github.com/zhuminjie/OpenSees.git opensees
 COPY Makefile.def /home/opensees/
 
 RUN mkdir /home/bin && \
@@ -36,12 +36,23 @@ RUN make -j python
 FROM ubuntu-openseespy AS ubuntu-pip
 
 # Build openseespy package
-COPY openseespy-pip /home/openseespy-pip/
+WORKDIR /home
+RUN git clone https://github.com/zhuminjie/OpenSeesPy.git openseespy
 
-WORKDIR /home/openseespy-pip
+# copy windows version
+# COPY opensees.pyd /home/openseespy/openseespy-pip/openseespy/opensees/linux
+
+# copy mac version
+# COPY opensees.so /home/openseespy/openseespy-pip/openseespy/opensees/mac
+
+WORKDIR /home/openseespy/openseespy-pip
 RUN python3.8 build_pip.py build \
-    ../opensees/SRC/interpreter/opensees.so \
+    ../../opensees/SRC/interpreter/opensees.so \
     copy_dep \
+    python3.8 no_zip
+
+# upload pip to test
+RUN python3.8 build_pip.py upload-test \
     python3.8
 ########################################################
 

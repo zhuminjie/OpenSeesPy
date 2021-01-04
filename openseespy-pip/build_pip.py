@@ -73,11 +73,6 @@ def copy_mac_library(so):
 
 def build_pip(pyexe='python', use_zip=False):
 
-    print('==============================================================')
-    print('Did you remember to update version number in opensees source?')
-    print('\n\n\n\n\n')
-    print('==============================================================')
-
     # clean folders
     subprocess.run(['rm', '-fr', 'build', 'dist', 'openseespy.egg-info'])
 
@@ -127,7 +122,7 @@ if __name__ == "__main__":
 
     if sys.argv[1] == 'build':
         if len(sys.argv) < 6:
-            print('buld_pip build so copy_dep/no_copy pyexe use_zip')
+            print('buld_pip build so copy_dep/no_copy pyexe use_zip/no_zip')
             exit()
 
         so = sys.argv[2]
