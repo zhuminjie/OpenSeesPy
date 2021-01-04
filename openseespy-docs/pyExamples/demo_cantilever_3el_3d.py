@@ -1,7 +1,7 @@
-# import openseespy.opensees as ops
-# import openseespy.postprocessing.ops_vis as opsv
-import opensees as ops  # local compilation
-import ops_vis as opsv  # local
+import openseespy.opensees as ops
+import openseespy.postprocessing.ops_vis as opsv
+# import opensees as ops  # local compilation
+# import ops_vis as opsv  # local
 
 import matplotlib.pyplot as plt
 
@@ -10,16 +10,15 @@ ops.wipe()
 ops.model('basic', '-ndm', 3, '-ndf', 6)
 
 b = 0.2
-h = 0.2
+h = 0.4
 
-A, Iz, Iy, J = 0.04, 0.0001333, 0.0001333, 0.0036
+A, Iz, Iy, J = 0.04, 0.0010667, 0.0002667, 0.01172
 
 E = 25.0e6
 G = 9615384.6
 
-Lx = 4.
-Ly = 3.
-Lz = 5.
+# Lx, Ly, Lz = 4., 3., 5.
+Lx, Ly, Lz = 4., 4., 4.
 
 ops.node(1, 0., 0., 0.)
 ops.node(2, 0., 0., Lz)
@@ -124,7 +123,16 @@ plt.title(f'Bending moments Mz, max = {maxY:.2f}, min = {minY:.2f}')
 minY, maxY = opsv.section_force_diagram_3d('T', Ew, sfacT)
 plt.title(f'Torsional moment T, max = {maxY:.2f}, min = {minY:.2f}')
 
-opsv.plot_extruded_model_rect_section_3d(b, h, fig_wi_he=fig_wi_he)
+# just for demonstration,
+# the section data below does not match the data in OpenSees model above
+# For now it can be source of inconsistency because OpenSees has
+# not got functions to return section dimensions.
+# A workaround is to have own Python helper functions to reuse data
+# specified once
+ele_shapes = {1: ['circ', [h]],
+              2: ['rect', [b, h]],
+              3: ['I', [b, h, b/10., h/6.]]}
+opsv.plot_extruded_shapes_3d(ele_shapes, fig_wi_he=fig_wi_he)
 
 plt.show()
 

@@ -2,9 +2,9 @@
 
 .. _ops_vis_ex3:
 
-======================================================
-Plotting features of ops_vis - plot stress 2d
-======================================================
+=============================================================
+Plot stress distribution of plane stress quad model (ops_vis)
+=============================================================
 
 Example ``.py`` file can be downloaded :download:`here </pyExamples/demo_quads_4x4.py>`:
 
