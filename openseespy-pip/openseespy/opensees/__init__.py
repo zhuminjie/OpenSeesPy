@@ -1,5 +1,6 @@
 import sys
 import ctypes
+import glob
 
 # only work for 64 bit system
 if sys.maxsize < 2**31:
@@ -7,6 +8,10 @@ if sys.maxsize < 2**31:
 
 # platform dependent
 if sys.platform.startswith('linux'):
+
+    libs = glob.glob('lib/*.so*')
+    for lib in libs:
+        ctypes.cdll.LoadLibrary(lib)
 
     try:
         from openseespy.opensees.linux.opensees import *
