@@ -4,7 +4,7 @@ FROM ubuntu:18.04 AS ubuntu-petsc
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y
-RUN apt-get -y install make gcc g++ gfortran git tcl8.6 tcl8.6-dev libboost-all-dev libblas-dev python3.8 python3.8-dev python3-pip
+RUN apt-get -y install make gcc g++ gfortran git tcl8.6 tcl8.6-dev libboost-all-dev libblas-dev python3.8 python3.8-dev python3-pip libgfortran3
 
 WORKDIR /home
 
@@ -39,11 +39,13 @@ FROM ubuntu-openseespy AS ubuntu-pip
 WORKDIR /home
 RUN git clone https://github.com/zhuminjie/OpenSeesPy.git openseespy
 
+COPY version.py /home/openseespy/openseespy-pip/openseespy/
+
 # copy windows version
-COPY opensees.pyd /home/bin/
+# COPY opensees.pyd /home/bin/
 
 # copy mac version
-COPY opensees.so /home/bin/
+# COPY opensees.so /home/bin/
 
 WORKDIR /home/openseespy/openseespy-pip
 RUN python3.8 build_pip.py build \

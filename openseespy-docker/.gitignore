@@ -2,3 +2,4 @@ openseespy-pip
 opensees
 *.pyd
 *.so
+version.py

@@ -29,6 +29,10 @@ def copy_linux_library(so, copy_dep=True):
                 j = line.find(' ', i)
                 if i < 0 or j < 0 or i >= j:
                     continue
+                if line[i:j].find('gfortran') < 0:
+                    continue
+                if line[i:j].find('blas') < 0:
+                    continue;
 
                 print('copying '+line[i:j]+' to '+linux+'lib/')
                 shutil.copy(line[i:j], linux+'lib/')

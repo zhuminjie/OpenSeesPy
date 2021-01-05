@@ -340,7 +340,7 @@ endif
 MACHINE_LINKLIBS  =
 
 MACHINE_NUMERICAL_LIBS  = $(RELIABILITY_LIBRARY) $(OPTIMIZATION_LIBRARY) \
-		-lm -lc -ldl -lgfortran -lgomp \
+		-lm -lc -ldl -lgfortran3 -lgomp \
 		$(LAPACK_LIBRARY) \
 		-L/usr/lib/x86_64-linux-gnu/blas -lblas \
 		$(ARPACK_LIBRARY) \
