@@ -26,6 +26,10 @@ def build_docker(push=False):
     subprocess.run(['docker',
                     'build', '--target', 'ubuntu-pip',
                     '-t', f'ubuntu-pip:{version}', '.'])
+    subprocess.run(['docker', 'container', 'run',
+                    '-it', '--rm', f'ubuntu-pip:{version}',
+                    '/usr/bin/python3.8', 'build_pip.py',
+                    'upload-test', 'python3.8'])
     # subprocess.run(['docker',
     #                 'build', '--target', 'ubuntu-install',
     #                 '-t', f'zhuminjie/openseespy:{version}', '.'])

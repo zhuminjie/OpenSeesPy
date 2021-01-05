@@ -40,20 +40,18 @@ WORKDIR /home
 RUN git clone https://github.com/zhuminjie/OpenSeesPy.git openseespy
 
 # copy windows version
-# COPY opensees.pyd /home/openseespy/openseespy-pip/openseespy/opensees/linux
+COPY opensees.pyd /home/bin/
 
 # copy mac version
-# COPY opensees.so /home/openseespy/openseespy-pip/openseespy/opensees/mac
+COPY opensees.so /home/bin/
 
 WORKDIR /home/openseespy/openseespy-pip
 RUN python3.8 build_pip.py build \
     ../../opensees/SRC/interpreter/opensees.so \
+    /home/bin/opensees.pyd \
+    /home/bin/opensees.so \
     copy_dep \
     python3.8 no_zip
-
-# upload pip to test
-RUN python3.8 build_pip.py upload-test \
-    python3.8
 ########################################################
 
 
@@ -64,7 +62,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y
 RUN apt-get -y install python3.8 python3-pip
 WORKDIR /home
-COPY --from=2 /home/openseespy-pip/dist/openseespy-*.whl /home/
+COPY --from=2 /home/openseespy/openseespy-pip/dist/openseespy-*.whl /home/
 COPY --from=0 /home/petsc/arch-linux-c-opt/bin/mpiexec* /usr/local/bin/
 COPY --from=0 /home/petsc/arch-linux-c-opt/bin/hydra_* /usr/local/bin/
 COPY hello.py /home/

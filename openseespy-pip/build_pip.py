@@ -33,6 +33,12 @@ def copy_linux_library(so, copy_dep=True):
                 print('copying '+line[i:j]+' to '+linux+'lib/')
                 shutil.copy(line[i:j], linux+'lib/')
 
+def copy_win_library(pyd):
+    win = './openseespy/opensees/win/'
+    if os.path.exists(pyd):
+        if os.path.exists(win+'opensees.pyd'):
+            os.remove(win+'opensees.pyd')
+    shutil.copy(pyd, win)
 
 def copy_mac_library(so):
 
@@ -40,35 +46,35 @@ def copy_mac_library(so):
     if os.path.exists(so):
         if os.path.exists(mac+'opensees.so'):
             os.remove(mac+'opensees.so')
-        for f in glob.glob(mac+'lib/*.dylib'):
-            os.remove(f)
+        # for f in glob.glob(mac+'lib/*.dylib'):
+        #     os.remove(f)
 
         shutil.copy(so, mac)
 
         # get dependent library for linux
-        p = subprocess.run(
-            ["otool", "-L", so], capture_output=True)
+        # p = subprocess.run(
+        #     ["otool", "-L", so], capture_output=True)
 
-        for line in p.stdout.decode('utf-8').split('\n'):
-            i = line.find('/')
-            j = line.find(' ', i)
-            if i < 0 or j < 0 or i >= j:
-                continue
+        # for line in p.stdout.decode('utf-8').split('\n'):
+        #     i = line.find('/')
+        #     j = line.find(' ', i)
+        #     if i < 0 or j < 0 or i >= j:
+        #         continue
 
-            print('copying '+line[i:j]+' to '+mac+'lib/')
-            shutil.copy(line[i:j], mac+'lib/')
-            lib_name = line[i:j].split('/')
-            lib_name = lib_name[-1]
-            if lib_name == 'Python':
-                continue
-            print('changing rpath from '+line[i:j]+' to lib/'+lib_name)
-            subprocess.run(
-                ['install_name_tool', '-change', line[i:j],
-                    '@loader_path/lib/'+lib_name, mac+'opensees.so']
-            )
+        #     print('copying '+line[i:j]+' to '+mac+'lib/')
+        #     shutil.copy(line[i:j], mac+'lib/')
+        #     lib_name = line[i:j].split('/')
+        #     lib_name = lib_name[-1]
+        #     if lib_name == 'Python':
+        #         continue
+        #     print('changing rpath from '+line[i:j]+' to lib/'+lib_name)
+        #     subprocess.run(
+        #         ['install_name_tool', '-change', line[i:j],
+        #             '@loader_path/lib/'+lib_name, mac+'opensees.so']
+        #     )
 
-        if os.path.exists(mac+'lib/Python'):
-            os.remove(mac+'lib/Python')
+        # if os.path.exists(mac+'lib/Python'):
+        #     os.remove(mac+'lib/Python')
 
 
 def build_pip(pyexe='python', use_zip=False):
@@ -121,20 +127,24 @@ if __name__ == "__main__":
         exit()
 
     if sys.argv[1] == 'build':
-        if len(sys.argv) < 6:
-            print('buld_pip build so copy_dep/no_copy pyexe use_zip/no_zip')
+        if len(sys.argv) < 8:
+            print('buld_pip build so pyd macso copy_dep/no_copy pyexe use_zip/no_zip')
             exit()
 
         so = sys.argv[2]
+        pyd = sys.argv[3]
+        macso = sys.argv[4]
         copy_dep = False
-        if sys.argv[3] == 'copy_dep':
+        if sys.argv[5] == 'copy_dep':
             copy_dep = True
-        pyexe = sys.argv[4]
+        pyexe = sys.argv[6]
         use_zip = False
-        if sys.argv[5] == 'use_zip':
+        if sys.argv[7] == 'use_zip':
             use_zip = True
 
         copy_linux_library(so, copy_dep=copy_dep)
+        copy_win_library(pyd)
+        copy_mac_library(macso)
         build_pip(pyexe, use_zip=use_zip)
 
     elif sys.argv[1] == 'upload-test':
@@ -145,3 +155,32 @@ if __name__ == "__main__":
 
         pyexe = sys.argv[2]
         upload_pip_test(pyexe)
+
+    elif sys.argv[1] == 'upload':
+
+        if len(sys.argv) < 3:
+            print('buld_pip upload pyexe')
+            exit()
+
+        pyexe = sys.argv[2]
+        upload_pip(pyexe)
+
+    elif sys.argv[1] == 'test-test':
+
+        if len(sys.argv) < 3:
+            print('buld_pip upload pyexe')
+            exit()
+
+        pyexe = sys.argv[2]
+        install_pip_test(pyexe)
+        subprocess.run(['pytest', '--pyargs', 'openseespy.test'])
+
+    elif sys.argv[1] == 'test':
+
+        if len(sys.argv) < 3:
+            print('buld_pip upload pyexe')
+            exit()
+
+        pyexe = sys.argv[2]
+        install_pip(pyexe)
+        subprocess.run(['pytest', '--pyargs', 'openseespy.test'])
