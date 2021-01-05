@@ -38,7 +38,7 @@ def copy_win_library(pyd):
     if os.path.exists(pyd):
         if os.path.exists(win+'opensees.pyd'):
             os.remove(win+'opensees.pyd')
-    shutil.copy(pyd, win)
+        shutil.copy(pyd, win)
 
 def copy_mac_library(so):
 
