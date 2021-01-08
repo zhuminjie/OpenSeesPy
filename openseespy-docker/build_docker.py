@@ -5,7 +5,7 @@ import os.path
 import sys
 
 
-def build_docker(push, upload_test, tag, test, version):
+def build_docker(version, tag, upload, test_platform, test_type, push):
 
     # change to script's folder
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -42,18 +42,49 @@ def build_docker(push, upload_test, tag, test, version):
         subprocess.run(['docker',
                         'build', '--target', 'centos-pip',
                         '-t', f'centos-pip:{version}', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'test-centos-7.5.1804',
+                        '-t', f'test-centos-7.5.1804', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'test-centos-7',
+                        '-t', f'test-centos-7', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'test-centos-8',
+                        '-t', f'test-centos-8', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'test-ubuntu-18.04',
+                        '-t', f'test-ubuntu-18.04', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'test-ubuntu-20.04',
+                        '-t', f'test-ubuntu-20.04', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'test-debian',
+                        '-t', f'test-debian', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'test-fedora',
+                        '-t', f'test-fedora', '.'])
 
-    # upload to test.pypi
-    if upload_test:
+    # upload
+    if upload:
         subprocess.run(['docker', 'container', 'run',
                         '-it', '--rm', f'centos-pip:{version}',
-                        'python3.8', 'build_pip.py',
-                        'upload-test', 'python3.8'])
+                        upload])
 
     # test different Linux systems
-    if test:
-        subprocess.run(['docker',
-                        'build', '--target', test, '-t', test, '.'])
+    if test_platform and test_type:
+        if test_platform == 'test-all':
+            for platform in ["test-centos-7.5.1804",
+                             "test-centos-7",
+                             "test-centos-8",
+                             "test-ubuntu-18.04",
+                             "test-ubuntu-20.04",
+                             "test-debian",
+                             "test-fedora"]:
+                subprocess.run(['docker', 'container', 'run',
+                                '-it', '--rm', platform, test_type])
+        else:
+            subprocess.run(['docker', 'container', 'run',
+                            '-it', '--rm', test_platform, test_type])
 
     # push to dockerHub
     if push:
@@ -70,22 +101,48 @@ def build_docker(push, upload_test, tag, test, version):
                         'push', tag_notebook])
 
 
+'''
+upload:
+    "upload", "upload-test"
+test-type:
+    "test", "test-test"
+test-platform:
+    "test-centos-7.5.1804",
+    "test-centos-7"
+    "test-centos-8"
+    "test-ubuntu-18.04"
+    "test-ubuntu-20.04"
+    "test-debian"
+    "test-fedora"
+    "test-all"
+'''
+# procedure:
+# tag with test version
+# upload-test
+# test test version
+# tag with release version
+# upload
+# test release version
 if __name__ == "__main__":
-    push = False
-    upload_test = False
+    # version, tag, upload, test_platform, test_type, push
     version = None
     tag = False
-    test = None
+    upload = False
+    test_platform = None
+    test_type = 'test-test'
+    push = False
     for i in range(1, len(sys.argv)):
         if sys.argv[i] == 'push':
             push = True
-        elif sys.argv[i] == 'upload-test':
-            upload_test = True
         elif sys.argv[i] == 'tag':
             tag = True
-        elif sys.argv[i].startswith('test'):
-            test = sys.argv[i]
+        elif sys.argv[i] == 'test':
+            test_type = 'test'
+        elif sys.argv[i].startswith('upload'):
+            upload = sys.argv[i]
+        elif sys.argv[i].startswith('test-'):
+            test_platform = sys.argv[i]
         elif sys.argv[i].startswith('v'):
             version = sys.argv[i][1:]
 
-    build_docker(push, upload_test, tag, test, version)
+    build_docker(version, tag, upload, test_platform, test_type, push)

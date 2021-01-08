@@ -61,12 +61,15 @@ COPY opensees.pyd /home/bin/
 COPY opensees.so /home/bin/
 
 WORKDIR /home/openseespy-pip
-RUN python3.8 build_pip.py build \
+RUN python3.8 build_pip.py python3.8 build \
     ../opensees/SRC/interpreter/opensees.so \
     /home/bin/opensees.pyd \
     /home/bin/opensees.so \
     copy_dep \
-    python3.8 no_zip
+    no_zip
+
+ENTRYPOINT [ "python3.8", "build_pip.py", "python3.8"]
+CMD [ "upload-test" ]
 ########################################################
 
 ########################################################
@@ -143,7 +146,9 @@ WORKDIR /home
 COPY openseespy-pip /home/openseespy-pip
 
 WORKDIR /home/openseespy-pip
-RUN python3 build_pip.py test-test python3
+
+ENTRYPOINT [ "python3", "build_pip.py", "python3"]
+CMD [ "test-test" ]
 #######################################################
 
 #######################################################
@@ -154,10 +159,13 @@ RUN yum -y install python3 python3-pip && \
     python3 -m pip install pytest
 
 WORKDIR /home
+ENV test=test
 COPY openseespy-pip /home/openseespy-pip
 
 WORKDIR /home/openseespy-pip
-RUN python3 build_pip.py test-test python3
+
+ENTRYPOINT [ "python3", "build_pip.py", "python3"]
+CMD [ "test-test" ]
 #######################################################
 
 #######################################################
@@ -171,7 +179,9 @@ WORKDIR /home
 COPY openseespy-pip /home/openseespy-pip
 
 WORKDIR /home/openseespy-pip
-RUN python3.8 build_pip.py test-test python3.8
+
+ENTRYPOINT [ "python3.8", "build_pip.py", "python3.8"]
+CMD [ "test-test" ]
 #######################################################
 
 #######################################################
@@ -187,7 +197,9 @@ WORKDIR /home
 COPY openseespy-pip /home/openseespy-pip
 
 WORKDIR /home/openseespy-pip
-RUN python3.8 build_pip.py test-test python3.8
+
+ENTRYPOINT [ "python3.8", "build_pip.py", "python3.8"]
+CMD [ "test-test" ]
 #######################################################
 
 #######################################################
@@ -203,7 +215,9 @@ WORKDIR /home
 COPY openseespy-pip /home/openseespy-pip
 
 WORKDIR /home/openseespy-pip
-RUN python3.8 build_pip.py test-test python3.8
+
+ENTRYPOINT [ "python3.8", "build_pip.py", "python3.8"]
+CMD [ "test-test" ]
 #######################################################
 
 #######################################################
@@ -216,10 +230,13 @@ RUN apt-get -y install python3 python3-pip && \
     python3 -m pip install pytest
 
 WORKDIR /home
+ENV test=test
 COPY openseespy-pip /home/openseespy-pip
 
 WORKDIR /home/openseespy-pip
-RUN python3 build_pip.py test-test python3
+
+ENTRYPOINT [ "python3", "build_pip.py", "python3"]
+CMD [ "test-test" ]
 #######################################################
 
 #######################################################
@@ -231,10 +248,13 @@ RUN yum -y install python3 python3-pip && \
     python3 -m pip install pytest
 
 WORKDIR /home
+ENV test=test
 COPY openseespy-pip /home/openseespy-pip
 
 WORKDIR /home/openseespy-pip
-RUN python3 build_pip.py test-test python3
+
+ENTRYPOINT [ "python3", "build_pip.py", "python3"]
+CMD [ "test-test" ]
 #######################################################
 
 #######################################################
