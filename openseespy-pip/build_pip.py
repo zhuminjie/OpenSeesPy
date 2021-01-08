@@ -29,13 +29,27 @@ def copy_linux_library(so, copy_dep=True):
                 j = line.find(' ', i)
                 if i < 0 or j < 0 or i >= j:
                     continue
-                if line[i:j].find('gfortran') < 0:
-                    continue
-                if line[i:j].find('blas') < 0:
-                    continue;
 
-                print('copying '+line[i:j]+' to '+linux+'lib/')
-                shutil.copy(line[i:j], linux+'lib/')
+                find = False
+                if line[i:j].find('gfortran') >= 0:
+                    find = True
+                elif line[i:j].find('blas') >= 0:
+                    find = True
+                elif line[i:j].find('stdc++') >= 0:
+                    find = True
+                elif line[i:j].find('gcc') >= 0:
+                    find = True
+                elif line[i:j].find('quadmath') >= 0:
+                    find = True
+                elif line[i:j].find('gomp') >= 0:
+                    find = True
+                elif line[i:j].find('mpi') >= 0:
+                    find = True
+
+                if find:
+                    print('copying '+line[i:j]+' to '+linux+'lib/')
+                    shutil.copy(line[i:j], linux+'lib/')
+
 
 def copy_win_library(pyd):
     win = './openseespy/opensees/win/'
@@ -43,6 +57,7 @@ def copy_win_library(pyd):
         if os.path.exists(win+'opensees.pyd'):
             os.remove(win+'opensees.pyd')
         shutil.copy(pyd, win)
+
 
 def copy_mac_library(so):
 

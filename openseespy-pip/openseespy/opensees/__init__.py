@@ -9,13 +9,9 @@ if sys.maxsize < 2**31:
 # platform dependent
 if sys.platform.startswith('linux'):
 
-    libs = glob.glob('lib/*.so*')
-    for lib in libs:
-        ctypes.cdll.LoadLibrary(lib)
 
     try:
         from openseespy.opensees.linux.opensees import *
-        from openseespy.opensees.linux.opensees import __version__
     except:
         raise RuntimeError('Failed to import openseespy on Linux.')
 
@@ -32,7 +28,6 @@ elif sys.platform.startswith('win'):
 
         try:
             from openseespy.opensees.win.opensees import *
-            from openseespy.opensees.win.opensees import __version__
 
         except:
 
@@ -48,7 +43,6 @@ elif sys.platform.startswith('darwin'):
     if sys.version_info[0] == 3 and sys.version_info[1] == 8:
         try:
             from openseespy.opensees.mac.opensees import *
-            from openseespy.opensees.mac.opensees import __version__
         except:
             raise RuntimeError('Failed to import, try use Python from HomeBrew')
     else:
