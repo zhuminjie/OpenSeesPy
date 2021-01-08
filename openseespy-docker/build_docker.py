@@ -5,37 +5,57 @@ import os.path
 import sys
 
 
-def build_docker(push, upload, version):
+def build_docker(push, upload_test, tag, test, version):
 
     # change to script's folder
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+    # copy pip
+    if not os.path.exists('openseespy-pip'):
+        shutil.copytree('../openseespy-pip', 'openseespy-pip')
+
+    # copy opensees
+    if not os.path.exists('opensees'):
+        shutil.copytree('../opensees', 'opensees')
+
     # version
     if not version:
         about = {}
-        with open('../openseespy-pip/openseespy/version.py') as fp:
+        with open('openseespy-pip/openseespy/version.py') as fp:
             exec(fp.read(), about)
         version = about['version']
 
-    with open('version.py', 'w') as fd:
+    with open('openseespy-pip/openseespy/version.py', 'w') as fd:
         fd.write(f'version = "{version}"')
 
     # tag
-    subprocess.run(['docker',
-                    'build', '--target', 'ubuntu-petsc',
-                    '-t', f'ubuntu-petsc', '.'])
-    subprocess.run(['docker',
-                    'build', '--target', 'ubuntu-openseespy',
-                    '-t', f'ubuntu-openseespy:{version}', '.'])
-    subprocess.run(['docker',
-                    'build', '--target', 'ubuntu-pip',
-                    '-t', f'ubuntu-pip:{version}', '.'])
-    if upload:
+    if tag:
+        subprocess.run(['docker',
+                        'build', '--target', 'centos-packages',
+                        '-t', f'centos-packages', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'centos-petsc',
+                        '-t', f'centos-petsc', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'centos-openseespy',
+                        '-t', f'centos-openseespy:{version}', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'centos-pip',
+                        '-t', f'centos-pip:{version}', '.'])
+
+    # upload to test.pypi
+    if upload_test:
         subprocess.run(['docker', 'container', 'run',
-                        '-it', '--rm', f'ubuntu-pip:{version}',
-                        '/usr/bin/python3.8', 'build_pip.py',
+                        '-it', '--rm', f'centos-pip:{version}',
+                        'python3.8', 'build_pip.py',
                         'upload-test', 'python3.8'])
 
+    # test different Linux systems
+    if test:
+        subprocess.run(['docker',
+                        'build', '--target', test, '-t', test, '.'])
+
+    # push to dockerHub
     if push:
         subprocess.run(['docker',
                         'build', '--target', 'ubuntu-install',
@@ -52,21 +72,20 @@ def build_docker(push, upload, version):
 
 if __name__ == "__main__":
     push = False
-    upload = False
+    upload_test = False
     version = None
+    tag = False
+    test = None
     for i in range(1, len(sys.argv)):
         if sys.argv[i] == 'push':
             push = True
-        elif sys.argv[i] == 'upload':
-            upload = True
-        else:
-            l = sys.argv[i].split('.')
-            num = True
-            for n in l:
-                if not n.isnumeric():
-                    num = False
-                    break
-            if num:
-                version = sys.argv[i]
+        elif sys.argv[i] == 'upload-test':
+            upload_test = True
+        elif sys.argv[i] == 'tag':
+            tag = True
+        elif sys.argv[i].startswith('test'):
+            test = sys.argv[i]
+        elif sys.argv[i].startswith('v'):
+            version = sys.argv[i][1:]
 
-    build_docker(push, upload, version)
+    build_docker(push, upload_test, tag, test, version)

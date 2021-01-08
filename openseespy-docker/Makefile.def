@@ -26,7 +26,7 @@ libpath = /home/lib
 
 OpenSees_PROGRAM = $(binpath)/openseestcl
 
-mpidir = $(paralleldir)
+mpidir = /usr/lib64/mpich-3.2
 mumpsdir = $(paralleldir)
 scalapackdir = $(paralleldir)
 petscdir = $(paralleldir)
@@ -206,7 +206,7 @@ FC	= gfortran
 else
 
 MPI_BIN = $(mpidir)/bin
-MPI_INCLUDE = -I$(mpidir)/include
+MPI_INCLUDE = -I/usr/include/mpich-3.2-x86_64
 MPI_LIB = -L$(mpidir)/lib
 #NVCC    = /usr/local/apps/cuda/cuda-7.5.18/bin/nvcc
 
@@ -340,7 +340,8 @@ endif
 MACHINE_LINKLIBS  =
 
 MACHINE_NUMERICAL_LIBS  = $(RELIABILITY_LIBRARY) $(OPTIMIZATION_LIBRARY) \
-		-lm -lc -ldl -lgfortran3 -lgomp \
+		-lm -lc -ldl -lgfortran -lgomp \
+		-lquadmath \
 		$(LAPACK_LIBRARY) \
 		-L/usr/lib/x86_64-linux-gnu/blas -lblas \
 		$(ARPACK_LIBRARY) \
@@ -371,7 +372,7 @@ PARALLEL_LIB = $(MUMPS_LIB) $(MPI_LIB) $(OTHER_PARA_LIB) $(PETSC_LIB)
 MACHINE_INCLUDES        = -I/usr/include \
 			  -I/usr/local/include \
 			  -I/usr/include/cxx  \
-			  -I/usr/include/python3.8
+			  -I/usr/local/include/python3.8
 #			  -I/data2/Minjie/bin/python3.6/include/python3.6m
 #			  -I/scratch/bin/anaconda3-5.1.0/include/python3.6m
 #			  -I/usr/include/python2.7
