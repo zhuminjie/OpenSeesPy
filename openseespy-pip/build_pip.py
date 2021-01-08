@@ -142,21 +142,22 @@ def install_pip(pyexe='python'):
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
-        print('build_pip upload-test/build')
+        print('build_pip pyexe cmd')
         exit()
 
-    if sys.argv[1] == 'build':
+    pyexe = sys.argv[1]
+
+    if sys.argv[2] == 'build':
         if len(sys.argv) < 8:
-            print('buld_pip build so pyd macso copy_dep/no_copy pyexe use_zip/no_zip')
+            print('buld_pip pyexe build so pyd macso copy_dep/no_copy use_zip/no_zip')
             exit()
 
-        so = sys.argv[2]
-        pyd = sys.argv[3]
-        macso = sys.argv[4]
+        so = sys.argv[3]
+        pyd = sys.argv[4]
+        macso = sys.argv[5]
         copy_dep = False
-        if sys.argv[5] == 'copy_dep':
+        if sys.argv[6] == 'copy_dep':
             copy_dep = True
-        pyexe = sys.argv[6]
         use_zip = False
         if sys.argv[7] == 'use_zip':
             use_zip = True
@@ -166,40 +167,35 @@ if __name__ == "__main__":
         copy_mac_library(macso)
         build_pip(pyexe, use_zip=use_zip)
 
-    elif sys.argv[1] == 'upload-test':
+    elif sys.argv[2] == 'upload-test':
 
         if len(sys.argv) < 3:
-            print('buld_pip upload-test pyexe')
+            print('buld_pip pyexe upload-test')
             exit()
-
-        pyexe = sys.argv[2]
         upload_pip_test(pyexe)
 
-    elif sys.argv[1] == 'upload':
+    elif sys.argv[2] == 'upload':
 
         if len(sys.argv) < 3:
-            print('buld_pip upload pyexe')
+            print('buld_pip pyexe upload')
             exit()
 
-        pyexe = sys.argv[2]
         upload_pip(pyexe)
 
-    elif sys.argv[1] == 'test-test':
+    elif sys.argv[2] == 'test-test':
 
         if len(sys.argv) < 3:
-            print('buld_pip upload pyexe')
+            print('buld_pip pyexe test-test')
             exit()
 
-        pyexe = sys.argv[2]
         install_pip_test(pyexe)
         subprocess.run(['pytest', '--pyargs', 'openseespy.test'])
 
-    elif sys.argv[1] == 'test':
+    elif sys.argv[2] == 'test':
 
         if len(sys.argv) < 3:
-            print('buld_pip upload pyexe')
+            print('buld_pip pyexe test')
             exit()
 
-        pyexe = sys.argv[2]
         install_pip(pyexe)
         subprocess.run(['pytest', '--pyargs', 'openseespy.test'])
