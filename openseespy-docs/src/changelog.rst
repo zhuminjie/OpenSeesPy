@@ -4,6 +4,14 @@
   Change Log
 ==============
 
+* **Version 3.2.2.8** (1/8/2021)
+
+  * Linux version is tested with Centos 7, 8, Ubuntu 18.04, 20.04, Fedora, and Debian.
+  * Mac version uses MacPorts for installing Python and dependencies.
+  * Bug fixes for recorders, FourNodeTetrahedron, ASD_SMA_3K, nodeMass,
+  * Add ExpressNewton, RockingBC, CBDI3d, Concrete02IS
+  * Update PETSc Solver, ZeroLengthSection, ForceBeamColumn3d, OOHystereticMaterial, SSPbrickUP, HardeningMaterial, BilinearOilDamper, 
+
 * **Version 3.2.2.6** (10/15/2020)
 
   * OpenSeesPy is available now on Mac, just type `import openseespy.opensees as ops` on the MacOS. Python3.8 is required and HomeBrew Python is strongly recommended.

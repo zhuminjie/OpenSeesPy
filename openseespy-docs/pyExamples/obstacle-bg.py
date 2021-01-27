@@ -60,7 +60,7 @@ else:
     filename = 'obstacle-bg'
 
 # recorder
-recorder('BgPVD', filename, 'disp', 'vel', 'pressure', '-dT', 1e-3)
+ops.recorder('BgPVD', filename, 'disp', 'vel', 'pressure', '-dT', 1e-3)
 if not os.path.exists(filename):
     os.makedirs(filename)
 
@@ -75,97 +75,97 @@ ny = round(H / h * numy)
 eleArgs = ['PFEMElementBubble', rho, mu, b1, b2, thk, kappa]
 partArgs = ['quad', 0.0, 0.0, L, 0.0, L, H, 0.0, H, nx, ny]
 parttag = 1
-mesh('part', parttag, *partArgs, *eleArgs, '-vel', 0.0, 0.0)
+ops.mesh('part', parttag, *partArgs, *eleArgs, '-vel', 0.0, 0.0)
 
 # wall mesh
-node(1, 2 * L, 0.0)
-node(2, 2 * L, Hb)
-node(3, 0.0, H)
-node(4, 0.0, 0.0)
-node(5, 4 * L, 0.0)
-node(6, 4 * L, H)
+ops.node(1, 2 * L, 0.0)
+ops.node(2, 2 * L, Hb)
+ops.node(3, 0.0, H)
+ops.node(4, 0.0, 0.0)
+ops.node(5, 4 * L, 0.0)
+ops.node(6, 4 * L, H)
 
 sid = 1
 walltag = 4
-mesh('line', walltag, 5, 3, 4, 1, 5, 6, sid, ndf, h)
+ops.mesh('line', walltag, 5, 3, 4, 1, 5, 6, sid, ndf, h)
 
-wallNodes = getNodeTags('-mesh', walltag)
+wallNodes = ops.getNodeTags('-mesh', walltag)
 for nd in wallNodes:
-    fix(nd, 1, 1, 1)
+    ops.fix(nd, 1, 1, 1)
 
 # structural mesh
 
 # transformation
 transfTag = 1
-geomTransf('Corotational', transfTag)
+ops.geomTransf('Corotational', transfTag)
 
 # section
 secTag = 1
 if nonlinear:
     matTag = 1
-    uniaxialMaterial('Steel01', matTag, Fy, E0, hardening)
+    ops.uniaxialMaterial('Steel01', matTag, Fy, E0, hardening)
     numfiber = 5
-    section('Fiber', secTag)
-    patch('rect', matTag, numfiber, numfiber, 0.0, 0.0, thk, thk)
+    ops.section('Fiber', secTag)
+    ops.patch('rect', matTag, numfiber, numfiber, 0.0, 0.0, thk, thk)
 else:
-    section('Elastic', secTag, E, A, Iz)
+    ops.section('Elastic', secTag, E, A, Iz)
 
 # beam integration
 inteTag = 1
 numpts = 2
-beamIntegration('Legendre', inteTag, secTag, numpts)
+ops.beamIntegration('Legendre', inteTag, secTag, numpts)
 
 coltag = 3
 eleArgs = ['dispBeamColumn', transfTag, inteTag]
-mesh('line', coltag, 2, 1, 2, sid, ndf, h, *eleArgs)
+ops.mesh('line', coltag, 2, 1, 2, sid, ndf, h, *eleArgs)
 
 # mass
-sNodes = getNodeTags('-mesh', coltag)
+sNodes = ops.getNodeTags('-mesh', coltag)
 bmass = bmass / len(sNodes)
 for nd in sNodes:
-    mass(int(nd), bmass, bmass, 0.0)
+    ops.mass(int(nd), bmass, bmass, 0.0)
 
 
 # background mesh
 lower = [-h, -h]
 upper = [5 * L, 3 * L]
 
-mesh('bg', h, *lower, *upper,
+ops.mesh('bg', h, *lower, *upper,
      '-structure', sid, len(sNodes), *sNodes,
      '-structure', sid, len(wallNodes), *wallNodes)
 
-print('num nodes =', len(getNodeTags()))
+print('num nodes =', len(ops.getNodeTags()))
 print('num particles =', nx * ny)
 
 # create constraint object
-constraints('Plain')
+ops.constraints('Plain')
 
 # create numberer object
-numberer('Plain')
+ops.numberer('Plain')
 
 # create convergence test object
-test('PFEM', 1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 100, 3, 1, 2)
+ops.test('PFEM', 1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 100, 3, 1, 2)
 
 # create algorithm object
-algorithm('Newton')
+ops.algorithm('Newton')
 
 # create integrator object
-integrator('PFEM', 0.5, 0.25)
+ops.integrator('PFEM', 0.5, 0.25)
 
 # create SOE object
-system('PFEM')
+ops.system('PFEM')
 # system('PFEM', '-mumps') Linux version can use mumps
 
 # create analysis object
-analysis('PFEM', dtmax, dtmin, b2)
+ops.analysis('PFEM', dtmax, dtmin, b2)
 
 # analysis
-while getTime() < totaltime:
+while ops.getTime() < totaltime:
 
     # analysis
-    if analyze() < 0:
+    if ops.analyze() < 0:
         break
 
-    remesh()
+    ops.remesh()
 
 print("==========================================")

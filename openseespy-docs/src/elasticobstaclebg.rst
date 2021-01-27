@@ -1,8 +1,8 @@
 .. include:: sub.txt
 
-===========================================================
- Dambreak with Elastic Obstacle Analysis using moving mesh
-===========================================================
+===============================================================
+ Dambreak with Elastic Obstacle Analysis using background mesh
+===============================================================
 
 
 #. The source code is shown below, which can be downloaded :download:`here </pyExamples/obstacle-bg.py>`.

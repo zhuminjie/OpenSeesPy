@@ -11,12 +11,6 @@
 
    OpenSeesPy is on :doc:`src/pypi`.
 
-   OpenSeesPy runs on :doc:`src/designsafe`.
-
-   OpenSeesPy runs on :doc:`src/wsl`.
-
-   OpenSeesPy runs on Mac now!
-
    The latest version of this document can be found at
    `<https://openseespydoc.readthedocs.io/en/latest/>`_.
 
@@ -68,7 +62,7 @@ To run a test of the pip installation:
  Developer
 ============
 
-*Minjie Zhu* <`email <openseespymj@outlook.com>`_>
+*Minjie Zhu*
 
 | Research Associate 
 | Civil and Construction Engineering
