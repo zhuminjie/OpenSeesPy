@@ -3,8 +3,8 @@
 ==================
 
 
-#. :doc:`dambreak`
-#. :doc:`elasticobstacle`
+#. :doc:`dambreakbg`
+#. :doc:`elasticobstaclebg`
 
 
 .. toctree::
