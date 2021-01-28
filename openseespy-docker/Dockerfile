@@ -21,8 +21,8 @@ RUN cd /home && \
     https://gitlab.com/petsc/petsc.git petsc && \
     cd /home/petsc && \
     /usr/local/bin/python3.8 configure \
-    --with-mpi-dir=/usr/lib64/mpich-3.2 \
-    --download-cmake --download-fblaslapack \
+    --download-cmake \
+    --download-mpich --download-fblaslapack \
     --download-scalapack --download-mumps --download-metis \
     --download-parmetis --with-shared-libraries=0 \
     --with-debugging=0 \
@@ -52,24 +52,22 @@ FROM centos-openseespy AS centos-pip
 
 # Build openseespy package
 WORKDIR /home
-COPY openseespy-pip /home/openseespy-pip
+COPY openseespylinux-pip /home/openseespylinux-pip
 
-# copy windows version
-COPY opensees.pyd /home/bin/
-
-# copy mac version
-COPY opensees.so /home/bin/
-
-WORKDIR /home/openseespy-pip
+WORKDIR /home/openseespylinux-pip
 RUN python3.8 build_pip.py python3.8 build \
     ../opensees/SRC/interpreter/opensees.so \
-    /home/bin/opensees.pyd \
-    /home/bin/opensees.so \
     copy_dep \
     no_zip
 
 ENTRYPOINT [ "python3.8", "build_pip.py", "python3.8"]
 CMD [ "upload-test" ]
+########################################################
+
+########################################################
+FROM centos-pip  AS centos-pip-bash
+
+ENTRYPOINT [ "bash"]
 ########################################################
 
 ########################################################

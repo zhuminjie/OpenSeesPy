@@ -1,5 +1,5 @@
 openseespy-pip
+openseespylinux-pip
 opensees
 *.pyd
 *.so
-version.py

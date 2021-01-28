@@ -26,7 +26,7 @@ libpath = /home/lib
 
 OpenSees_PROGRAM = $(binpath)/openseestcl
 
-mpidir = /usr/lib64/mpich-3.2
+mpidir = $(paralleldir)
 mumpsdir = $(paralleldir)
 scalapackdir = $(paralleldir)
 petscdir = $(paralleldir)
@@ -206,7 +206,7 @@ FC	= gfortran
 else
 
 MPI_BIN = $(mpidir)/bin
-MPI_INCLUDE = -I/usr/include/mpich-3.2-x86_64
+MPI_INCLUDE = -I$(mpidir)/include
 MPI_LIB = -L$(mpidir)/lib
 #NVCC    = /usr/local/apps/cuda/cuda-7.5.18/bin/nvcc
 
@@ -252,7 +252,7 @@ else
 
 C++FLAGS         = -Wall -D_LINUX -D_UNIX -D_TCL85 $(GRAPHIC_FLAG) $(RELIABILITY_FLAG) $(DEBUG_FLAG) $(PROGRAMMING_FLAG) -O3 -ffloat-store -D_COROTATIONAL $(PFEM_FLAG) $(MUMPS_FLAG) $(PETSC_FLAG) -fPIC -pedantic -ansi -std=c++11 
 CFLAGS          = -Wall -O2 $(PFEM_FLAG) -fPIC -std=c99
-FFLAGS          = -Wall -O -fPIC
+FFLAGS          = -Wall -O3 -fPIC
 
 # Linker
 LINKER          = $(CC++)

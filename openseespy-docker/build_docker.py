@@ -13,6 +13,8 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
     # copy pip
     if not os.path.exists('openseespy-pip'):
         shutil.copytree('../openseespy-pip', 'openseespy-pip')
+    if not os.path.exists('openseespylinux-pip'):
+        shutil.copytree('../openseespylinux-pip', 'openseespylinux-pip')
 
     # copy opensees
     if not os.path.exists('opensees'):
@@ -21,11 +23,11 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
     # version
     if not version:
         about = {}
-        with open('openseespy-pip/openseespy/version.py') as fp:
+        with open('openseespylinux-pip/openseespylinux/version.py') as fp:
             exec(fp.read(), about)
         version = about['version']
 
-    with open('openseespy-pip/openseespy/version.py', 'w') as fd:
+    with open('openseespylinux-pip/openseespylinux/version.py', 'w') as fd:
         fd.write(f'version = "{version}"')
 
     # tag
@@ -42,6 +44,9 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
         subprocess.run(['docker',
                         'build', '--target', 'centos-pip',
                         '-t', f'centos-pip:{version}', '.'])
+        subprocess.run(['docker',
+                        'build', '--target', 'centos-pip-bash',
+                        '-t', f'centos-pip-bash', '.'])
         subprocess.run(['docker',
                         'build', '--target', 'test-centos-7.5.1804',
                         '-t', f'test-centos-7.5.1804', '.'])
@@ -101,28 +106,40 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
                         'push', tag_notebook])
 
 
-'''
-upload:
-    "upload", "upload-test"
-test-type:
-    "test", "test-test"
-test-platform:
-    "test-centos-7.5.1804",
-    "test-centos-7"
-    "test-centos-8"
-    "test-ubuntu-18.04"
-    "test-ubuntu-20.04"
-    "test-debian"
-    "test-fedora"
-    "test-all"
-'''
-# procedure:
-# tag with test version
-# upload-test
-# test test version
-# tag with release version
-# upload
-# test release version
+# commands:
+#
+# test and test-platform can be mixed
+# version can be ignored, then
+# the version in version.py is used
+#
+# manually set the version number
+# build_docker v#.#.#.#
+#
+# create all docker images needed
+# build_docker tag
+#
+# upload the package to testpypi
+# build_docker upload-test
+#
+# upload the package to pypi
+# build_docker upload
+#
+# test the package from testpypi
+# build_docker test-test
+#
+# test the package from pypi
+# build_docker test
+#
+# test the package on a platform
+# build_docker test-all
+# build_docker test-centos-7.5.1804
+# build_docker test-centos-7
+# build_docker test-centos-8
+# build_docker test-ubuntu-18.04
+# build_docker test-ubuntu-20.04
+# build_docker test-debian
+# build_docker test-dedora
+#
 if __name__ == "__main__":
     # version, tag, upload, test_platform, test_type, push
     version = None

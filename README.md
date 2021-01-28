@@ -4,10 +4,25 @@ Sub-folders:
 
 - `openseespy-pip`
 
-  The OpenSeesPy package including extra python modules but not the `opensees.so` and `opensees.pyd` libraries, which
-  can be compiled from `opensees` folder.
+  The OpenSeesPy package which depends on the following
+  packages for Windows, Linux, and Mac.
 
   [OpenSeesPy Pip](https://pypi.org/project/openseespy/)
+
+- `openseespywin-pip`
+
+  The OpenSeesPy Windows package.
+  [OpenSeesPy Windows Pip](https://pypi.org/project/openseespywin/)
+
+- `openseespylinux-pip`
+
+  The OpenSeesPy Linux package.
+  [OpenSeesPy Linux Pip](https://pypi.org/project/openseespylinux/)
+
+- `openseespymac-pip`
+
+  The OpenSeesPy Mac package.
+  [OpenSeesPy Mac Pip](https://pypi.org/project/openseespymac/)
 
 - `openseespy-docs`
 
