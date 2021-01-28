@@ -1,0 +1,14 @@
+*~
+__pycache__
+*.egg-info
+build
+dist
+*.so
+*.pyd
+*.dll
+*.so.*
+.idea
+*.dylib
+.vscode
+test_ODB/
+*.pyc

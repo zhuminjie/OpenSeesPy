@@ -16,4 +16,4 @@ if sys.platform.startswith('linux'):
 
 else:
 
-    raise RuntimeError(sys.platform+' is not supported yet')
+    raise RuntimeError('This package is for Linux only.')
