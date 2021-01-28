@@ -138,6 +138,27 @@ def install_pip(pyexe='python'):
     subprocess.run([pyexe, '-m', 'pip', 'install',
                     '--pre', '--no-cache-dir', 'openseespy'])
 
+# commands:
+#
+# pyexe - python excutable
+#
+# build pip
+# build_pip pyexe build use_zip/no_zip
+# use_zip - build the package to a zip file
+# no_zip - build the package to a wheel file
+#
+# upload to testpypi
+# build_pip pyexe upload-test
+#
+# upload to pypi
+# build_pip pyexe upload
+#
+# test package from testpypi
+# build_pip pyexe test-test
+#
+# test package from pypi
+# build_pip pyexe test
+#
 
 if __name__ == "__main__":
 
@@ -148,23 +169,17 @@ if __name__ == "__main__":
     pyexe = sys.argv[1]
 
     if sys.argv[2] == 'build':
-        if len(sys.argv) < 8:
-            print('buld_pip pyexe build so pyd macso copy_dep/no_copy use_zip/no_zip')
+        if len(sys.argv) < 4:
+            print('buld_pip pyexe build use_zip/no_zip')
             exit()
 
-        so = sys.argv[3]
-        pyd = sys.argv[4]
-        macso = sys.argv[5]
-        copy_dep = False
-        if sys.argv[6] == 'copy_dep':
-            copy_dep = True
         use_zip = False
-        if sys.argv[7] == 'use_zip':
+        if sys.argv[3] == 'use_zip':
             use_zip = True
 
-        copy_linux_library(so, copy_dep=copy_dep)
-        copy_win_library(pyd)
-        copy_mac_library(macso)
+        # copy_linux_library(so, copy_dep=copy_dep)
+        # copy_win_library(pyd)
+        # copy_mac_library(macso)
         build_pip(pyexe, use_zip=use_zip)
 
     elif sys.argv[2] == 'upload-test':

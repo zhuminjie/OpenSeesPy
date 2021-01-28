@@ -1,1 +1,1 @@
-
+from openseespy.version import version

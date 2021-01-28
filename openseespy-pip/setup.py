@@ -18,16 +18,9 @@ setuptools.setup(
     url="https://github.com/openseespy/openseespy",
     packages=setuptools.find_packages(),
     package_data={
-        '': [
-            'opensees.so',
-            'opensees.pyd',
-            'LICENSE.md',
-            '*.so',
-            '*.dll',
-            '*.dat',
-            '*.at2',
-            '*.dylib',
-            '*.so.*'],
+        '': ['LICENSE.md',
+             '*.dat',
+             '*.at2', ],
     },
     license='LICENSE.md',
     classifiers=[
@@ -39,5 +32,10 @@ setuptools.setup(
         "Linux",
         'Windows',
         'Mac'],
+    install_requires=[
+        'openseespywin==3.2.2.9; platform_system=="Windows"',
+        'openseespylinux==3.2.2.9; platform_system=="Linux"',
+        'openseespymac==11.19.2020; platform_system=="Darwin"',
+    ],
     python_requires='>=3.6',
     zip_safe=False)
