@@ -1,16 +1,36 @@
 ########################################################
 ## install centos packages
 FROM centos:7 AS centos-packages
-
+# 
 RUN yum update -y && \
     yum install -y make gcc-c++ gcc-gfortran git \
-    tcl tcl-devel boost-devel mpich-3.2 mpich-3.2-devel \
-    blas-devel openssl-devel bzip2-devel libffi-devel curl && \
+    tcl tcl-devel boost-devel \
+    blas-devel openssl-devel bzip2-devel libffi-devel curl wget && \
+    cd /home && \
     curl -O https://www.python.org/ftp/python/3.8.7/Python-3.8.7.tgz && \
     tar -xzf Python-3.8.7.tgz && \
     cd Python-3.8.7 && \
     ./configure --enable-optimizations && \
-    make altinstall
+    make altinstall && \
+    cd .. && \
+    wget https://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz && \
+    tar -xf mpich-3.2.tar.gz && \
+    mkdir /home/bin && \
+    mkdir /home/lib && \
+    mkdir /home/bin/mpich-install && \
+    mkdir /home/lib/mpich-3.2 && \
+    cd /home/lib/mpich-3.2 && \
+    /home/mpich-3.2/configure \
+    --prefix=/home/bin/mpich-install \
+    --enable-fast=all \
+    MPICHLIB_CFLAGS='-O3 -fPIC' \
+    MPICHLIB_FFLAGS='-O3 -fPIC' \
+    MPICHLIB_CXXFLAGS='-O3 -fPIC' \
+    MPICHLIB_FCFLAGS='-O3 -fPIC' \
+    --enable-shared=no && \
+    make -j && \
+    make install
+
 ########################################################
 
 ########################################################
@@ -22,7 +42,7 @@ RUN cd /home && \
     cd /home/petsc && \
     /usr/local/bin/python3.8 configure \
     --download-cmake \
-    --download-mpich --download-fblaslapack \
+    --with-mpi-dir=/home/bin/mpich-install --download-fblaslapack \
     --download-scalapack --download-mumps --download-metis \
     --download-parmetis --with-shared-libraries=0 \
     --with-debugging=0 \
@@ -38,9 +58,6 @@ FROM centos-petsc AS centos-openseespy
 WORKDIR /home
 COPY opensees /home/opensees
 COPY Makefile.def /home/opensees/
-
-RUN mkdir /home/bin && \
-    mkdir /home/lib
 
 WORKDIR /home/opensees
 RUN make python -j
@@ -71,18 +88,8 @@ ENTRYPOINT [ "bash"]
 ########################################################
 
 ########################################################
-## compile petsc
-# FROM ubuntu:16.04 AS ubuntu-petsc
+## compile petsc        exit()
 
-# ENV DEBIAN_FRONTEND=noninteractive
-# RUN apt-get update -y && \
-#     apt-get -y install software-properties-common && \
-#     add-apt-repository ppa:deadsnakes/ppa && \
-#     apt-get update -y && \
-#     apt-get -y install make gcc-4.8 g++-4.8 gfortran-4.8 git \
-#     tcl8.6 tcl8.6-dev libboost-all-dev libblas-dev \
-#     python3.8 python3.8-dev && \
-#     cd /home && \
 #     git clone -b release \
 #     https://gitlab.com/petsc/petsc.git petsc && \
 #     cd /home/petsc && \
@@ -180,6 +187,22 @@ WORKDIR /home/openseespy-pip
 
 ENTRYPOINT [ "python3.8", "build_pip.py", "python3.8"]
 CMD [ "test-test" ]
+#######################################################
+
+#######################################################
+# test ubuntu
+FROM ubuntu:16.04  AS test-ubuntu-16.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -y
+RUN apt-get -y install python3.5 python3-pip
+
+WORKDIR /home
+COPY openseespy-pip /home/openseespy-pip
+
+WORKDIR /home/openseespy-pip
+
+ENTRYPOINT [ "bash"]
+# CMD [ "python3.5", "build_pip.py", "python3.5"]
 #######################################################
 
 #######################################################

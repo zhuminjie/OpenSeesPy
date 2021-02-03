@@ -57,6 +57,9 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
                         'build', '--target', 'test-centos-8',
                         '-t', f'test-centos-8', '.'])
         subprocess.run(['docker',
+                        'build', '--target', 'test-ubuntu-16.04',
+                        '-t', f'test-ubuntu-16.04', '.'])
+        subprocess.run(['docker',
                         'build', '--target', 'test-ubuntu-18.04',
                         '-t', f'test-ubuntu-18.04', '.'])
         subprocess.run(['docker',
@@ -135,6 +138,7 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
 # build_docker test-centos-7.5.1804
 # build_docker test-centos-7
 # build_docker test-centos-8
+# build_docker test-ubuntu-16.04
 # build_docker test-ubuntu-18.04
 # build_docker test-ubuntu-20.04
 # build_docker test-debian

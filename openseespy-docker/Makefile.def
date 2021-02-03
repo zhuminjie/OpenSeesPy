@@ -26,7 +26,7 @@ libpath = /home/lib
 
 OpenSees_PROGRAM = $(binpath)/openseestcl
 
-mpidir = $(paralleldir)
+mpidir = /home/bin/mpich-install
 mumpsdir = $(paralleldir)
 scalapackdir = $(paralleldir)
 petscdir = $(paralleldir)
