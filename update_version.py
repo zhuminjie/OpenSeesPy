@@ -25,6 +25,10 @@ def update_version(version):
     # change pip version
     with open('openseespy-pip/openseespy/version.py', 'w') as fd:
         fd.write(f'version = "{version}"')
+    with open('openseespylinux-pip/openseespylinux/version.py', 'w') as fd:
+        fd.write(f'version = "{version}"')
+    with open('openseespywin-pip/openseespywin/version.py', 'w') as fd:
+        fd.write(f'version = "{version}"')
 
     # commit pip version
     subprocess.run(['git', 'add', 'openseespy-pip'])
