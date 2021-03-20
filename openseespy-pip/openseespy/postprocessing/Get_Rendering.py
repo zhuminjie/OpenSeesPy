@@ -6,8 +6,7 @@
 ##																						##
 ##																						##
 ## Created By - Anurag Upadhyay, University of Utah. https://github.com/u-anurag		##
-##            - Christian Slotboom, University of British Columbia.                     ##
-##              https://github.com/cslotboom	                                        ##
+##            									                                        ##
 ## 																						##
 ##########################################################################################
 
@@ -43,22 +42,32 @@ import openseespy.opensees as ops
 ####
 #####################################################################
 
-def createODB(*argv, Nmodes=0, deltaT=0.0, recorders=[]):
+def createODB(*argv, Nmodes=0, deltaT=0.0, monitorEleTags=[], monitorEleType="none", numSections=1, monitorGroupName="none", monitorOutput="none", dofs=[]):
 	
 	"""
 	This function creates a directory to save all the output data.
 
 	Command: createODB("ModelName",<"LoadCase Name">, <Nmodes=Nmodes(int)>, <recorders=*recorder(list)>)
 	
-	ModelName    : (string) Name of the model. The main output folder will be named "ModelName_ODB" in the current directory.
-	LoadCase Name: (string), Optional. Name of the load case forder to be created inside the ModelName_ODB folder. If not provided,
-					no load case data will be read.
-	Nmodes		 : (int) Optional key argument to save modeshape data. Default is 0, no modeshape data is saved.
+	PARAMETERS
+	-----------
 	
-	deltaT		 : (float) Optional time interval for recording. will record when next step is deltaT greater than last recorder step. 
+	ModelName    : (string) 
+		Name of the model. The main output folder will be named "ModelName_ODB" in the current directory.
+		
+	LoadCase Name: (string), Optional. 
+		Name of the load case forder to be created inside the ModelName_ODB folder. If not provided,
+					no load case data will be read.
+					
+	Nmodes		 : (int) Optional 
+		key argument to save modeshape data. Default is 0, no modeshape data is saved.
+	
+	deltaT		 : (float) Optional 
+		time interval for recording. will record when next step is deltaT greater than last recorder step. 
 					(default: records at every time step)
 	
-	recorders	 : (string) A list of additional quantities a users would like to record in the output database.
+	recorders	 : (string) 
+		A list of additional quantities a users would like to record in the output database.
 					The arguments for these additional inputs match the standard OpenSees arguments to avoid any confusion.
 					'localForce','basicDeformation', 'plasticDeformation','stresses','strains'
 					The recorders for node displacement and reactions are saved by default to help plot the deformed shape.
@@ -79,9 +88,11 @@ def createODB(*argv, Nmodes=0, deltaT=0.0, recorders=[]):
 	eleList = ops.getEleTags()
 	
 	if len(ops.nodeCoord(nodeList[0])) == 2:
-		dofList = [1, 2]
+		dofList_node = [1, 2]
+		dofList_ele  = [1, 2, 3]				# By default records all 3 dofs
 	if len(ops.nodeCoord(nodeList[0])) == 3:
-		dofList = [1, 2, 3]
+		dofList_node = [1, 2, 3]
+		dofList_ele  = [1, 2, 3, 4, 5, 6]		# By default records all 6 dofs. The dof recorder in 3D doesn't work with random dof input.
 	
 	# Save node and element data in the main Output folder
 	idbf._saveNodesandElements(ModelName)
@@ -111,7 +122,8 @@ def createODB(*argv, Nmodes=0, deltaT=0.0, recorders=[]):
 		
 		ops.wipeAnalysis()
 		
-	# Define standard outout filenames
+	# Define standard outout filenames			
+		
 	if len(argv)>=2:
 		LoadCaseName = argv[1]
 		LoadCaseDir = os.path.join(ODBdir,LoadCaseName)
@@ -126,29 +138,23 @@ def createODB(*argv, Nmodes=0, deltaT=0.0, recorders=[]):
 		EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
 		EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
 		ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
-# 		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
-		
+# 		EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")	
+
 		# Save recorders in the ODB folder
-		ops.recorder('Node', '-file', NodeDispFile,  '-time', '-dT', deltaT, '-node', *nodeList, '-dof',*dofList, 'disp')
-		ops.recorder('Node', '-file', ReactionFile,  '-time', '-dT', deltaT, '-node', *nodeList, '-dof',*dofList, 'reaction')
+		ops.recorder('Node', '-file', NodeDispFile,  '-time', '-dT', deltaT, '-node', *nodeList, '-dof',*dofList_node, 'disp')
+		ops.recorder('Node', '-file', ReactionFile,  '-time', '-dT', deltaT, '-node', *nodeList, '-dof',*dofList_node, 'reaction')
 		
-		if 'localForce' in recorders:
-			ops.recorder('Element', '-file', EleForceFile,  '-time', '-dT', deltaT, '-ele', *eleList, '-dof',*dofList, 'localForce')   
-		
-		if 'basicDeformation' in recorders:
-			ops.recorder('Element', '-file', EleBasicDefFile,  '-time', '-dT', deltaT, '-ele', *eleList, '-dof',*dofList, 'basicDeformation')
+		if len(monitorEleTags)>0:
+			# Recording monitor tags
+			if monitorGroupName =="none" or monitorOutput =="none":
+				raise Exception("Wrong input arguments. Missing 'monitorGroupName' or 'monitorOutput' in createODB command")
+			else:
+				GroupMonitorDir = os.path.join(LoadCaseDir,monitorGroupName)
+				if not os.path.exists(GroupMonitorDir):
+					os.makedirs(GroupMonitorDir)
 
-		if 'plasticDeformation' in recorders:
-			ops.recorder('Element', '-file', ElePlasticDefFile,  '-time', '-dT', deltaT, '-ele', *eleList, '-dof',*dofList, 'plasticDeformation')  
-
-		if 'stresses' in recorders:
-			ops.recorder('Element','-file', EleStressFile,  '-time', '-dT', deltaT, '-ele', *eleList,'stresses')
-		
-		if 'strains' in recorders:
-			ops.recorder('Element','-file', EleStrainFile,  '-time', '-dT', deltaT, '-ele', *eleList,'strains')
-		
-		# ops.recorder('Element', '-file', EleIntPointsFile, '-time', '-dT', deltaT, '-ele', *eleList, 'integrationPoints')   		# Records IP locations only in NL elements
-		
+				idbf._saveMonitorElementData(monitorEleType, monitorOutput, GroupMonitorDir, monitorEleTags, deltaT, dofList_ele)
+				
 	else:
 		print("Insufficient arguments: ModelName and LoadCaseName are required.")
 		print("Output from any loadCase will not be saved")
@@ -184,28 +190,20 @@ def readODB(*argv):
 		NodeDispFile = os.path.join(LoadCaseDir,"NodeDisp_All.out")
 		EleForceFile = os.path.join(LoadCaseDir,"EleForce_All.out")
 		ReactionFile = os.path.join(LoadCaseDir,"Reaction_All.out")
-		# EleStressFile = os.path.join(LoadCaseDir,"EleStress_All.out")
-		# EleStrainFile = os.path.join(LoadCaseDir,"EleStrain_All.out")
-		# EleBasicDefFile = os.path.join(LoadCaseDir,"EleBasicDef_All.out")
-		# ElePlasticDefFile = os.path.join(LoadCaseDir,"ElePlasticDef_All.out")
-		# EleIntPointsFile = os.path.join(LoadCaseDir,"EleIntPoints_All.out")
 		
 		# Read recorders in the ODB folder
 		# FUTURE: Gives warning if the files are empty. Create a procedure to check if files are empty.
 		NodeDisp = np.loadtxt(NodeDispFile,delimiter=' ')
 		EleForce = np.loadtxt(EleForceFile,delimiter=' ')   
 		Reaction = np.loadtxt(ReactionFile,delimiter=' ')
-		# EleStress = np.loadtxt(EleStressFile,delimiter=' ')
-		# EleStrain = np.loadtxt(EleStrainFile,delimiter=' ')   
-		# EleBasicDef = np.loadtxt(EleBasicDefFile,delimiter=' ')
-		# ElePlasticDef = np.loadtxt(ElePlasticDefFile,delimiter=' ')
+		
 		return nodes, elements, NodeDisp, Reaction, EleForce
 	
 	else:
 		return nodes, elements
 
 
-def saveFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber, deltaT = 0.0):
+def saveFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber = 1, deltaT = 0.0, ZLE = False):
     """
     Model : string
         The name of the input model database.    
@@ -230,8 +228,11 @@ def saveFiberData2D(ModelName, LoadCaseName, eleNumber, sectionNumber, deltaT = 
     FibreFileName = FibreName  + '_ele_' + str(eleNumber) + '_section_' + str(sectionNumber) + ftype
     FiberDir = os.path.join(ODBdir, LoadCaseName, FibreFileName)
 	
-    ops.recorder('Element' , '-file', FiberDir, '-time', '-dT', deltaT, '-ele', eleNumber, 'section', str(sectionNumber), 'fiberData')
-
+    if ZLE == True:
+        ops.recorder('Element' , '-file', FiberDir, '-time', '-dT', deltaT, '-ele', eleNumber, 'section', 'fiberData')
+    else:
+        ops.recorder('Element' , '-file', FiberDir, '-time', '-dT', deltaT, '-ele', eleNumber, 'section', str(sectionNumber), 'fiberData')
+        
 
 ### All the plotting related definitions start here.
 
@@ -582,19 +583,52 @@ def plot_modeshape(*argv,overlap="yes",Model="none"):
 	return fig, ax
 	
 
-def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, overlap='no'):
+
+
+def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, overlap='no', monitorEleTags = [], monitorGroupName="none", 
+																								monitorOutput="none", dof=1, limitStates=[]):
 	"""
+	
 	Command: plot_deformedshape(Model="modelName", LoadCase="loadCase name", <tstep = time (float)>, <scale = scaleFactor (float)>, <overlap='yes'>)
+	
+	PARAMETERS
+	------------
 	
 	Keyword arguments are used to make the command clear.
 	
-	Model   : Name of the model used in createODB() to read the displacement data from.
-	LoadCase: Name of the load case used in createODB().
-	tstep   : Optional value of the time stamp in the dynamic analysis. If no specific value is provided, the last step is used.
-	scale   : Optional input to change the scale factor of the deformed shape. Default is 10.
-	overlap : Optional input to plot the deformed shape overlapped with the wire frame of the original shape.
+	Model   : str
+		Name of the model used in createODB() to read the displacement data from.
+	
+	LoadCase: str 
+		Name of the load case used in createODB().
+		
+	tstep   : float
+		Optional value of the time stamp in the dynamic analysis. If no specific value is provided, the last step is used.
+		
+	scale   : int
+		Optional input to change the scale factor of the deformed shape. Default is 10.
+		
+	overlap : str
+		Optional input to plot the deformed shape overlapped with the wire frame of the original shape.
+		
+	monitorEleTags : list
+		a list of element tags to be displayed
+		
+	monitorGroupName : str
+		Name of the element group as defined in createODB() command.
+		
+	monitorOutput : str
+		Type of output to be monitored.
+		
+	dof : int
+		Degree-of-freedom to be monitored.
+		
+	limitStates : list
+		A list of four limit states.
+		
 	
 	Future Work: Add option to plot deformed shape based on "time" and "step number" separately.
+	
 	
 	"""
 
@@ -617,11 +651,43 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 				print("XX Warining: Time-Step has exceeded maximum analysis time step XX")
 			printLine = "Deformation at time: " + str(round(timeSteps[jj], 2))
 		
+		
+		#############  Get data for the specified region to tag ##############
+		adjustViewport = "no"
+		adjNodeNum = 0			# Start the counter to curtail the array later
+		
+		#######################################################################
+		
 		DeflectedNodeCoordArray = nodeArray[:,1:]+ scale*Disp_nodeArray[int(jj),:,:]
 		nodetags = nodeArray[:,0]
 		
 		show_element_tags = 'no'			# Set show tags to "no" to plot deformed shapes.
+		monitorElementDisplay = 'no'
 
+		#### Read the monitoring element deformation data
+		
+		if monitorGroupName !="none":
+			if monitorOutput =="none":
+				raise Exception("Wrong input arguments. Missing 'monitorOutput' argument to monitor element deformation")
+			else:
+				monitorElementDisplay = "yes"
+				ODBdir = Model+"_ODB"
+				LoadCaseDir = os.path.join(ODBdir, LoadCase)
+				GroupMonitorDir = os.path.join(LoadCaseDir,monitorGroupName)
+				if not os.path.exists(GroupMonitorDir):
+					print("No Group monitor data saved. Check inputs.")
+					
+				MonitorEleDef, MonitorEleForce, MonitorEleTags, MonitorEleInfo = idbf._readMonitorElementData(monitorOutput,GroupMonitorDir)
+		else:
+			pass
+			
+		#### For Future
+		# if monitorEleTags == []:
+			# DISPLAY ALL ELEMENTS
+		# else:
+			# DISPLAY ONLY USER INPUT ELEMENTS
+			# pass
+		############
 		
 		def nodecoords(nodetag):
 			# Returns an array of node coordinates: works like nodeCoord() in opensees.
@@ -634,11 +700,17 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 			i, = np.where(nodeArray[:,0] == float(nodetag))				# Original coordinates
 			return nodeArray[int(i),1:] + scale*Disp_nodeArray[int(jj),int(i),:]
 
+		numLimStates = len(limitStates)
+		
+			
 		# Check if the model is 2D or 3D
 		if len(nodecoords(nodetags[0])) == 2:
 			print('2D model')
 			fig = plt.figure()
 			ax = fig.add_subplot(1,1,1)
+			
+			if adjustViewport == "yes":
+				adjusted_NodeArray = np.zeros([len(nodeArray),2])   # 2D array
 			
 			for ele in elementArray:
 				eleTag = int(ele[0])
@@ -652,10 +724,22 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 					iNode_final = nodecoordsFinal(Nodes[0])
 					jNode_final = nodecoordsFinal(Nodes[1])
 					
+					if adjustViewport == "yes":
+						for node in Nodes:
+							if node not in adjusted_NodeArray[:,0]:
+								adjusted_NodeArray[adjNodeNum,0:1] = nodecoordsFinal(node)
+						
 					if overlap == "yes":
 						ipltf._plotBeam2D(iNode, jNode, ax, show_element_tags, eleTag, "wire")
 					
-					ipltf._plotBeam2D(iNode_final, jNode_final, ax, show_element_tags, eleTag, "solid")
+					if monitorElementDisplay == 'yes':
+						if eleTag in MonitorEleTags:
+							eleColor = idbf._elementMonitorCheck(eleTag, dof, monitorOutput, limitStates, ipltf.limStateColors, MonitorEleInfo, MonitorEleTags, MonitorEleDef, jj)
+							ipltf._plotBeam2D(iNode_final, jNode_final, ax, show_element_tags, eleTag, eleColor)
+						else:
+							ipltf._plotBeam2D(iNode_final, jNode_final, ax, show_element_tags, eleTag, "solid")
+					else:
+						ipltf._plotBeam2D(iNode_final, jNode_final, ax, show_element_tags, eleTag, "solid")
 					
 				if len(Nodes) == 3:
 					## 2D Planer three-node shell elements
@@ -667,6 +751,11 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 					jNode_final = nodecoordsFinal(Nodes[1])
 					kNode_final = nodecoordsFinal(Nodes[2])
 
+					if adjustViewport == "yes":
+						for node in Nodes:
+							if node not in adjusted_NodeArray[:,0]:
+								adjusted_NodeArray[adjNodeNum,0:1] = nodecoordsFinal(node)
+								
 					if overlap == "yes":
 						ipltf._plotTri2D(iNode, jNode, kNode, iNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
 					
@@ -684,17 +773,32 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 					kNode_final = nodecoordsFinal(Nodes[2])
 					lNode_final = nodecoordsFinal(Nodes[3])
 					
+					if adjustViewport == "yes":
+						for node in Nodes:
+							if node not in adjusted_NodeArray[:,0]:
+								adjusted_NodeArray[adjNodeNum,0:1] = nodecoordsFinal(node)
+								
 					if overlap == "yes":
 						ipltf._plotQuad2D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
 						
 					ipltf._plotQuad2D(iNode_final, jNode_final, kNode_final, lNode_final, ax, show_element_tags, eleTag, "solid", fillSurface='yes')
-					            
+				
+				adjNodeNum+=1
+	            
 			ax.text(0.1, 0.90, printLine, transform=ax.transAxes)
-		
+			
+			if monitorElementDisplay == 'yes':
+				for ls in range(0,4):
+					ax.text(0.1+ ls*0.1, 0.05, 'DS'+str(ls+1), color=ipltf.limStateColors[ls], bbox=dict(facecolor='none', edgecolor=ipltf.limStateColors[ls]), transform=ax.transAxes)
+					
 		else:
 			print('3D model')
 			fig = plt.figure()
 			ax = fig.add_subplot(1,1,1, projection='3d')
+			
+			if adjustViewport == "yes":
+				adjusted_NodeArray = np.zeros([len(nodeArray),3])   #  array
+				print(np.shape(adjusted_NodeArray))
 			
 			for ele in elementArray:
 				eleTag = int(ele[0])
@@ -708,10 +812,21 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 					iNode_final = nodecoordsFinal(Nodes[0])
 					jNode_final = nodecoordsFinal(Nodes[1])
 					
+					if adjustViewport == "yes":
+						for node in Nodes:
+							if node not in adjusted_NodeArray[:,0]:
+								adjusted_NodeArray[adjNodeNum,:] = nodecoordsFinal(node)
+								
 					if overlap == "yes":
 						ipltf._plotBeam3D(iNode, jNode, ax, show_element_tags, eleTag, "wire")
-					
-					ipltf._plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, eleTag, "solid")
+					if monitorElementDisplay == 'yes':
+						if eleTag in MonitorEleTags:
+							eleColor = idbf._elementMonitorCheck(eleTag, dof, monitorOutput, limitStates, ipltf.limStateColors, MonitorEleInfo, MonitorEleTags, MonitorEleDef, jj)
+							ipltf._plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, eleTag, eleColor)
+						else:
+							ipltf._plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, eleTag, "solid")
+					else:
+						ipltf._plotBeam3D(iNode_final, jNode_final, ax, show_element_tags, eleTag, "solid")
 					
 				if len(Nodes) == 4:
 					## 3D four-node Quad/shell element
@@ -725,6 +840,11 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 					kNode_final = nodecoordsFinal(Nodes[2])
 					lNode_final = nodecoordsFinal(Nodes[3])
 					
+					if adjustViewport == "yes":
+						for node in Nodes:
+							if node not in adjusted_NodeArray[:,0]:
+								adjusted_NodeArray[adjNodeNum,0:2] = nodecoordsFinal(node)
+								
 					if overlap == "yes":
 						ipltf._plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, eleTag, "wire", fillSurface='no')
 						
@@ -751,13 +871,28 @@ def plot_deformedshape(Model="none", LoadCase="none", tstep = -1, scale = 10, ov
 					kkNode_final = nodecoordsFinal(Nodes[6])
 					llNode_final = nodecoordsFinal(Nodes[7])
 					
+					if adjustViewport == "yes":
+						for node in Nodes:
+							if node not in adjusted_NodeArray[:,0]:
+								adjusted_NodeArray[adjNodeNum,0:2] = nodecoordsFinal(node)
+								
 					if overlap == "yes":
 						ipltf._plotCubeVol(iNode, jNode, kNode, lNode, iiNode, jjNode, kkNode, llNode, ax, show_element_tags, eleTag, "wire", fillSurface='no') # plot undeformed shape
 
 					ipltf._plotCubeVol(iNode_final, jNode_final, kNode_final, lNode_final, iiNode_final, jjNode_final, kkNode_final, llNode_final, 
 									ax, show_element_tags, eleTag, "solid", fillSurface='yes')
-									
+					
+				adjNodeNum+=1
+				
 			ax.text2D(0.1, 0.90, printLine, transform=ax.transAxes)
+			
+			if monitorElementDisplay == 'yes':
+				for ls in range(0,4):
+					ax.text2D(0.1+ ls*0.1, 0.05, 'DS'+str(ls+1), color=ipltf.limStateColors[ls], bbox=dict(facecolor='none', edgecolor=ipltf.limStateColors[ls]), transform=ax.transAxes)
+					
+		if adjustViewport == "yes":
+			DeflectedNodeCoordArray = adjusted_NodeArray[0:adjNodeNum-1,:]
+		
 		ipltf._setStandardViewport(fig, ax, DeflectedNodeCoordArray, len(nodecoords(nodetags[0])))					
 		plt.axis('on')
 		plt.show()
@@ -1109,20 +1244,10 @@ def plot_fiberResponse2D(Model, LoadCase, element, section, LocalAxis = 'y', Inp
     if LocalAxis not in ['z', 'y']:
         raise Exception('Invalid LocalAxis type. Valid Entries are "z" and "y"')
         
-
-    if InputType == 'stress':
-        responseIndex = 3
-        axisYlabel = "Fiber Stress"
-    if InputType == 'strain':
-        responseIndex = 4
-        axisYlabel = "Fiber Strain"
+    # get the local axis and response labes and indexes
+    axisIndex, axisXlabel = ipltf._getAxisInfo(LocalAxis)
+    responseIndex, axisYlabel = ipltf._getResponseInfo(InputType)
     
-    if LocalAxis == 'z':
-        axisIndex = 1
-        axisXlabel = "Local z value"
-    if LocalAxis == 'y':
-        axisIndex = 0
-        axisXlabel = "Local y value"
     
     timeSteps, fiberData  = idbf._readFiberData2D(Model, LoadCase, element, section)
     
@@ -1160,7 +1285,7 @@ def plot_fiberResponse2D(Model, LoadCase, element, section, LocalAxis = 'y', Inp
     return fig, ax
     
 
-def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', InputType = 'stress', skipStart = 0, 
+def animate_fiberResponse2D(Model, LoadCase, element, section, LocalAxis = 'y', InputType = 'stress', skipStart = 0, 
                             skipEnd = 0, rFactor=1, outputFrames=0, fps = 24, Xbound = [], Ybound = []):
     """
     Parameters
@@ -1210,56 +1335,26 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
     # Catch invalid Direction types
     if LocalAxis not in ['z', 'y']:
         raise Exception('Invalid LocalAxis type. Valid Entries are "z" and "y"')
-        
-
-    if InputType == 'stress':
-        responseIndex = 3
-        axisYlabel = "Fiber Stress"
-    if InputType == 'strain':
-        responseIndex = 4
-        axisYlabel = "Fiber Strain"
     
-    if LocalAxis == 'z':
-        axisIndex = 1
-        axisXlabel = "Local z value"
-    if LocalAxis == 'y':
-        axisIndex = 0
-        axisXlabel = "Local y value"
+    # get the local axis and response labes and indexes
+    axisIndex, axisXlabel = ipltf._getAxisInfo(LocalAxis)
+    responseIndex, axisYlabel = ipltf._getResponseInfo(InputType)
     
     timeSteps, fiberData  = idbf._readFiberData2D(Model, LoadCase, element, section)
                 
-
+    # Get the desired iformation.
     fiberYPosition = fiberData[:,axisIndex::5]
     fiberResponse  = fiberData[:, responseIndex::5]
     
-    # Sort indexes so they appear in an appropraiate location
+    # Sort indexes so they appear in an appropraiate location.
     sortedIndexes = np.argsort(fiberYPosition[0,:])
     fibrePositionSorted = fiberYPosition[:,sortedIndexes]
     fibreResponseSorted = fiberResponse[:,sortedIndexes]    
     
+    # Get the bounds on the final output data.
+    xmin, xmax, ymin, ymax = ipltf._getFiberBounds(fibrePositionSorted, fibreResponseSorted, Xbound, Ybound)
     
-    # If end data is not being skipped, use the full vector length.
-    if skipEnd ==0:
-        skipEnd = len(fiberYPosition)    
-    
-    # Set up bounds based on data from 
-    if Xbound == []:
-        xmin = 1.1*np.min(fibrePositionSorted)
-        xmax = 1.1*np.max(fibrePositionSorted)
-    else:
-        xmin = Xbound[0]       
-        xmax = Xbound[1]
-    
-    if Ybound == []:
-        ymin = 1.1*np.min(fibreResponseSorted)  
-        ymax = 1.1*np.max(fibreResponseSorted)        
-    else:
-        ymin = Ybound[0]       
-        ymax = Ybound[1]          
-    
-    # Remove unecessary data
-    xinputs = fibrePositionSorted[skipStart:skipEnd, :]
-    yinputs = fibreResponseSorted[skipStart:skipEnd, :]
+    xinputs, yinputs = ipltf._skipFiberData(fibrePositionSorted, fibreResponseSorted, fiberYPosition,  skipStart, skipEnd)
 
     # Reduce the data if the user specifies
     if rFactor != 1:
@@ -1372,4 +1467,99 @@ def animate_fiberResponse2D(Model, LoadCase, element, section,LocalAxis = 'y', I
 									   
     plt.show()
     return line_ani
+
+
+
+def plot_eleHysteresis(Model="none", LoadCase="none", element=[], monitorGroupName="none", dof=1, limitStates=[]):
+	
+	"""
+	plots the output of specific elements.
+	
+	Model: str
+		Name of the Model as defined in createODB() command.
+		
+	LoadCase: str
+		Name of the LoadCase as defined in createODB() command.
+		
+	element: list
+		List of elements whose output is to be displayed. Should be a part of monitorGroupName group.
+		
+	monitorGroupName: str
+		Name of the monitorGroupName as defined in createODB() command.
+		
+	dof: int
+		Degree-of-freedom to be displayed.
+		
+	limitStates: list (Optional)
+		Limit states to be displayed.
+	
+	"""
+
+	if Model == "none" or LoadCase=="none":
+		print("Command should be plot_eleHysteresis(Model='modelname',loadCase='loadcase',element=int(eleTag), monitorGroupName='monitorGroupName', dof=int(dof), <limitStates=[]>")
+		raise Exception("No output database specified in plot_eleHysteresis() command. Exiting now.")
+	
+	if element==[]:
+		print("Command should be plot_eleHysteresis(Model='modelname',loadCase='loadcase',element=int(eleTag), monitorGroupName='monitorGroupName', dof=int(dof), <limitStates=[]>")
+		raise Exception('No element tags provided to plot the data in plot_eleHysteresis() command. Exiting now.')
+		# print("Plotting structure hysteresis from load case ")	
+		
+	if monitorGroupName=="none":
+		print("Command should be plot_eleHysteresis(Model='modelname',loadCase='loadcase',element=int(eleTag), monitorGroupName='monitorGroupName', dof=int(dof), <limitStates=[]>")
+		raise Exception('No monitorGroupName provided in plot_eleHysteresis() command. Exiting now.')
+		
+	else:
+		print("Reading data from "+str(Model)+"_ODB/"+LoadCase)
+		nodeArray, elementArray = idbf._readNodesandElements(Model)
+		timeSteps, Disp_nodeArray = idbf._readNodeDispData(Model,LoadCase)
+		
+	
+		
+	#### Read the monitoring element deformation data
+	
+	if monitorGroupName !="none":
+		monitorOutput = "deformations"
+		ODBdir = Model+"_ODB"
+		LoadCaseDir = os.path.join(ODBdir, LoadCase)
+		GroupMonitorDir = os.path.join(LoadCaseDir,monitorGroupName)
+		if not os.path.exists(GroupMonitorDir):
+			raise Exception("No Group monitor data saved for "+str(monitorGroupName)+". Check inputs. Or, use createODB command to save group data.")
+			
+		MonitorEleDef, MonitorEleForce, MonitorEleTags, MonitorEleInfo = idbf._readMonitorElementData(monitorOutput,GroupMonitorDir)
+	else:
+		pass
+		
+		
+	### Initiate a matrix to save specific element data
+	Nele = len(element)
+	eleDeformation = np.array([Nele, len(MonitorEleDef)])
+	eleForce = np.array([Nele, len(MonitorEleDef)])
+	NNele = 1
+	displayEleTags = []
+	
+	for ele in element:
+		if ele not in MonitorEleTags:
+			print('element '+str(ele)+' was not found in the group '+str(monitorGroupName)+'. Use createODB() command to add this element to the group')
+		else:
+			displayEleTags.append(ele)
+			NNele=+1
+			
+	### Initialize the figures
+
+	yLabelText = "DOF "+str(dof)+" Force"
+	xLabelText = "DOF "+str(dof)+" Def"
+
+	for ele in displayEleTags:
+		fig, ax = plt.subplots()
+		eleDeformation, eleForce = idbf._elementHysteresis(ele, dof, MonitorEleInfo, MonitorEleTags, MonitorEleDef, MonitorEleForce)
+		ax.plot(eleDeformation,eleForce, color ='black', linewidth = 1.0)
+		ax.set_ylabel(yLabelText)  
+		ax.set_xlabel(xLabelText)    
+		ax.set_title("Element "+str(ele)+" Hysteresis - DOF "+str(dof)+", LC:"+str(LoadCase))  
+		ax.grid(linestyle='dotted')		
+		ax.axhline(y=0, color='k', linewidth = 0.5)
+		ax.axvline(x=0, color='k', linewidth = 0.5)		
+		
+	plt.show()
+	return fig, ax
 

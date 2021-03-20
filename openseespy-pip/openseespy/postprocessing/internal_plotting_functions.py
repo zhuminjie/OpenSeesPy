@@ -1,18 +1,14 @@
-
-
-########################################################################
-##																	  ##
-## Internal plotting functions called by the user plotting functions  ##
-
-########################################################################
-
-
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
+import openseespy.postprocessing.internal_database_functions as idbf 
 
 ele_style = {'color':'black', 'linewidth':1, 'linestyle':'-'} # elements
+ele_lim_a_style = {'color':'blue', 'linewidth':1.5, 'linestyle':'-'} # elements
+ele_lim_b_style = {'color':'green', 'linewidth':1.5, 'linestyle':'-'} # elements
+ele_lim_c_style = {'color':'orange', 'linewidth':1.5, 'linestyle':'-'} # elements
+ele_lim_d_style = {'color':'red', 'linewidth':1.5, 'linestyle':'-'} # elements
 node_style = {'color':'black', 'marker':'o', 'facecolor':'black','linewidth':0.} 
 node_text_style = {'fontsize':6, 'fontweight':'regular', 'color':'green'} 
 ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'} 
@@ -20,6 +16,7 @@ ele_text_style = {'fontsize':6, 'fontweight':'bold', 'color':'darkred'}
 WireEle_style = {'color':'black', 'linewidth':1, 'linestyle':':'} # elements
 Eig_style = {'color':'red', 'linewidth':1, 'linestyle':'-'} # elements
 
+limStateColors = ["blue","green","orange","red"]
 
 def _plotCubeSurf(nodeCords, ax, fillSurface, eleStyle):
 	## This procedure is called by the plotCubeVol() command
@@ -157,39 +154,75 @@ def _plotQuad3D(iNode, jNode, kNode, lNode, ax, show_element_tags, element, eleS
 
     return tempLines, tempSurface, tempTag
 
+	
 
+
+def _checkEleLength2D(iNode,jNode):
+	eleLengthCheck = "ELE"
+	if abs(jNode[0]-iNode[0])>0.01 or abs(jNode[1]-iNode[1])>0.01 :
+		pass
+	else:
+		eleLengthCheck = "ZLE"
+
+	return eleLengthCheck
+	
+
+def _checkEleLength3D(iNode,jNode):
+	eleLengthCheck = "ELE"
+	if abs(jNode[0]-iNode[0])>0.001 or abs(jNode[1]-iNode[1])>0.001 or abs(jNode[2]-iNode[2])>0.001 :
+		pass
+	else:
+		eleLengthCheck = "ZLE"
+
+	return eleLengthCheck
+	
+			
 def _plotBeam2D(iNode, jNode, ax, show_element_tags, element, eleStyle):
-    ##procedure to render a 2D two-node element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
-    tempLines, = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]), marker='')
+	##procedure to render a 2D two-node element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
+	# tempLines, = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]), marker='')
+	tempLines, = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]))
     
-    if eleStyle == "wire":
-        plt.setp(tempLines,**WireEle_style)
-    else:
-        plt.setp(tempLines,**ele_style)
+	if eleStyle in limStateColors:
+		if _checkEleLength2D(iNode,jNode) == "ZLE":
+			ele_lim_style = {'color':eleStyle, 'linewidth':1.0, 'linestyle':'-', 'marker':'o', 'mfc':eleStyle, 'markersize':2} # elements
+		else:
+			ele_lim_style = {'color':eleStyle, 'linewidth':5, 'linestyle':'-', 'marker':''} # elements			
+		plt.setp(tempLines,**ele_lim_style)
+	elif eleStyle == "wire":
+		plt.setp(tempLines,**WireEle_style)
+	else:
+		plt.setp(tempLines,**ele_style)
     
-    tempTag = []
-    if show_element_tags == 'yes':
-        tempTag = ax.text((iNode[0]+jNode[0])/2, (iNode[1]+jNode[1])*1.02/2, 
-                           str(element), **ele_text_style) #label elements
+	tempTag = []
+	if show_element_tags == 'yes':
+		tempTag = ax.text((iNode[0]+jNode[0])/2, (iNode[1]+jNode[1])*1.02/2, 
+							str(element), **ele_text_style) #label elements
 
-    return tempLines, tempTag
+	return tempLines, tempTag
 
 
 def _plotBeam3D(iNode, jNode, ax, show_element_tags, element, eleStyle): 
-    ##procedure to render a 3D two-node element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
-    tempLines, = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='')
+	##procedure to render a 3D two-node element. use eleStyle = "wire" for a wire frame, and "solid" for solid element lines.
+	tempLines, = plt.plot((iNode[0], jNode[0]), (iNode[1], jNode[1]),(iNode[2], jNode[2]), marker='')
     
-    if eleStyle == "wire":
-        plt.setp(tempLines,**WireEle_style)
-    else:
-        plt.setp(tempLines,**ele_style)
-    
-    tempTag = []
-    if show_element_tags == 'yes':
-        tempTag = ax.text((iNode[0]+jNode[0])/2, (iNode[1]+jNode[1])*1.02/2, 
-                          (iNode[2]+jNode[2])*1.02/2, str(element), **ele_text_style) #label elements
+	if eleStyle in limStateColors:
+		if _checkEleLength2D(iNode,jNode) == "ZLE":
+			ele_lim_style = {'color':eleStyle, 'linewidth':1.0, 'linestyle':'-', 'marker':'o', 'mfc':eleStyle, 'markersize':2} # elements
+		else:
+			ele_lim_style = {'color':eleStyle, 'linewidth':5, 'linestyle':'-', 'marker':'', 'mfc':eleStyle, 'markersize':1} # elements			
+		plt.setp(tempLines,**ele_lim_style)
+	
+	elif eleStyle == "wire":
+		plt.setp(tempLines,**WireEle_style)	
+	else:
+		plt.setp(tempLines,**ele_style)
+		
+	tempTag = []
+	if show_element_tags == 'yes':
+		tempTag = ax.text((iNode[0]+jNode[0])/2, (iNode[1]+jNode[1])*1.02/2, 
+							(iNode[2]+jNode[2])*1.02/2, str(element), **ele_text_style) #label elements
 
-    return tempLines, tempTag
+	return tempLines, tempTag
 
 
 def _plotEle_2D(nodes, elements, DispNodeCoordArray, fig, ax, show_element_tags):
