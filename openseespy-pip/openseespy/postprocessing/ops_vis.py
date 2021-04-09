@@ -22,7 +22,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-from matplotlib.patches import Circle, Polygon
+from matplotlib.patches import Circle, Polygon, Wedge
+# from matplotlib.collections import PatchCollection
 from matplotlib.animation import FuncAnimation
 import matplotlib.tri as tri
 
@@ -37,8 +38,11 @@ fmt_interp = 'b-'  # blue solid line, no markers
 # element end nodes
 fmt_nodes = 'rs'  # red square markers, no line
 
+# deformed model
+fmt_defo = 'b-'  # green dashed line, no markers
+
 # undeformed model
-fmt_undefo = 'g--'  # green dashed line, no markers
+fmt_undefo = 'g:'  # green dotted line, no markers
 
 # section forces
 fmt_secforce = 'b-'  # blue solid line
@@ -53,7 +57,14 @@ az_el = (-60., 30.)
 fig_wi_he = (16., 10.)
 
 
-def _plot_model_2d(node_labels, element_labels, offset_nd_label, axis_off):
+def _plot_model_2d(node_labels, element_labels, offset_nd_label, axis_off,
+                   fig_wi_he, fig_lbrt):
+
+    fig_wi, fig_he = fig_wi_he
+    fleft, fbottom, fright, ftop = fig_lbrt
+
+    fig = plt.figure(figsize=(fig_wi/2.54, fig_he/2.54))
+    fig.subplots_adjust(left=.08, bottom=.08, right=.985, top=.94)
 
     max_x_crd, max_y_crd, max_crd = -np.inf, -np.inf, -np.inf
 
@@ -484,13 +495,6 @@ def _plot_model_3d(node_labels, element_labels, offset_nd_label, axis_off,
             max_crd = np.amax([max_x_crd, max_y_crd, max_z_crd])
             _offset = 0.005 * max_crd
 
-        # # work-around fix because of aspect equal bug
-        # _max_overall = 1.1*max_crd
-        # _min_overall = -0.1*max_crd
-        # ax.set_xlim(_min_overall, _max_overall)
-        # ax.set_ylim(_min_overall, _max_overall)
-        # ax.set_zlim(_min_overall, _max_overall)
-
         for i, ele_tag in enumerate(ele_tags):
             nd1, nd2 = ops.eleNodes(ele_tag)
 
@@ -504,7 +508,7 @@ def _plot_model_3d(node_labels, element_labels, offset_nd_label, axis_off,
             yt = sum(ey)/nen
             zt = sum(ez)/nen
 
-            ax.plot(ex, ey, ez, 'bo-')
+            ax.plot(ex, ey, ez, 'b.-')
 
             # fixme: placement of node_tag labels
             if element_labels:
@@ -577,7 +581,7 @@ def _plot_model_3d(node_labels, element_labels, offset_nd_label, axis_off,
 
             ax.plot(np.append(ex, ex[0]),
                     np.append(ey, ey[0]),
-                    np.append(ez, ez[0]), 'bo-')
+                    np.append(ez, ez[0]), 'b.-')
 
             # fixme: placement of node_tag labels
             if element_labels:
@@ -626,13 +630,6 @@ def _plot_model_3d(node_labels, element_labels, offset_nd_label, axis_off,
         max_crd = np.amax([max_x_crd, max_y_crd, max_z_crd])
         _offset = 0.005 * max_crd
 
-        # work-around fix because of aspect equal bug
-        _max_overall = 1.1*max_crd
-        _min_overall = -0.1*max_crd
-        ax.set_xlim(_min_overall, _max_overall)
-        ax.set_ylim(_min_overall, _max_overall)
-        ax.set_zlim(_min_overall, _max_overall)
-
         for i, ele_tag in enumerate(ele_tags):
             nd1, nd2, nd3, nd4, nd5, nd6, nd7, nd8 = ops.eleNodes(ele_tag)
 
@@ -669,14 +666,14 @@ def _plot_model_3d(node_labels, element_labels, offset_nd_label, axis_off,
 
             ax.plot(np.append(ex[0:4], ex[0]),
                     np.append(ey[0:4], ey[0]),
-                    np.append(ez[0:4], ez[0]), 'bo-')
+                    np.append(ez[0:4], ez[0]), 'b.-')
             ax.plot(np.append(ex[4:8], ex[4]),
                     np.append(ey[4:8], ey[4]),
-                    np.append(ez[4:8], ez[4]), 'bo-')
-            ax.plot([ex[0], ex[4]], [ey[0], ey[4]], [ez[0], ez[4]], 'bo-')
-            ax.plot([ex[1], ex[5]], [ey[1], ey[5]], [ez[1], ez[5]], 'bo-')
-            ax.plot([ex[2], ex[6]], [ey[2], ey[6]], [ez[2], ez[6]], 'bo-')
-            ax.plot([ex[3], ex[7]], [ey[3], ey[7]], [ez[3], ez[7]], 'bo-')
+                    np.append(ez[4:8], ez[4]), 'b.-')
+            ax.plot([ex[0], ex[4]], [ey[0], ey[4]], [ez[0], ez[4]], 'b.-')
+            ax.plot([ex[1], ex[5]], [ey[1], ey[5]], [ez[1], ez[5]], 'b.-')
+            ax.plot([ex[2], ex[6]], [ey[2], ey[6]], [ez[2], ez[6]], 'b.-')
+            ax.plot([ex[3], ex[7]], [ey[3], ey[7]], [ez[3], ez[7]], 'b.-')
 
             # fixme: placement of node_tag labels
             if element_labels:
@@ -706,6 +703,10 @@ def _plot_model_3d(node_labels, element_labels, offset_nd_label, axis_off,
                         ops.nodeCoord(node_tag)[1]+_offset,
                         ops.nodeCoord(node_tag)[2]+_offset,
                         f'{node_tag}', va='bottom', ha='left', color='blue')
+
+    ax.set_box_aspect((np.ptp(ax.get_xlim3d()),
+                       np.ptp(ax.get_ylim3d()),
+                       np.ptp(ax.get_zlim3d())))
 
 
 def plot_model(node_labels=1, element_labels=1, offset_nd_label=False,
@@ -749,7 +750,8 @@ def plot_model(node_labels=1, element_labels=1, offset_nd_label=False,
     ndim = np.shape(ops.nodeCoord(node_tags[0]))[0]
 
     if ndim == 2:
-        _plot_model_2d(node_labels, element_labels, offset_nd_label, axis_off)
+        _plot_model_2d(node_labels, element_labels, offset_nd_label, axis_off,
+                       fig_wi_he, fig_lbrt)
         if axis_off:
             plt.axis('off')
 
@@ -765,8 +767,8 @@ def plot_model(node_labels=1, element_labels=1, offset_nd_label=False,
     # plt.show()  # call this from main py file for more control
 
 
-def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
-                       endDispFlag, fmt_interp, fmt_nodes):
+def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_defo, fmt_undefo,
+                       interpFlag, endDispFlag, fmt_interp, fmt_nodes):
 
     ele_tags = ops.getEleTags()
 
@@ -898,7 +900,7 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
             y = ey+sfac*ed[[1, 3, 5]]
             # x = ex+sfac*ed[[0, 2, 4, 6]]
             # y = ey+sfac*ed[[1, 3, 5, 7]]
-            plt.plot(np.append(x, x[0]), np.append(y, y[0]), 'b.-')
+            plt.plot(np.append(x, x[0]), np.append(y, y[0]), fmt_defo)
 
         plt.axis('equal')
 
@@ -950,7 +952,7 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
             # test it with one element
             x = ex+sfac*ed[[0, 2, 4, 6]]
             y = ey+sfac*ed[[1, 3, 5, 7]]
-            plt.plot(np.append(x, x[0]), np.append(y, y[0]), 'b.-')
+            plt.plot(np.append(x, x[0]), np.append(y, y[0]), fmt_defo)
 
         plt.axis('equal')
 
@@ -1031,7 +1033,7 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
             y = ey+sfac*ed[[1, 3, 5, 7, 9, 11, 13, 15]]
             plt.plot([x[0], x[4], x[1], x[5], x[2], x[6], x[3], x[7], x[0]],
                      [y[0], y[4], y[1], y[5], y[2], y[6], y[3], y[7], y[0]],
-                     'b.-')
+                     fmt_defo)
 
         plt.axis('equal')
 
@@ -1119,7 +1121,7 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
             plt.plot([x[0], x[4], x[1], x[5], x[2], x[6],
                       x[3], x[7], x[0]],
                      [y[0], y[4], y[1], y[5], y[2], y[6],
-                      y[3], y[7], y[0]], 'b.-')
+                      y[3], y[7], y[0]], fmt_defo)
             plt.plot([x[8]], [y[8]], 'b.-')
 
         plt.axis('equal')
@@ -1188,7 +1190,7 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
             x = ex+sfac*ed[[0, 2, 4, 6, 8, 10]]
             y = ey+sfac*ed[[1, 3, 5, 7, 9, 11]]
             plt.plot([x[0], x[3], x[1], x[4], x[2], x[5], x[0]],
-                     [y[0], y[3], y[1], y[4], y[2], y[5], y[0]], 'b.-')
+                     [y[0], y[3], y[1], y[4], y[2], y[5], y[0]], fmt_defo)
 
         plt.axis('equal')
 
@@ -1207,9 +1209,9 @@ def _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
         print(f'\nWarning! Elements not supported yet. nen: {nen}; must be: 2, 3, 4, 8.')  # noqa: E501
 
 
-def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
-                       endDispFlag, fmt_interp, fmt_nodes, az_el, fig_wi_he,
-                       fig_lbrt):
+def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_defo, fmt_undefo,
+                       interpFlag, endDispFlag, fmt_interp, fmt_nodes, az_el,
+                       fig_wi_he, fig_lbrt):
 
     ele_tags = ops.getEleTags()
 
@@ -1299,22 +1301,6 @@ def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
                 if endDispFlag:
                     xd, yd, zd = beam_disp_ends3d(ex, ey, ez, ed, sfac)
                     ax.plot(xd, yd, zd, fmt_nodes)
-
-        # # work-around fix because of aspect equal bug
-        # xmin, xmax = ax.get_xlim()
-        # ymin, ymax = ax.get_ylim()
-        # zmin, zmax = ax.get_zlim()
-
-        # min_overall = np.amax([np.abs(xmin), np.abs(ymin), np.abs(zmin)])
-        # max_overall = np.amax([np.abs(xmax), np.abs(ymax), np.abs(zmax)])
-
-        # minmax_overall = max(min_overall, max_overall)
-        # _max_overall = 1.1 * minmax_overall
-        # _min_overall = -1.1 * minmax_overall
-        # ax.set_xlim(_min_overall, _max_overall)
-        # ax.set_ylim(_min_overall, _max_overall)
-        # # ax.set_zlim(_min_overall, _max_overall)
-        # ax.set_zlim(0.0, _max_overall)
 
     # plot: quad in 3d
     elif nen == 4:
@@ -1521,29 +1507,16 @@ def _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
             ax.plot([x[3], x[7]],
                     [y[3], y[7]],
                     [z[3], z[7]], 'b.-')
-            # ax.axis('equal')
 
-        # work-around fix because of aspect equal bug
-        xmin, xmax = ax.get_xlim()
-        ymin, ymax = ax.get_ylim()
-        zmin, zmax = ax.get_zlim()
-
-        min_overall = np.amax([np.abs(xmin), np.abs(ymin), np.abs(zmin)])
-        max_overall = np.amax([np.abs(xmax), np.abs(ymax), np.abs(zmax)])
-
-        minmax_overall = max(min_overall, max_overall)
-        _min_overall = -1.1 * minmax_overall
-        _max_overall = 1.1 * minmax_overall
-        ax.set_xlim(0.3*_min_overall, 0.3*_max_overall)
-        ax.set_ylim(0.3*_min_overall, 0.3*_max_overall)
-        # ax.set_zlim(_min_overall, _max_overall)
-        ax.set_zlim(0.0, _max_overall)
+    ax.set_box_aspect((np.ptp(ax.get_xlim3d()),
+                       np.ptp(ax.get_ylim3d()),
+                       np.ptp(ax.get_zlim3d())))
 
 
-def plot_defo(sfac=False, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
-              interpFlag=1, endDispFlag=0, fmt_interp=fmt_interp,
-              fmt_nodes=fmt_nodes, Eo=0, az_el=az_el, fig_wi_he=fig_wi_he,
-              fig_lbrt=fig_lbrt):
+def plot_defo(sfac=False, nep=17, unDefoFlag=1, fmt_defo=fmt_defo,
+              fmt_undefo=fmt_undefo, interpFlag=1, endDispFlag=0,
+              fmt_interp=fmt_interp, fmt_nodes=fmt_nodes, Eo=0, az_el=az_el,
+              fig_wi_he=fig_wi_he, fig_lbrt=fig_lbrt):
     """Plot deformed shape of the structure.
 
     Args:
@@ -1614,7 +1587,7 @@ def plot_defo(sfac=False, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
 sfac value yourself.
 This usually happens when translational DOFs are too small\n\n""")
 
-        _plot_defo_mode_2d(0, sfac, nep, unDefoFlag, fmt_undefo,
+        _plot_defo_mode_2d(0, sfac, nep, unDefoFlag, fmt_defo, fmt_undefo,
                            interpFlag, endDispFlag, fmt_interp,
                            fmt_nodes)
 
@@ -1645,7 +1618,7 @@ This usually happens when translational DOFs are too small\n\n""")
             edmax = max(max_ux, max_uy, max_uz)
             sfac = ratio * dlmax/edmax
 
-        _plot_defo_mode_3d(0, sfac, nep, unDefoFlag, fmt_undefo,
+        _plot_defo_mode_3d(0, sfac, nep, unDefoFlag, fmt_defo, fmt_undefo,
                            interpFlag, endDispFlag, fmt_interp,
                            fmt_nodes, az_el, fig_wi_he, fig_lbrt)
 
@@ -1655,9 +1628,9 @@ This usually happens when translational DOFs are too small\n\n""")
     return sfac
 
 
-def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
-                  endDispFlag, fmt_interp, fmt_nodes, fig_wi_he, xlim, ylim,
-                  lw):
+def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_defo, fmt_undefo,
+                  interpFlag, endDispFlag, fmt_interp, fmt_nodes, fig_wi_he,
+                  xlim, ylim, lw):
 
     fig_wi, fig_he = fig_wi_he
     ele_tags = ops.getEleTags()
@@ -1844,10 +1817,11 @@ def _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo, interpFlag,
     return anim
 
 
-def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
-              interpFlag=1, endDispFlag=1, fmt_interp=fmt_interp,
-              fmt_nodes='b-', Eo=0, az_el=az_el, fig_wi_he=fig_wi_he,
-              fig_lbrt=fig_lbrt, xlim=[0, 1], ylim=[0, 1], lw=3.):
+def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmt_defo=fmt_defo,
+              fmt_undefo=fmt_undefo, interpFlag=1, endDispFlag=1,
+              fmt_interp=fmt_interp, fmt_nodes='b-', Eo=0, az_el=az_el,
+              fig_wi_he=fig_wi_he, fig_lbrt=fig_lbrt, xlim=[0, 1], ylim=[0, 1],
+              lw=3.):
     """Make animation of a mode shape obtained from eigenvalue solution.
 
     Args:
@@ -1942,9 +1916,9 @@ def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
             edmax = max(max_ux, max_uy)
             sfac = ratio * dlmax/edmax
 
-        anim = _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo,
-                             interpFlag, endDispFlag, fmt_interp, fmt_nodes,
-                             fig_wi_he, xlim, ylim, lw)
+        anim = _anim_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_defo,
+                             fmt_undefo, interpFlag, endDispFlag, fmt_interp,
+                             fmt_nodes, fig_wi_he, xlim, ylim, lw)
 
     # elif ndim == 3:
     #     if not sfac:
@@ -1973,9 +1947,9 @@ def anim_mode(modeNo, sfac=False, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
     #         edmax = max(max_ux, max_uy, max_uz)
     #         sfac = ratio * dlmax/edmax
 
-    #     _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_undefo,
-    #                        interpFlag, endDispFlag, fmt_interp, fmt_nodes,
-    #                        Eo, az_el, fig_wi_he, fig_lbrt)
+    #     _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_defo,
+    #                        fmt_undefo, interpFlag, endDispFlag, fmt_interp,
+    #                         fmt_nodes, Eo, az_el, fig_wi_he, fig_lbrt)
 
     else:
         print(f'\nWarning! ndim: {ndim} not supported yet.')
@@ -2059,7 +2033,7 @@ def plot_mode_shape(modeNo, sfac=False, nep=17, unDefoFlag=1,
             edmax = max(max_ux, max_uy)
             sfac = ratio * dlmax/edmax
 
-        _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_undefo,
+        _plot_defo_mode_2d(modeNo, sfac, nep, unDefoFlag, fmt_defo, fmt_undefo,
                            interpFlag, endDispFlag, fmt_interp, fmt_nodes)
 
     elif ndim == 3:
@@ -2089,7 +2063,7 @@ def plot_mode_shape(modeNo, sfac=False, nep=17, unDefoFlag=1,
             edmax = max(max_ux, max_uy, max_uz)
             sfac = ratio * dlmax/edmax
 
-        _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_undefo,
+        _plot_defo_mode_3d(modeNo, sfac, nep, unDefoFlag, fmt_defo, fmt_undefo,
                            interpFlag, endDispFlag, fmt_interp, fmt_nodes,
                            az_el, fig_wi_he, fig_lbrt)
 
@@ -2247,8 +2221,8 @@ def plot_fiber_section(fib_sec_list, fillflag=1,
     """Plot fiber cross-section.
 
     Args:
-        fib_sec_list (list): list of lists in the format similar to the input
-            given for in
+        fib_sec_list (list): list of lists in the format similar to the parameters
+            for the section, layer, patch, fiber OpenSees commands
 
         fillflag (int): 1 - filled fibers with color specified in matcolor
             list, 0 - no color, only the outline of fibers
@@ -2299,7 +2273,8 @@ def plot_fiber_section(fib_sec_list, fillflag=1,
                     bar = Circle((zi, yi), r, ec='k', fc='k', zorder=10)
                     ax.add_patch(bar)
 
-        if item[0] == 'patch':
+        if (item[0] == 'patch' and (item[1] == 'quad' or item[1] == 'quadr' or
+                                  item[1] == 'rect')):
             matTag, nIJ, nJK = item[2], item[3], item[4]
 
             if item[1] == 'quad' or item[1] == 'quadr':
@@ -2350,6 +2325,28 @@ def plot_fiber_section(fib_sec_list, fillflag=1,
                 # vertical lines
                 for az, bz, ay, by in zip(JKz, ILz, JKy, ILy):
                     plt.plot([az, bz], [ay, by], 'b-', zorder=1)
+
+        if item[0] == 'patch' and item[1] == 'circ':
+            matTag, nc, nr = item[2], item[3], item[4]
+
+            yC, zC, ri, re = item[5], item[6], item[7], item[8]
+            a0, a1 = item[9], item[10]
+
+            dr = (re - ri) / nr
+            dth = (a1 - a0) / nc
+
+            for j in range(nr):
+                rj = ri + j * dr
+                rj1 = rj + dr
+
+                for i in range(nc):
+                    thi = a0 + i * dth
+                    thi1 = thi + dth
+                    wedge = Wedge((yC, zC), rj1, thi, thi1, width=dr, ec='k',
+                                  lw=1, fc=matcolor[matTag-1])
+                    ax.add_patch(wedge)
+
+            ax.axis('equal')
 
 
 def fib_sec_list_to_cmds(fib_sec_list):
@@ -2405,7 +2402,7 @@ def fib_sec_list_to_cmds(fib_sec_list):
                 ops.patch('rect', matTag, nIJ, nJK, Iy, Iz, Ky, Kz)
 
 
-def _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmt_undefo,
+def _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmt_defo, fmt_undefo,
                   interpFlag, endDispFlag, fmt_interp, fmt_nodes, fig_wi_he,
                   xlim, ylim):
 
@@ -2587,10 +2584,11 @@ time: {timeV[i]:.3f} s')
     return anim
 
 
-def anim_defo(Eds, timeV, sfac, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
-              interpFlag=1, endDispFlag=1, fmt_interp=fmt_interp,
-              fmt_nodes='b-', az_el=az_el, fig_lbrt=fig_lbrt,
-              fig_wi_he=fig_wi_he, xlim=[0, 1], ylim=[0, 1]):
+def anim_defo(Eds, timeV, sfac, nep=17, unDefoFlag=1, fmt_defo=fmt_defo,
+              fmt_undefo=fmt_undefo, interpFlag=1, endDispFlag=1,
+              fmt_interp=fmt_interp, fmt_nodes='b-', az_el=az_el,
+              fig_lbrt=fig_lbrt, fig_wi_he=fig_wi_he, xlim=[0, 1],
+              ylim=[0, 1]):
     """Make animation of the deformed shape computed by transient analysis
 
     Args:
@@ -2637,9 +2635,9 @@ def anim_defo(Eds, timeV, sfac, nep=17, unDefoFlag=1, fmt_undefo=fmt_undefo,
     ndim = np.shape(ops.nodeCoord(node_tags[0]))[0]
 
     if ndim == 2:
-        anim = _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmt_undefo,
-                             interpFlag, endDispFlag, fmt_interp, fmt_nodes,
-                             fig_wi_he, xlim, ylim)
+        anim = _anim_defo_2d(Eds, timeV, sfac, nep, unDefoFlag, fmt_defo,
+                             fmt_undefo, interpFlag, endDispFlag, fmt_interp,
+                             fmt_nodes, fig_wi_he, xlim, ylim)
 
     else:
         print(f'\nWarning! ndim: {ndim} not supported yet.')
