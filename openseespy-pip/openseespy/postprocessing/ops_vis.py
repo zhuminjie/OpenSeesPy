@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.patches import Circle, Polygon, Wedge
-# from matplotlib.collections import PatchCollection
 from matplotlib.animation import FuncAnimation
 import matplotlib.tri as tri
 
@@ -2271,6 +2270,22 @@ def plot_fiber_section(fib_sec_list, fillflag=1,
                 Z = np.linspace(Iz, Jz, n_bars)
                 for zi, yi in zip(Z, Y):
                     bar = Circle((zi, yi), r, ec='k', fc='k', zorder=10)
+                    ax.add_patch(bar)
+            if item[1] == 'circ':
+                n_bars, As = item[3], item[4]
+                yC, zC, arc_radius = item[5], item[6], item[7]
+                if len(item) > 8:
+                    a0_deg, a1_deg = item[8], item[9]
+                else:
+                    a0_deg, a1_deg = 0., 360. - 360./n_bars
+
+                a0_rad, a1_rad = np.pi * a0_deg / 180., np.pi * a1_deg / 180.
+                r_bar = np.sqrt(As / np.pi)
+                thetas = np.linspace(a0_rad, a1_rad, n_bars)
+                Y = yC + arc_radius * np.cos(thetas)
+                Z = zC + arc_radius * np.sin(thetas)
+                for zi, yi in zip(Z, Y):
+                    bar = Circle((zi, yi), r_bar, ec='k', fc='k', zorder=10)
                     ax.add_patch(bar)
 
         if (item[0] == 'patch' and (item[1] == 'quad' or item[1] == 'quadr' or
