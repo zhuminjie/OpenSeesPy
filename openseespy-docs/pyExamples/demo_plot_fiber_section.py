@@ -65,4 +65,25 @@ opsv.plot_fiber_section(fib_sec_2, matcolor=matcolor)
 plt.axis('equal')
 # plt.savefig('fibsec_rc.png')
 
+# circular cross-section
+nc1, nr1 = 8, 3
+nc2, nr2 = 8, 2
+ri1, re1 = 0.1, 0.2
+ri2, re2 = 0.2, 0.25
+a_beg, a_end = 0., 360.
+rbar3 = 0.225
+a_beg2, a_end2 = 0., 360.
+
+fib_sec_3 = [['section', 'Fiber', 1, '-GJ', 1.0e6],
+             ['patch', 'circ', 2, nc1, nr1, 0., 0., ri1, re1, a_beg, a_end],
+             ['patch', 'circ', 3, nc2, nr2, 0., 0., ri2, re2, a_beg, a_end],
+             ['layer', 'circ', 4, 6, As9, 0., 0., rbar3, a_beg2, a_end2],
+             ]
+
+
+matcolor = ['r', 'lightgrey', 'gold', 'w', 'w', 'w']
+opsv.plot_fiber_section(fib_sec_3, matcolor=matcolor)
+plt.axis('equal')
+# plt.savefig('fibsec_circ.png')
+
 plt.show()

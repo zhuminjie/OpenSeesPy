@@ -12,6 +12,7 @@ The model or domain in OpenSees is a collection (an aggregation in object-orient
 #. :doc:`node`
 #. :doc:`SP_Constraint`
 #. :doc:`mp_constraint`
+#. :doc:`pc`
 #. :doc:`timeSeries`
 #. :doc:`pattern`
 #. :doc:`mass`
@@ -35,6 +36,7 @@ The model or domain in OpenSees is a collection (an aggregation in object-orient
    node
    SP_Constraint
    mp_constraint
+   pc
    timeSeries
    pattern
    mass

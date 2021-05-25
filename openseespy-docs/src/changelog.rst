@@ -4,6 +4,15 @@
   Change Log
 ==============
 
+* **Version 3.2.2.9** (1/28/2021)
+
+  * The pip installation will only install needed libraries based on the
+    Operating System, i.e. Windows, Linux, or Mac. The installation time
+    and size are now one third of before.
+  * Bug fixes for Pinching4Material, Concrete07, H5DRM,
+    RCCircularSectionIntegration, ResponseSpectrumAnalysis,
+    PML, FiberSection2d, DriftRecorder,
+
 * **Version 3.2.2.8** (1/8/2021)
 
   * Linux version is tested with Centos 7, 8, Ubuntu 18.04, 20.04, Fedora, and Debian.
