@@ -4,7 +4,7 @@
  Newmark Method
 ================
 
-.. function:: integrator('Newmark',gamma,beta,'-formD', form)
+.. function:: integrator('Newmark',gamma,beta,'-form', form)
    :noindex:
 
    Create a Newmark integrator.

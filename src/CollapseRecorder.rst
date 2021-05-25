@@ -9,10 +9,10 @@ Collapse Recorder command
    :noindex:
 
    A progressive collapse algorithm is developed by Talaat, M and Mosalam, K.M. in [1-3] and is implemented in
-OpenSeesPy interpreter. The different applications of said algorithm are exemplified in references [4-7].
-This algorithm is developed using element removal which relies on the dynamic equilibrium and the subsequent
-transient change in the system kinematics. The theoretical background of the routine is detailed in the references
-mentioned herein.
+   OpenSeesPy interpreter. The different applications of said algorithm are exemplified in references [4-7].
+   This algorithm is developed using element removal which relies on the dynamic equilibrium and the subsequent
+   transient change in the system kinematics. The theoretical background of the routine is detailed in the references
+   mentioned herein.
 
 
    ===========================   =====================================================================================================================================================

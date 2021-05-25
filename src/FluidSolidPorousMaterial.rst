@@ -4,10 +4,10 @@
  FluidSolidPorousMaterial
 ============================
 
-.. function:: nDMaterial('FluidSolidPorousMaterial', matTag, nd, soilMatTag, combinedBulkModul, pa=101.0)
+.. function:: nDMaterial('FluidSolidPorous', matTag, nd, soilMatTag, combinedBulkModul, pa=101.0)
    :noindex:
 
-   FluidSolidPorousMaterial couples the responses of two phases: fluid and solid. The fluid phase response is only volumetric and linear elastic. The solid phase can be any NDMaterial. This material is developed to simulate the response of saturated porous media under fully undrained condition.
+   FluidSolidPorous material couples the responses of two phases: fluid and solid. The fluid phase response is only volumetric and linear elastic. The solid phase can be any NDMaterial. This material is developed to simulate the response of saturated porous media under fully undrained condition.
 
    ================================   ===========================================================================
    ``matTag`` |int|                   integer tag identifying material

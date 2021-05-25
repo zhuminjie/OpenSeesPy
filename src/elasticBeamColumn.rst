@@ -28,8 +28,8 @@ This command is used to construct an elasticBeamColumn element object. The argum
    ``E_mod`` |float|                     Young's Modulus
    ``G_mod`` |float|                     Shear Modulus
    ``Jxx`` |float|                       torsional moment of inertia of cross section
-   ``Iz`` |float|                        second moment of area about the local z-axis
    ``Iy`` |float|                        second moment of area about the local y-axis
+   ``Iz`` |float|                        second moment of area about the local z-axis
    ``transfTag`` |int|                   identifier for previously-defined coordinate-transformation (CrdTransf) object
    ``mass`` |float|                      element mass per unit length (optional, default = 0.0)
    ``'-cMass'`` |str|                    to form consistent mass matrix (optional, default = lumped mass matrix)

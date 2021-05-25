@@ -12,20 +12,20 @@
    ``secType`` |str|                     tag for the transverse reinforcement configuration.
                                          see image below.
 
-                                         * ``'S1'`` square section with S1 type of transverse reinforcement with or without external FRP wrapping
-                                         * ``'S2'`` square section with S2 type of transverse reinforcement with or without external FRP wrapping
-                                         * ``'S3'`` square section with S3 type of transverse reinforcement with or without external FRP wrapping
-                                         * ``'S4a'`` square section with S4a type of transverse reinforcement with or without external FRP wrapping
-                                         * ``'S4b'`` square section with S4b type of transverse reinforcement with or without external FRP wrapping
-                                         * ``'S5'`` square section with S5 type of transverse reinforcement with or without external FRP wrapping
-                                         * ``'C'`` circular section with or without external FRP wrapping
-                                         * ``'R'`` rectangular section with or without external FRP wrapping.
+                                         - ``'S1'`` square section with S1 type of transverse reinforcement with or without external FRP wrapping
+                                         - ``'S2'`` square section with S2 type of transverse reinforcement with or without external FRP wrapping
+                                         - ``'S3'`` square section with S3 type of transverse reinforcement with or without external FRP wrapping
+                                         - ``'S4a'`` square section with S4a type of transverse reinforcement with or without external FRP wrapping
+                                         - ``'S4b'`` square section with S4b type of transverse reinforcement with or without external FRP wrapping
+                                         - ``'S5'`` square section with S5 type of transverse reinforcement with or without external FRP wrapping
+                                         - ``'C'`` circular section with or without external FRP wrapping
+                                         - ``'R'`` rectangular section with or without external FRP wrapping.
 
    ``fpc`` |float|                       unconfined cylindrical strength of concrete specimen.
    ``Ec`` |float|                        initial elastic modulus of unconfined concrete.
    ``epscu_type`` |str|                  Method to define confined concrete ultimate strain
-                                         * ``-epscu`` then value is confined concrete ultimate strain,
-                                         * ``-gamma`` then value is the ratio of the strength corresponding to ultimate
+                                         - ``-epscu`` then value is confined concrete ultimate strain,
+                                         - ``-gamma`` then value is the ratio of the strength corresponding to ultimate
                                          strain to the peak strength of the confined concrete
                                          stress-strain curve. If ``gamma`` cannot be achieved
                                          in the range [0, epscuLimit] then epscuLimit
@@ -33,11 +33,11 @@
                                          ultimate strain.
    ``epscu_val`` |float|                 Value for the definition of the concrete ultimate strain
    ``nu`` |str| or |list|                Definition for Poisson's Ratio.
-                                         * ``*['-nu', <value of Poisson's ratio>]``
-                                         * ``'-varub'`` Poisson's ratio is defined as a function of axial
+                                         - ``['-nu', <value of Poisson's ratio>]``
+                                         - ``'-varub'`` Poisson's ratio is defined as a function of axial
                                          strain by means of the expression proposed by Braga et al. (2006) with the
                                          upper bound equal to 0.5
-                                         *``'-varnoub'`` Poisson's ratio is defined as a function of axial
+                                         -``'-varnoub'`` Poisson's ratio is defined as a function of axial
                                          strain by means of the expression proposed by Braga
                                          et al. (2006) without any upper bound.
    ``L1`` |float|                        length/diameter of square/circular core section
@@ -62,17 +62,17 @@
                                          strengthened with FRP wraps.
 
 
-                                         * ``cover`` cover thickness measured from the outer line of hoop.
-                                         * ``Am`` total area of FRP wraps (number of layers x wrap thickness x wrap width).
-                                         * ``Sw`` spacing of FRP wraps (if continuous wraps are used the spacing is equal to the wrap width).
-                                         * ``ful`` ultimate strength of FRP wraps.
-                                         * ``Es0w`` elastic modulus of FRP wraps.
+                                         - ``cover`` cover thickness measured from the outer line of hoop.
+                                         - ``Am`` total area of FRP wraps (number of layers x wrap thickness x wrap width).
+                                         - ``Sw`` spacing of FRP wraps (if continuous wraps are used the spacing is equal to the wrap width).
+                                         - ``ful`` ultimate strength of FRP wraps.
+                                         - ``Es0w`` elastic modulus of FRP wraps.
    ``'-gravel'`` |str|                   Unknown
    ``'-silica'`` |str|                   Unknown
    ``tol``       |float|                 Unknown
    ``maxNumIter`` |int|                  Unknown
    ``epscuLimit`` |float|                Unknown
-   ``stRatio``   |unk|                   Unknown
+   ``stRatio``                           Unknown
    ===================================   ===========================================================================
 
 .. image:: /_static/545px-SectionTypes.png

@@ -19,7 +19,16 @@
    ``filename`` |str|         input data file, one force per line
    ``dt`` |float|             time step for analysis
    ``uresidual`` |float|      residual displacement at the end of previous analysis
-                              (optional)
-   ``umaxprev`` |float|       revious displacement (optional)
+                              (optional, default=0)
+   ``umaxprev`` |float|       previous displacement (optional, default=0)
    ========================   =============================================================
 
+   The command returns a list of five response quantities.
+   
+   ========================   =============================================================
+   ``umax`` |float|           maximum displacement during analysis
+   ``u`` |float|              displacement at end of analysis
+   ``up`` |float|             permanent residual displacement at end of analysis
+   ``amax`` |float|           maximum acceleration during analysis
+   ``tamax`` |float|          time when maximum accleration occurred
+   ========================   =============================================================
