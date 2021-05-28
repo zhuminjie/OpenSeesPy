@@ -165,5 +165,8 @@ if __name__ == "__main__":
             test_platform = sys.argv[i]
         elif sys.argv[i].startswith('v'):
             version = sys.argv[i][1:]
+        elif sys.argv[i] == 'clear':
+            subprocess.run(['docker',
+                            'system', 'prune', '-a', ])
 
     build_docker(version, tag, upload, test_platform, test_type, push)
