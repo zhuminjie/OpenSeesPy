@@ -32,6 +32,8 @@ def update_version(version):
 
     # commit pip version
     subprocess.run(['git', 'add', 'openseespy-pip'])
+    subprocess.run(['git', 'add', 'openseespylinux-pip'])
+    subprocess.run(['git', 'add', 'openseespywin-pip'])
     subprocess.run(['git', 'commit', '-m',
                     f'update version {version}'])
 
