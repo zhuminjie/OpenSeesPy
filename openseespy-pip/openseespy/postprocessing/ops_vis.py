@@ -2902,7 +2902,7 @@ def section_force_diagram_2d(sf_type, Ew, sfac=1., nep=17,
 
 
 def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17,
-                             fmt_secforce=fmt_secforce):
+                             fmt_secforce=fmt_secforce, dir_plt=0):
     """Display section forces diagram of a 3d beam column model.
 
     This function plots section forces diagrams for 3d beam column elements
@@ -2928,6 +2928,11 @@ def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17,
             curve. The format contains information on line color, style and
             marks as in the standard matplotlib plot function.
             (default: fmt_secforce = 'b-'  # blue solid line)
+        
+        dir_plt {0, 1, 3}: direction in which to plot the load effects:
+            0 (default) - as defined in the code for each load effect type
+            1 - in the y-axis (default for N, Vy, T, Mz)
+            2 - in the z-axis (default for Vz, My)
 
     Usage:
     ::
@@ -2999,22 +3004,25 @@ def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17,
         # 1:'y' 2:'z'
         if sf_type == 'N':
             s = s_all[:, 0]
-            dir_plt = 1
+            dir_plt_tmp = 1
         elif sf_type == 'Vy':
             s = s_all[:, 1]
-            dir_plt = 1
+            dir_plt_tmp = 1
         elif sf_type == 'Vz':
             s = s_all[:, 2]
-            dir_plt = 2
+            dir_plt_tmp = 2
         elif sf_type == 'T':
             s = s_all[:, 3]
-            dir_plt = 1
+            dir_plt_tmp = 1
         elif sf_type == 'My':
             s = s_all[:, 4]
-            dir_plt = 2
+            dir_plt_tmp = 2
         elif sf_type == 'Mz':
             s = s_all[:, 5]
-            dir_plt = 1
+            dir_plt_tmp = 1
+        
+        if dir_plt == 0:
+            dir_plt = dir_plt_tmp
 
         minVal = min(minVal, np.min(s))
         maxVal = max(maxVal, np.max(s))
