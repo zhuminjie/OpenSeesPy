@@ -2929,7 +2929,7 @@ def section_force_diagram_3d(sf_type, Ew, sfac=1., nep=17,
             marks as in the standard matplotlib plot function.
             (default: fmt_secforce = 'b-'  # blue solid line)
         
-        dir_plt {0, 1, 3}: direction in which to plot the load effects:
+        dir_plt {0, 1, 2}: direction in which to plot the load effects:
             0 (default) - as defined in the code for each load effect type
             1 - in the y-axis (default for N, Vy, T, Mz)
             2 - in the z-axis (default for Vz, My)
