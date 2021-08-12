@@ -20,7 +20,7 @@ if sys.platform.startswith('win'):
             from openseespywin.opensees import *
             from openseespywin.version import *
         except:
-            raise RuntimeError('Failed to import openseespy on Linux.')
+            raise RuntimeError('Failed to import openseespy on Windows.')
     else:
         raise RuntimeError(
             'Python version 3.8 is needed for Windows')
