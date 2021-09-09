@@ -184,6 +184,7 @@ Quadrilateral Elements
 #. :doc:`enhancedQuad`
 #. :doc:`SSPquad`
 #. :doc:`MVLEM_3D`
+#. :doc:`SFI_MVLEM_3D`
 
 .. toctree::
    :maxdepth: 2
@@ -200,6 +201,7 @@ Quadrilateral Elements
    enhancedQuad
    SSPquad
    MVLEM_3D
+   SFI_MVLEM_3D
 
 
 Triangular Elements

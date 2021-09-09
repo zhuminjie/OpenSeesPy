@@ -4,6 +4,11 @@
   Change Log
 ==============
 
+* **Version 3.3.0.0** (6/4/2021)
+
+  * Update to `3.3.0.0 <https://github.com/OpenSees/OpenSees/releases/tag/v3.3.0>`_ at commit `5c925e6 <https://github.com/OpenSees/OpenSees/commit/5c925e6a24bf3fbda58e57dde32cde658b3c5d5b>`_.
+
+
 * **Version 3.2.2.9** (1/28/2021)
 
   * The pip installation will only install needed libraries based on the

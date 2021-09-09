@@ -29,13 +29,14 @@ Install Anaconda and start Jupyter Notebook
 
   ::
 
-     ~$ wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
+     ~$ wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
+
 
 - Install Anconda Linux version with commands
 
   ::
 
-     ~$ bash Anaconda3-2019.10-Linux-x86_64.sh
+     ~$ bash Anaconda3-2021.05-Linux-x86_64.sh
 
      >>> Please answer 'yes' or 'no':
      >>> yes
@@ -76,7 +77,7 @@ In the command line (optional)
 
   ::
 
-     ~$ /home/username/anaconda3/bin/python3.7
+     ~$ /home/username/anaconda3/bin/python3.8
 
   .. image:: /_static/wslanaconda.png
 
@@ -84,8 +85,8 @@ In the command line (optional)
 
   ::
 
-     ~$ /home/username/anaconda3/bin/python3.7 -m pip install openseespy
-     ~$ /home/username/anaconda3/bin/python3.7 -m pip install --upgrade openseespy
+     ~$ /home/username/anaconda3/bin/python3.8 -m pip install openseespy
+     ~$ /home/username/anaconda3/bin/python3.8 -m pip install --upgrade openseespy
 
   .. image:: /_static/wslinstall.png
 
@@ -95,7 +96,7 @@ In the command line (optional)
 
   ::
 
-     ~$ /home/username/anaconda3/bin/python3.7
+     ~$ /home/username/anaconda3/bin/python3.8
 
   Then import OpenSeesPy with
 
@@ -112,5 +113,5 @@ In the command line (optional)
 
      ::
 
-          /home/username/anaconda3/bin/python3.7 script.py
+          /home/username/anaconda3/bin/python3.8 script.py
 

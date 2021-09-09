@@ -42,6 +42,7 @@ The following contain information about available ``matType``:
 #. :doc:`FSAM`
 #. :doc:`ManzariDafalias`
 #. :doc:`PM4Sand`
+#. :doc:`PM4Silt`
 #. :doc:`StressDensityModel`
 #. :doc:`AcousticMedium`
 
