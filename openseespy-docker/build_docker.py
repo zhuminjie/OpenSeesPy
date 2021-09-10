@@ -109,10 +109,10 @@ def build_docker(version, setup, compile, upload, test_platform, test_type, push
                         'build', '--target', 'ubuntu-notebook',
                         '-t', f'zhuminjie/openseespy:{version}-notebook', '.'])
         subprocess.run(['docker', 'login'])
-        subprocess.run(['docker', 'image',
-                        'push', tag_openseespy])
-        subprocess.run(['docker', 'image',
-                        'push', tag_notebook])
+        # subprocess.run(['docker', 'image',
+        #                 'push', tag_openseespy])
+        # subprocess.run(['docker', 'image',
+        #                 'push', tag_notebook])
 
 
 # commands:
@@ -141,6 +141,9 @@ def build_docker(version, setup, compile, upload, test_platform, test_type, push
 #
 # test the package from pypi
 # build_docker test
+#
+# clear the docker
+# build_docker clear
 #
 # test the package on a platform
 # build_docker test-all
