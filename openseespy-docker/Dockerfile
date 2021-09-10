@@ -28,7 +28,7 @@ RUN yum update -y && \
     MPICHLIB_CXXFLAGS='-O3 -fPIC' \
     MPICHLIB_FCFLAGS='-O3 -fPIC' \
     --enable-shared=no && \
-    make -j && \
+    make -j4 && \
     make install
 
 ########################################################
@@ -52,15 +52,19 @@ RUN cd /home && \
 ########################################################
 
 ########################################################
-## compile openseespy
-FROM centos-petsc AS centos-openseespy
+## get openseespy code
+FROM centos-petsc AS centos-openseespy-code
 
 WORKDIR /home
 COPY opensees /home/opensees
 COPY Makefile.def /home/opensees/
 
+########################################################
+## compile openseespy
+FROM centos-openseespy-code AS centos-openseespy
+
 WORKDIR /home/opensees
-RUN make python -j
+RUN make python -j4
 ########################################################
 
 ########################################################

@@ -5,7 +5,7 @@ import os.path
 import sys
 
 
-def build_docker(version, tag, upload, test_platform, test_type, push):
+def build_docker(version, setup, compile, upload, test_platform, test_type, push):
 
     # change to script's folder
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -30,8 +30,8 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
     with open('openseespylinux-pip/openseespylinux/version.py', 'w') as fd:
         fd.write(f'version = "{version}"')
 
-    # tag
-    if tag:
+    # setup environment
+    if setup:
         subprocess.run(['docker',
                         'build', '--target', 'centos-packages',
                         '-t', f'centos-packages', '.'])
@@ -39,38 +39,44 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
                         'build', '--target', 'centos-petsc',
                         '-t', f'centos-petsc', '.'])
         subprocess.run(['docker',
+                        'build', '--target', 'centos-openseespy-code',
+                        '-t', f'centos-openseespy-code:{version}', '.'])
+    
+    # compile
+    if compile:
+      subprocess.run(['docker',
                         'build', '--target', 'centos-openseespy',
                         '-t', f'centos-openseespy:{version}', '.'])
-        subprocess.run(['docker',
+      subprocess.run(['docker',
                         'build', '--target', 'centos-pip',
                         '-t', f'centos-pip:{version}', '.'])
-        subprocess.run(['docker',
+      subprocess.run(['docker',
                         'build', '--target', 'centos-pip-bash',
                         '-t', f'centos-pip-bash', '.'])
-        subprocess.run(['docker',
+      subprocess.run(['docker',
                         'build', '--target', 'test-centos-7.5.1804',
                         '-t', f'test-centos-7.5.1804', '.'])
-        subprocess.run(['docker',
-                        'build', '--target', 'test-centos-7',
-                        '-t', f'test-centos-7', '.'])
-        subprocess.run(['docker',
-                        'build', '--target', 'test-centos-8',
-                        '-t', f'test-centos-8', '.'])
-        subprocess.run(['docker',
-                        'build', '--target', 'test-ubuntu-16.04',
-                        '-t', f'test-ubuntu-16.04', '.'])
-        subprocess.run(['docker',
-                        'build', '--target', 'test-ubuntu-18.04',
-                        '-t', f'test-ubuntu-18.04', '.'])
-        subprocess.run(['docker',
-                        'build', '--target', 'test-ubuntu-20.04',
-                        '-t', f'test-ubuntu-20.04', '.'])
-        subprocess.run(['docker',
-                        'build', '--target', 'test-debian',
-                        '-t', f'test-debian', '.'])
-        subprocess.run(['docker',
-                        'build', '--target', 'test-fedora',
-                        '-t', f'test-fedora', '.'])
+      subprocess.run(['docker',
+                      'build', '--target', 'test-centos-7',
+                      '-t', f'test-centos-7', '.'])
+      subprocess.run(['docker',
+                      'build', '--target', 'test-centos-8',
+                      '-t', f'test-centos-8', '.'])
+      subprocess.run(['docker',
+                      'build', '--target', 'test-ubuntu-16.04',
+                      '-t', f'test-ubuntu-16.04', '.'])
+      subprocess.run(['docker',
+                      'build', '--target', 'test-ubuntu-18.04',
+                      '-t', f'test-ubuntu-18.04', '.'])
+      subprocess.run(['docker',
+                      'build', '--target', 'test-ubuntu-20.04',
+                      '-t', f'test-ubuntu-20.04', '.'])
+      subprocess.run(['docker',
+                      'build', '--target', 'test-debian',
+                      '-t', f'test-debian', '.'])
+      subprocess.run(['docker',
+                      'build', '--target', 'test-fedora',
+                      '-t', f'test-fedora', '.'])
 
     # upload
     if upload:
@@ -119,7 +125,10 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
 # build_docker v#.#.#.#
 #
 # create all docker images needed
-# build_docker tag
+# build_docker setup
+#
+# compile openseespy and build pip
+# build_docker compile
 #
 # upload the package to testpypi
 # build_docker upload-test
@@ -147,7 +156,8 @@ def build_docker(version, tag, upload, test_platform, test_type, push):
 if __name__ == "__main__":
     # version, tag, upload, test_platform, test_type, push
     version = None
-    tag = False
+    setup = False
+    compile = False
     upload = False
     test_platform = None
     test_type = 'test-test'
@@ -155,8 +165,10 @@ if __name__ == "__main__":
     for i in range(1, len(sys.argv)):
         if sys.argv[i] == 'push':
             push = True
-        elif sys.argv[i] == 'tag':
-            tag = True
+        elif sys.argv[i] == 'setup':
+            setup = True
+        elif sys.argv[i] == 'compile':
+            compile = True
         elif sys.argv[i] == 'test':
             test_type = 'test'
         elif sys.argv[i].startswith('upload'):
@@ -169,4 +181,4 @@ if __name__ == "__main__":
             subprocess.run(['docker',
                             'system', 'prune', '-a', ])
 
-    build_docker(version, tag, upload, test_platform, test_type, push)
+    build_docker(version, setup, compile, upload, test_platform, test_type, push)
