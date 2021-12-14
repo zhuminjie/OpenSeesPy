@@ -14,7 +14,7 @@ The SFI-MVLEM-3D model (Figure 1a) is a three-dimensional four-node element with
 
 This element shall be used in Domain defined with **-ndm 3 -ndf 6**.
 
-.. figure:: SFI_MVLEM_3D_formulation.jpg
+.. figure:: SFI_MVLEM_3D_formulation.JPG
 	:align: center
 	:figclass: align-center
 
