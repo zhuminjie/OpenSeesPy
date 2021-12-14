@@ -22,4 +22,4 @@ CoupledZeroLength Element
 .. seealso::
 
 
-   `Notes <dhttp://opensees.berkeley.edu/wiki/index.php/CoupledZeroLength_Element>`_
+   `Notes <http://opensees.berkeley.edu/wiki/index.php/CoupledZeroLength_Element>`_

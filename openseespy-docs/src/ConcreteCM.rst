@@ -4,7 +4,7 @@
  ConcreteCM
 ==================
 
-.. function:: uniaxialMaterial('ConcreteCM', matTag, fpcc, epcc, Ec, rc, xcrn, ft, et, rt, xcrp, '-GapClose', GapClose=0)
+.. function:: uniaxialMaterial('ConcreteCM', matTag, fpcc, epcc, Ec, rc, xcrn, ft, et, rt, xcrp, mon, '-GapClose', GapClose=0)
    :noindex:
 
    This command is used to construct a uniaxialMaterial ConcreteCM (Kolozvari et al., 2015), which is a uniaxial hysteretic constitutive model for concrete developed by Chang and Mander (1994).
@@ -26,7 +26,9 @@
 					 starts following a straight line - large value
 					 [e.g., 10000] recommended when tension stiffening
 					 is considered)
-   ``GapClose`` |float|                  GapClose = 0, less gradual gap closure (default);
+   ``mon``                               optional, monotonic stress-strain relationship only:  mon=1 (invoked in FSAM only), mon=0 (no impact since monotonic)
+   ``'-GapClose'`` |str|                 optional, denote next parameter is ``GapClose``
+   ``GapClose`` |float|                  optional, GapClose = 0, less gradual gap closure (default);
                                          GapClose = 1, more gradual gap closure
    ===================================   ===========================================================================
 
