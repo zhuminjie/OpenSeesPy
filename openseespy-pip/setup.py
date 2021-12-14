@@ -33,9 +33,9 @@ setuptools.setup(
         'Windows',
         'Mac'],
     install_requires=[
-        'openseespywin>=3.3.0.0; platform_system=="Windows"',
-        'openseespylinux>=3.3.0.0; platform_system=="Linux"',
-        'openseespymac>=3.3.0.0; platform_system=="Darwin"',
+        'openseespywin>=3.3.0.1; platform_system=="Windows"',
+        'openseespylinux>=3.3.0.1; platform_system=="Linux"',
+        'openseespymac>=3.3.0.1; platform_system=="Darwin"',
     ],
     python_requires='>=3.6',
     zip_safe=False)
