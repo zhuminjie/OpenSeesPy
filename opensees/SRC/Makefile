@@ -422,9 +422,9 @@ RECORDER_LIBS = $(FE)/recorder/Recorder.o \
 	$(FE)/recorder/RemoveRecorder.o \
 	$(FE)/recorder/PVDRecorder.o \
 	$(FE)/recorder/GmshRecorder.o \
-	$(FE)/recorder/MPCORecorder.o \
 	$(FE)/recorder/ElementRecorderRMS.o \
 	$(FE)/recorder/NodeRecorderRMS.o \
+	$(FE)/recorder/MPCORecorder.o \
 	$(FE)/recorder/VTK_Recorder.o 
 
 
@@ -472,8 +472,10 @@ ELE_LIBS   =  $(FE)/element/Element.o \
 	$(FE)/element/truss/Truss2.o \
 	$(FE)/element/truss/CorotTruss2.o \
 	$(FE)/element/truss/N4BiaxialTruss.o \
+	$(FE)/element/truss/InertiaTruss.o \
 	$(FE)/element/zeroLength/ZeroLengthContact2D.o \
 	$(FE)/element/zeroLength/ZeroLengthContact3D.o \
+	$(FE)/element/zeroLength/ZeroLengthContactASDimplex.o \
 	$(FE)/element/zeroLength/ZeroLengthContactNTS2D.o \
 	$(FE)/element/zeroLength/ZeroLengthInterface2D.o \
 	$(FE)/element/zeroLength/ZeroLengthRocking.o \
@@ -647,6 +649,8 @@ ELE_LIBS   =  $(FE)/element/Element.o \
 	$(FE)/element/catenaryCable/CatenaryCable.o \
 	$(FE)/element/tetrahedron/FourNodeTetrahedron.o \
 	$(FE)/element/absorbentBoundaries/LysmerTriangle.o \
+	$(FE)/element/absorbentBoundaries/ASDAbsorbingBoundary2D.o \
+	$(FE)/element/absorbentBoundaries/ASDAbsorbingBoundary3D.o \
 	$(FE)/element/UWelements/EmbeddedBeamInterfaceL.o \
 	$(FE)/element/UWelements/EmbeddedBeamInterfaceP.o \
 	$(FE)/element/UWelements/EmbeddedEPBeamInterface.o \
@@ -678,6 +682,7 @@ endif
 ifdef FILIP_FLAG
 	FILIP = $(FE)/element/filip/BeamColumn2DwLHNMYS.o \
 	$(FE)/element/filip/BeamColumn2DwLHNMYS_Damage.o \
+	$(FE)/element/filip/Beam2D_Damage.o \
 	$(FE)/element/filip/BeamColumn3DwLHNMYS.o \
 	$(FE)/element/filip/Damage4NM.o \
 	$(FE)/element/filip/BetaDist.o \
@@ -716,6 +721,7 @@ MATERIAL_LIBS   =  $(FE)/material/Material.o \
 	$(FE)/material/uniaxial/Elastic2Material.o \
 	$(FE)/material/uniaxial/ElasticMultiLinear.o \
 	$(FE)/material/uniaxial/ReinforcingSteel.o \
+	$(FE)/material/uniaxial/SteelDRC.o \
 	$(FE)/material/uniaxial/ElasticPPMaterial.o \
 	$(FE)/material/uniaxial/ElasticBilin.o \
 	$(FE)/material/uniaxial/ElasticPowerFunc.o \
@@ -863,6 +869,7 @@ MATERIAL_LIBS   =  $(FE)/material/Material.o \
 	$(FE)/material/uniaxial/Trilinwp.o \
 	$(FE)/material/uniaxial/Trilinwp2.o \
 	$(FE)/material/uniaxial/SteelFractureDI.o \
+	$(FE)/material/uniaxial/DowelType.o \
 	$(FE)/material/nD/NDMaterial.o \
 	$(FE)/material/nD/PlaneStressLayeredMaterial.o \
 	$(FE)/material/nD/PlaneStressRebarMaterial.o \
@@ -918,6 +925,9 @@ MATERIAL_LIBS   =  $(FE)/material/Material.o \
 	$(FE)/material/nD/UWmaterials/J2CyclicBoundingSurfacePlaneStrain.o \
 	$(FE)/material/nD/UWmaterials/PM4Sand.o \
 	$(FE)/material/nD/UWmaterials/PM4Silt.o \
+	$(FE)/material/nD/UANDESmaterials/SAniSandMS.o \
+	$(FE)/material/nD/UANDESmaterials/SAniSandMS3D.o \
+	$(FE)/material/nD/UANDESmaterials/SAniSandMSPlaneStrain.o \
 	$(FE)/material/nD/LinearCap.o \
 	$(FE)/material/nD/AcousticMedium.o \
 	$(FE)/material/nD/FeapMaterial.o \
@@ -1057,6 +1067,7 @@ SECTION_LIBS = $(FE)/material/section/SectionForceDeformation.o \
 	$(FE)/material/section/integration/WideFlangeSectionIntegration.o \
 	$(FE)/material/section/integration/RCTBeamSectionIntegration.o \
 	$(FE)/material/section/integration/TubeSectionIntegration.o \
+	$(FE)/material/section/integration/HSSSectionIntegration.o \
 	$(FE)/material/section/repres/patch/Patch.o \
 	$(FE)/material/section/repres/patch/QuadPatch.o \
 	$(FE)/material/section/repres/patch/CircPatch.o \
@@ -1077,6 +1088,13 @@ SECTION_LIBS = $(FE)/material/section/SectionForceDeformation.o \
 
 SUPER_LU_OBJ = $(FE)/system_of_eqn/linearSOE/sparseGEN/SuperLU.o 
 
+PETSC_SOE_OBJ = 
+ifeq ($(HAVEPETSC), YES)
+	PETSC_SOE_OBJ = $(FE)/system_of_eqn/linearSOE/petsc/PetscSOE.o \
+		$(FE)/system_of_eqn/linearSOE/petsc/PetscSolver.o \
+		$(FE)/system_of_eqn/linearSOE/petsc/PetscSparseSeqSolver.o 
+endif
+
 ifeq ($(PROGRAMMING_MODE), THREADS)
 SUPER_LU_OBJ = $(FE)/system_of_eqn/linearSOE/sparseGEN/ThreadedSuperLU.o
 endif
@@ -1088,7 +1106,8 @@ SUPER_LU_OBJ = $(FE)/system_of_eqn/linearSOE/sparseGEN/SuperLU.o \
 	$(FE)/system_of_eqn/linearSOE/mumps/MumpsParallelSOE.o \
 	$(FE)/system_of_eqn/linearSOE/mumps/MumpsParallelSolver.o \
 	$(FE)/system_of_eqn/linearSOE/mumps/MumpsSOE.o \
-	$(FE)/system_of_eqn/linearSOE/mumps/MumpsSolver.o
+	$(FE)/system_of_eqn/linearSOE/mumps/MumpsSolver.o \
+	$(PETSC_SOE_OBJ)
 endif
 
 ifeq ($(PROGRAMMING_MODE), PARALLEL_INTERPRETERS)
@@ -1100,6 +1119,8 @@ SUPER_LU_OBJ = $(FE)/system_of_eqn/linearSOE/sparseGEN/SuperLU.o \
 	$(FE)/system_of_eqn/linearSOE/mumps/MumpsSOE.o \
 	$(FE)/system_of_eqn/linearSOE/mumps/MumpsSolver.o
 endif
+
+
 
 CUDA_CLASSES = 
 
@@ -1310,6 +1331,7 @@ ANALYSIS_LIBS = $(FE)/analysis/analysis/Analysis.o \
 	$(FE)/analysis/integrator/IncrementalIntegrator.o \
 	$(FE)/analysis/integrator/StaticIntegrator.o \
 	$(FE)/analysis/integrator/LoadControl.o \
+	$(FE)/analysis/integrator/HarmonicSteadyState.o \
 	$(FE)/analysis/integrator/StagedLoadControl.o \
 	$(FE)/analysis/integrator/StagedNewmark.o \
 	$(FE)/analysis/integrator/EQPath.o \
