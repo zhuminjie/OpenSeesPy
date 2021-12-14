@@ -2,14 +2,16 @@ import setuptools
 
 about = {}
 with open('openseespy/version.py') as fp:
-    exec(fp.read(), about)
+  exec(fp.read(), about)
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+  long_description = fh.read()
+
+version = about['version']
 
 setuptools.setup(
     name="openseespy",
-    version=about['version'],
+    version=version,
     author="Minjie Zhu",
     author_email="zhum@oregonstate.edu",
     description="A OpenSeesPy package",
@@ -33,9 +35,9 @@ setuptools.setup(
         'Windows',
         'Mac'],
     install_requires=[
-        'openseespywin>=3.3.0.1; platform_system=="Windows"',
-        'openseespylinux>=3.3.0.1; platform_system=="Linux"',
-        'openseespymac>=3.3.0.1; platform_system=="Darwin"',
+        f'openseespywin>={version}; platform_system=="Windows"',
+        f'openseespylinux>={version}; platform_system=="Linux"',
+        f'openseespymac>={version}; platform_system=="Darwin"',
     ],
-    python_requires='>=3.6',
+    python_requires='=3.8',
     zip_safe=False)
