@@ -11,13 +11,16 @@ def build_docker(version, setup, compile, upload, test_platform, test_type, push
   os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
   # copy pip
-  shutil.rmtree('openseespy-pip')
+  if os.path.exists('openseespy-pip'):
+    shutil.rmtree('openseespy-pip')
   shutil.copytree('../openseespy-pip', 'openseespy-pip')
-  shutil.rmtree('openseespylinux-pip')
+  if os.path.exists('openseespylinux-pip'):
+    shutil.rmtree('openseespylinux-pip')
   shutil.copytree('../openseespylinux-pip', 'openseespylinux-pip')
 
   # copy opensees
-  shutil.rmtree('opensees')
+  if os.path.exists('opensees'):
+    shutil.rmtree('opensees')
   shutil.copytree('../opensees', 'opensees')
 
   # version
@@ -165,6 +168,7 @@ if __name__ == "__main__":
   test_platform = None
   test_type = 'test-test'
   push = False
+  runDocker = True
   for i in range(1, len(sys.argv)):
     if sys.argv[i] == 'push':
       push = True
@@ -183,5 +187,8 @@ if __name__ == "__main__":
     elif sys.argv[i] == 'clear':
       subprocess.run(['docker',
                       'system', 'prune', '-a', ])
+      runDocker = False
 
-  build_docker(version, setup, compile, upload, test_platform, test_type, push)
+  if runDocker:
+    build_docker(version, setup, compile, upload,
+                 test_platform, test_type, push)
