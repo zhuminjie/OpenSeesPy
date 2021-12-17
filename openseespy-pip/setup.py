@@ -26,7 +26,7 @@ setuptools.setup(
     },
     license='LICENSE.md',
     classifiers=[
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows',
         "Operating System :: MacOS :: MacOS X"],
@@ -39,5 +39,5 @@ setuptools.setup(
         f'openseespylinux>={version}; platform_system=="Linux"',
         f'openseespymac>={version}; platform_system=="Darwin"',
     ],
-    python_requires='=3.8',
+    python_requires='=3.9',
     zip_safe=False)

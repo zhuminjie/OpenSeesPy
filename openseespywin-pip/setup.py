@@ -26,8 +26,8 @@ setuptools.setup(
     },
     license='LICENSE.md',
     classifiers=[
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         'Operating System :: Microsoft :: Windows'],
     platforms=["Windows"],
-    python_requires='>=3.6',
+    python_requires='=3.9',
     zip_safe=False)
