@@ -8,7 +8,7 @@ if sys.maxsize < 2**31:
 # platform dependent
 if sys.platform.startswith('win'):
 
-    if sys.version_info[0] == 3 and sys.version_info[1] == 8:
+    if sys.version_info[0] == 3 and sys.version_info[1] == 9:
         dll_path = ''
         for path in sys.path:
             if 'DLLs' in path:
@@ -23,7 +23,7 @@ if sys.platform.startswith('win'):
             raise RuntimeError('Failed to import openseespy on Windows.')
     else:
         raise RuntimeError(
-            'Python version 3.8 is needed for Windows')
+            'Python version 3.9 is needed for Windows')
 
 else:
 

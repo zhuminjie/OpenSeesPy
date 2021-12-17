@@ -29,5 +29,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         'Operating System :: Microsoft :: Windows'],
     platforms=["Windows"],
-    python_requires='=3.9',
+    python_requires='==3.9',
     zip_safe=False)
