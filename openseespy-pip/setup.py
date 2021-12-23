@@ -39,5 +39,5 @@ setuptools.setup(
         f'openseespylinux>={version}; platform_system=="Linux"',
         f'openseespymac>={version}; platform_system=="Darwin"',
     ],
-    python_requires='==3.9',
+    python_requires='~= 3.9.0',
     zip_safe=False)
