@@ -5,6 +5,10 @@ def DiscretizeMember(ndI,ndJ,numEle,eleType,integrTag,transfTag,nodeTag,eleTag):
     nodeList = []
     eleList = []
 
+    if eleType not in ['dispBeamColumn','forceBeamColumn','mixedBeamColumn']:
+        print(f'DiscretizeMember does not work for {eleType}')
+        return eleList,nodeList
+    
     if numEle <= 1:
         ops.element(eleType,eleTag,ndI,ndJ,transfTag,integrTag)
         eleList.append(eleTag)
