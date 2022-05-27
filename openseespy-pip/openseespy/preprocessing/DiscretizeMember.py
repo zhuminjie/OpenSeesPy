@@ -5,6 +5,11 @@ def DiscretizeMember(ndI,ndJ,numEle,eleType,integrTag,transfTag,nodeTag,eleTag):
     nodeList = []
     eleList = []
 
+    # A lazy workaround in case someone uses elasticBeamColumn, which
+    # has different input order than the material nonlinear elements
+    if eleType == 'elasticBeamColumn':
+        eleType = 'elasticForceBeamColumn'
+    
     if numEle <= 1:
         ops.element(eleType,eleTag,ndI,ndJ,transfTag,integrTag)
         eleList.append(eleTag)
