@@ -1,0 +1,100 @@
+.. |print| replace:: `print`_
+   
+.. |list| replace:: (`list`_)
+
+.. |listf| replace:: (`list`_ (`float`_))
+
+.. |listi| replace:: (`list`_ (`int`_))
+
+.. |listl| replace:: (`list`_ (`list`_))
+
+.. |listn| replace:: (`list`_ (:class:`node`))
+
+.. |liste| replace:: (`list`_ (:class:`element`))
+
+.. |lists| replace:: (`list`_ (`str`_))
+
+.. |int| replace:: (`int`_)
+   
+.. |del| replace:: `del`_
+   
+.. |None| replace:: `None`_
+   
+.. |float| replace:: (`float`_)
+   
+.. |str| replace:: (`str`_)
+
+.. |bool| replace:: (`bool`_)
+
+.. |callable| replace:: (`callable`_)
+
+.. |node| replace:: (:class:`node`)
+
+.. |element| replace:: (:class:`element`)
+
+.. |timeSeries| replace:: (:class:`timeSeries`)
+
+.. |unimat| replace:: (:class:`uniaxialMaterial`)
+
+.. |ndmat| replace:: (:class:`NDMaterial`)
+
+.. |transf| replace:: (:class:`geomTransf`)
+
+.. |section| replace:: (:class:`section`)
+
+.. |bi| replace:: (:class:`beamIntegration`)
+
+.. |opspy_version| replace:: 3.4.0.1
+
+.. |python_version| replace:: 3.9
+
+.. _print: https://docs.python.org/3/library/functions.html#print
+.. _list: https://docs.python.org/3/library/stdtypes.html#list
+.. _int: https://docs.python.org/3/library/functions.html#int
+.. _del: https://docs.python.org/3/reference/simple_stmts.html#the-del-statement
+.. _None: https://docs.python.org/3/library/constants.html#None
+.. _float: https://docs.python.org/3/library/functions.html#float
+.. _str: https://docs.python.org/3/library/stdtypes.html#str
+.. _bool: https://docs.python.org/3/library/functions.html#bool
+.. _callable: https://docs.python.org/3/library/functions.html#callable
+
+.. _OpenSeesPy: https://github.com/zhuminjie/OpenSeesPyDoc
+.. _OpenSees: https://github.com/OpenSees/OpenSees
+.. _OpenSees Wiki: http://opensees.berkeley.edu/wiki/index.php/Main_Page
+.. _Finite Element Analysis: https://en.wikipedia.org/wiki/Finite_element_method
+.. _Python 3: https://docs.python.org/3/
+.. _Earthquake Engineering: http://en.wikipedia.org/wiki/Earthquake_engineering
+.. _object-oriented: http://en.wikipedia.org/wiki/Object-oriented
+.. _parallel: http://en.wikipedia.org/wiki/Parallel_computing
+.. _earthquakes: http://en.wikipedia.org/wiki/Earthquakes
+.. _C++: http://en.wikipedia.org/wiki/C%2B%2B
+.. _Fortran: http://en.wikipedia.org/wiki/Fortran
+.. _C: http://en.wikipedia.org/wiki/C_programming_language
+.. _open source: http://en.wikipedia.org/wiki/Open_source
+.. _SuperLU: http://crd.lbl.gov/~xiaoye/SuperLU/
+.. _UmfPack: http://faculty.cse.tamu.edu/davis/suitesparse.html
+.. _Eigen: http://eigen.tuxfamily.org/index.php?title=Main_Page
+.. _ParaView: https://www.paraview.org/
+.. _numpy: http://www.numpy.org/
+.. _matplotlib: https://matplotlib.org/
+.. _ActiveStateTcl 8.5: https://www.activestate.com/activetcl/downloads/thank-you?dl=http://downloads.activestate.com/ActiveTcl/releases/8.5.18.0/ActiveTcl8.5.18.0.298892-win32-x86_64-threaded.exe
+.. _ActiveStateTcl 8.6: https://www.activestate.com/products/activetcl/downloads/thank-you/?dl=https://downloads.activestate.com/ActiveTcl/releases/8.6.8.0/ActiveTcl-8.6.8.0-MSWin32-x64.exe
+.. _Anaconda 5.0 Windows: https://repo.continuum.io/archive/Anaconda3-5.0.1-Windows-x86_64.exe
+.. _Anaconda 5.3 Windows: https://repo.anaconda.com/archive/Anaconda3-5.3.1-Windows-x86_64.exe
+.. _Anaconda 5.0 Linux: https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh
+.. _Anaconda 5.3 Linux: https://repo.anaconda.com/archive/Anaconda3-5.3.1-Linux-x86_64.sh
+.. _Anaconda 2018.12 Windows: https://repo.continuum.io/archive/Anaconda3-2018.12-Windows-x86_64.exe
+.. _Anaconda 2018.12 Linux: https://repo.continuum.io/archive/Anaconda3-2018.12-Linux-x86_64.sh
+.. _Anaconda: https://www.anaconda.com/distribution/#download-section
+.. _OpenSeesPy Windows Library: http://web.engr.oregonstate.edu/~zhum/downloads/openseespy36win.zip
+.. _OpenSeesPy Windows Library Python3.7: http://web.engr.oregonstate.edu/~zhum/downloads/openseespy37win.zip
+.. _OpenSeesPy Linux Library: http://web.engr.oregonstate.edu/~zhum/downloads/openseespylinux.zip
+
+.. _McKenna, Scott and Fenves: http://ascelibrary.org/doi/10.1061/%28ASCE%29CP.1943-5487.0000002
+.. _Bathe2007: http://www.sciencedirect.com/science/article/pii/S0045794906003099
+.. _Neuenhofer and Filippou 1997: https://doi.org/10.1061/(ASCE)0733-9445(1997)123:7(958)
+.. _Scott and Fenves 2006: https://doi.org/10.1061/(ASCE)0733-9445(2006)132:2(244)
+.. _Kidarsa, Scott and Higgins 2008: https://doi.org/10.1016/j.finel.2007.11.013
+.. _eqsig: https://pypi.org/project/eqsig/
+.. _DesignSafe: https://www.designsafe-ci.org/
+.. _mpich: https://www.mpich.org/downloads/

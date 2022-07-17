@@ -1,0 +1,5 @@
+{
+    "restructuredtext.confPath": "${workspaceFolder}",
+    "python.pythonPath": "/usr/bin/python3",
+    "esbonio.sphinx.confDir": "${workspaceFolder}",
+}
