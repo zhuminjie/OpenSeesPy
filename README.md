@@ -34,6 +34,12 @@ Sub-folders:
 
   [OpenSeesPy Documentation](https://openseespydoc.readthedocs.io/en/latest/)
 
+- `openseespy-docker`
+
+  The OpenSeesPy Docker.
+
+  [OpenSeesPy Docker Hub](https://hub.docker.com/r/zhuminjie/openseespy)
+
 - `opensees`
 
   The OpenSees source code, a link to [OpenSees repo](https://github.com/OpenSees/OpenSees)
