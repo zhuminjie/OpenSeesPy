@@ -1,22 +1,46 @@
-# OpenSees Source Code Repository
+# OpenSeesPy
 
-This git repository contains all revisions to OpenSees source code since Version 2.3.2.
+Sub-folders:
 
-Older revisions of the code are available upon request.
+- `openseespy-pip`
 
-If you plan on collaborating or even using OpenSees as your base code it is highly recommended that
-you FORK this repo to your own account and work on it there. We will not allow anybody to write to
-this repo. Only PULL requests will be considered. To fork the repo click on the FORK at the top of this page.
+  The OpenSeesPy package which depends on the following
+  packages for Windows, Linux, and Mac.
 
-For a brief outline on forking we suggest:
-https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
+  [OpenSeesPy Pip](https://pypi.org/project/openseespy/)
 
-For a brief introduction to using your new FORK we suggest:
-https://www.atlassian.com/git/tutorials/saving-changes
+- `openseespywin-pip`
 
-## Documentation
-The documentation for OpenSees is being moved to a parellel github repo:
-https://github.com/OpenSees/OpenSeesDocumentation
+  The OpenSeesPy Windows package.
 
-The documentation (in its present form) can be viewed in the browser using the following url:
-https://OpenSees.github.io/OpenSeesDocumentation
+  [OpenSeesPy Windows Pip](https://pypi.org/project/openseespywin/)
+
+- `openseespylinux-pip`
+
+  The OpenSeesPy Linux package.
+
+  [OpenSeesPy Linux Pip](https://pypi.org/project/openseespylinux/)
+
+- `openseespymac-pip`
+
+  The OpenSeesPy Mac package.
+  
+  [OpenSeesPy Mac Pip](https://pypi.org/project/openseespymac/)
+
+- `openseespy-docs`
+
+  The OpenSeesPy documentation, a link to [OpenSeesPyDoc repo](https://github.com/zhuminjie/OpenSeesPyDoc)
+  using the [git subtree](https://www.atlassian.com/git/tutorials/git-subtree).
+
+  [OpenSeesPy Documentation](https://openseespydoc.readthedocs.io/en/latest/)
+
+- `openseespy-docker`
+
+  The OpenSeesPy Docker.
+
+  [OpenSeesPy Docker Hub](https://hub.docker.com/r/zhuminjie/openseespy)
+
+- `opensees`
+
+  The OpenSees source code, a link to [OpenSees repo](https://github.com/OpenSees/OpenSees)
+  using the [git subtree](https://www.atlassian.com/git/tutorials/git-subtree).

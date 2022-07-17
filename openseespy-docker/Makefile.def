@@ -1,0 +1,387 @@
+############################################################################
+#
+#  Program:  OpenSees
+#
+#  Purpose:  A Top-level Makefile to create the libraries needed
+#	     toe the OpenSees framework. Works on Linux version 6.1
+#            and below.
+#
+#  Written: fmk
+#  Created: 10/99
+#
+#  Send bug reports, comments or suggestions to fmckenna@ce.berkeley.edu
+#
+############################################################################
+
+# %---------------------------------%
+# |  SECTION 1: PROGRAM             |
+# %---------------------------------%
+#
+# Specify the location and name of the OpenSees interpreter program
+# that will be created (if this all works!)
+binpath = /home/bin
+paralleldir = /home/petsc/arch-linux-c-opt
+minjie = /home/opensees
+libpath = /home/lib
+
+OpenSees_PROGRAM = $(binpath)/openseestcl
+
+mpidir = /home/bin/mpich-install
+mumpsdir = $(paralleldir)
+scalapackdir = $(paralleldir)
+petscdir = $(paralleldir)
+
+
+# PROGRAMMING_MODE = SEQUENTIAL
+PROGRAMMING_MODE = PARALLEL_INTERPRETERS
+# PROGRAMMING_MODE = PARALLEL
+
+ifeq ($(PROGRAMMING_MODE), PARALLEL_INTERPRETERS)
+    PROGRAMMING_FLAG = -D_PARALLEL_INTERPRETERS
+    OpenSees_PROGRAM = $(binpath)/openseesmp
+endif
+
+ifeq ($(PROGRAMMING_MODE), PARALLEL)
+    PROGRAMMING_FLAG = -D_PARALLEL_PROCESSING
+endif
+
+OPERATING_SYSTEM = LINUX
+
+#GRAPHICS = UsingOpenGL
+#GRAPHIC_FLAG = -D_GLX
+GRAPHICS = NONE
+GRAPHIC_FLAG = -D_NOGRAPHICS
+
+
+#DEBUG_MODE = DEBUG
+DEBUG_MODE = NO_DEBUG
+#DEBUG_FLAG = -D_G3DEBUG
+
+#RELIABILITY = NO_RELIABILITY
+RELIABILITY = YES_RELIABILITY
+RELIABILITY_FLAG = -D_RELIABILITY
+
+
+
+ifeq ($(PROGRAMMING_MODE), SEQUENTIAL)
+    MUMPS_FLAG =
+    HAVEMUMPS =
+    MUMPS =
+
+    PFEM_FLAG = -D_PFEM -fopenmp -D_AMGCL
+else
+    MUMPS_FLAG = -D_MUMPS
+    HAVEMUMPS = YES
+    MUMPS = YES
+
+    PFEM_FLAG = -D_PFEM -fopenmp -D_AMGCL -DTIMER_USE_MPIWTIME
+
+#PETSC_FLAG =  -D_PETSC
+    PETSC_FLAG =
+    #HAVEPETSC = YES
+    #PETSC = YES
+endif
+
+# %---------------------------------%
+# |  SECTION 2: PATHS               |
+# %---------------------------------%
+#
+# Note: if vendor supplied BLAS and LAPACK libraries or if you have
+# any of the libraries already leave the directory location blank AND
+# remove the directory from DIRS.
+
+FE		= $(minjie)/SRC
+
+BLASdir      = $(minjie)/OTHER/BLAS
+CBLASdir     = $(minjie)/OTHER/CBLAS
+LAPACKdir    = $(minjie)/OTHER/LAPACK
+SUPERLUdir   = $(minjie)/OTHER/SuperLU_5.1.1/SRC
+ARPACKdir    = $(minjie)/OTHER/ARPACK
+UMFPACKdir   = $(minjie)/OTHER/UMFPACK
+ITPACKdir   = $(minjie)/OTHER/ITPACK
+AMDdir       = $(minjie)/OTHER/AMD
+CSPARSEdir   = $(minjie)/OTHER/CSPARSE
+#TRIANGLEdir   = $(minjie)/OTHER/Triangle
+#TETGENdir   = $(minjie)/OTHER/tetgen1.5.0
+SRCdir       = $(minjie)/SRC
+
+ifeq ($(PROGRAMMING_MODE), SEQUENTIAL)
+    SUPERLU_DISTdir =
+    SUPERLU_INCLUDES =
+    METISdir       =
+else
+    SUPERLU_DISTdir = $(minjie)/OTHER/SuperLU_DIST_4.3/SRC
+    SUPERLU_INCLUDES = -I$(SUPERLU_DISTdir)
+    METISdir       = $(minjie)/OTHER/METIS
+endif
+
+DIRS    = $(BLASdir) $(CBLASdir) $(LAPACKdir) $(ITPACKdir) $(SUPERLUdir) $(ARPACKdir) $(UMFPACKdir) $(SRCdir) $(METISdir) $(AMDdir) $(CSPARSEdir) $(SUPERLU_DISTdir)
+
+
+# %-------------------------------------------------------%
+# | SECTION 3: LIBRARIES                                  |
+# |                                                       |
+# | The following section defines the libraries that will |
+# | be created and/or linked with when the libraries are  |
+# | being created or linked with.                         |
+# %-------------------------------------------------------%
+#
+# Note: if vendor supplied BLAS and LAPACK libraries leave the
+# libraries blank. You have to get your own copy of the tcl/tk
+# library!!
+#
+# Note: For libraries that will be created (any in DIRS above)
+# make sure the directory exsists where you want the library to go!
+
+FE_LIBRARY      = $(libpath)/libOpenSees.a
+NDARRAY_LIBRARY = $(libpath)/libndarray.a # BJ_UCD jeremic@ucdavis.edu
+MATMOD_LIBRARY  = $(libpath)/libmatmod.a  # BJ_UCD jeremic@ucdavis.edu
+BJMISC_LIBRARY  = $(libpath)/libBJmisc.a  # BJ_UCD jeremic@ucdavis.edu
+LAPACK_LIBRARY  = $(libpath)/libLapack.a
+BLAS_LIBRARY    = $(libpath)/libBlas.a
+SUPERLU_LIBRARY = $(libpath)/libSuperLU.a
+CBLAS_LIBRARY   = $(libpath)/libCBlas.a
+ARPACK_LIBRARY  = $(libpath)/libArpack.a
+UMFPACK_LIBRARY = $(libpath)/libUmfpack.a
+ITPACK_LIBRARY = $(libpath)/libItpack.a
+AMD_LIBRARY     = $(libpath)/libAMD.a
+CSPARSE_LIBRARY = $(libpath)/libcsparse.a
+#TRIANGLE_LIBRARY = $(libpath)/libTriangle.a
+#TETGEN_LIBRARY = $(libpath)/libTetgen.a
+RELIABILITY_LIBRARY = $(libpath)/libReliability.a
+OPTIMIZATION_LIBRARY = $(libpath)/libOptimization.a
+
+ifeq ($(PROGRAMMING_MODE), SEQUENTIAL)
+    DISTRIBUTED_SUPERLU_LIBRARY =
+    METIS_LIBRARY   =
+else
+    DISTRIBUTED_SUPERLU_LIBRARY = $(libpath)/libDistributedSuperLU.a
+    METIS_LIBRARY   = $(libpath)/libMetis.a
+endif
+
+TCL_LIBRARY = -L/usr/lib/x86_64-linux-gnu -ltcl8.6
+
+#GRAPHIC_LIBRARY     = -lGL -lGLU -lXft -lXrender
+
+# WATCH OUT .. These libraries are removed when 'make wipe' is invoked.
+WIPE_LIBS	= $(FE_LIBRARY) \
+		$(LAPACK_LIBRARY) \
+		$(BLAS_LIBRARY) \
+		$(CBLAS_LIBRARY) \
+		$(SUPERLU_LIBRARY) \
+                $(DISTRIBUTED_SUPERLU_LIBRARY) \
+		$(ARPACK_LIBRARY) \
+		$(UMFPACK_LIBRARY) \
+		$(ITPACK_LIBRARY) \
+	        $(METIS_LIBRARY) \
+	        $(AMD_LIBRARY) \
+	        $(CSPARSE_LIBRARY) \
+		$(TRIANGLE_LIBRARY) \
+		$(TETGEN_LIBRARY) \
+		$(RELIABILITY_LIBRARY)\
+		$(OPTIMIZATION_LIBRARY)
+
+# %---------------------------------------------------------%
+# | SECTION 4: COMPILERS                                    |
+# |                                                         |
+# | The following macros specify compilers, linker/loaders, |
+# | the archiver, and their options.  You need to make sure |
+# | these are correct for your system.                      |
+# %---------------------------------------------------------%
+
+# Compilers
+
+
+ifeq ($(PROGRAMMING_MODE), SEQUENTIAL)
+
+MPI_BIN =
+MPI_INCLUDE =
+MPI_LIB =
+
+CC++	= g++
+CC      = gcc
+FC	= gfortran
+#NVCC    = /usr/local/apps/cuda/cuda-7.5.18/bin/nvcc
+
+else
+
+MPI_BIN = $(mpidir)/bin
+MPI_INCLUDE = -I$(mpidir)/include
+MPI_LIB = -L$(mpidir)/lib
+#NVCC    = /usr/local/apps/cuda/cuda-7.5.18/bin/nvcc
+
+CC++            =  $(MPI_BIN)/mpicxx
+CC              =  $(MPI_BIN)/mpicc
+FC              =  $(MPI_BIN)/mpif90
+F90             =  $(MPI_BIN)/mpif90
+FORTRAN             =  $(FC)
+
+endif
+
+AR		= ar
+ARFLAGS		= cqls
+RANLIB		= ranlib
+RANLIBFLAGS     =
+
+# Compiler Flags
+#
+# NOTES:
+#    C++ FLAGS TAKE need _UNIX or _WIN32 for preprocessor dircetives
+#         - the _WIN32 for the Windows95/98 or NT operating system.
+#    C FLAGS used -DUSE_VENDOR_BLAS (needed in SuperLU) if UNIX in C++ FLAGS
+#
+
+# modified as optimizaton currently causing problems with Steeln01 code
+ifeq ($(DEBUG_MODE), DEBUG)
+
+
+
+
+C++FLAGS         = -Wall -D_LINUX -D_UNIX  -D_TCL85 $(GRAPHIC_FLAG) $(RELIABILITY_FLAG) $(DEBUG_FLAG) $(PROGRAMMING_FLAG) -D_COROTATIONAL $(PFEM_FLAG) -g -pg $(MUMPS_FLAG) $(PETSC_FLAG) -fPIC
+
+
+CFLAGS          = -Wall -pg $(GRAPHIC_FLAG) $(RELIABILITY_FLAG) $(DEBUG_FLAG) $(PROGRAMMING_FLAG) $(PFEM_FLAG) -fPIC -std=c99
+FFLAGS          = -Wall -fPIC
+
+# Linker
+LINKER          = $(CC++)
+LINKFLAGS       = -g -pg
+
+
+else
+
+C++FLAGS         = -Wall -D_LINUX -D_UNIX -D_TCL85 $(GRAPHIC_FLAG) $(RELIABILITY_FLAG) $(DEBUG_FLAG) $(PROGRAMMING_FLAG) -O3 -ffloat-store -D_COROTATIONAL $(PFEM_FLAG) $(MUMPS_FLAG) $(PETSC_FLAG) -fPIC -pedantic -ansi -std=c++11 
+CFLAGS          = -Wall -O2 $(PFEM_FLAG) -fPIC -std=c99
+FFLAGS          = -Wall -O3 -fPIC
+
+# Linker
+LINKER          = $(CC++)
+#LINKFLAGS       = -rdynamic -Wl
+LINKFLAGS = 
+endif
+
+
+# Misc
+MAKE		= make
+CD              = cd
+ECHO            = echo
+RM              = rm
+RMFLAGS         = -f
+SHELL           = /bin/sh
+
+# %---------------------------------------------------------%
+# | SECTION 5: COMPILATION                                  |
+# |                                                         |
+# | The following macros specify the macros used in         |
+# | to compile the source code into object code.            |
+# %---------------------------------------------------------%
+
+.SUFFIXES:
+.SUFFIXES:	.C .c .f .f90 .cpp .o .cpp
+
+#
+# %------------------%
+# | Default command. |
+# %------------------%
+#
+.DEFAULT:
+	@$(ECHO) "Unknown target $@, try:  make help"
+#
+# %-------------------------------------------%
+# |  Command to build .o files from .f files. |
+# %-------------------------------------------%
+#
+
+.cpp.o:
+	@$(ECHO) Making $@ from $<
+	$(CC++) $(C++FLAGS) $(INCLUDES) -c $(shell pwd)/$< -o $(shell pwd)/$@
+
+.C.o:
+	@$(ECHO) Making $@ from $<
+	$(CC++) $(C++FLAGS) $(INCLUDES) -c $(shell pwd)/$< -o $(shell pwd)/$@
+.c.o:
+	@$(ECHO) Making $@ from $<
+	$(CC) $(CFLAGS) -c $(shell pwd)/$< -o $(shell pwd)/$@
+.f.o:
+	@$(ECHO) Making $@ from $<
+	$(FC) $(FFLAGS) -c $(shell pwd)/$< -o $(shell pwd)/$@
+
+# %---------------------------------------------------------%
+# | SECTION 6: OTHER LIBRARIES                              |
+# |                                                         |
+# | The following macros specify other libraries that must  |
+# | be linked with when creating executables. These are     |
+# | platform specific and typically order does matter!!     |
+# %---------------------------------------------------------%
+
+ifeq ($(PROGRAMMING_MODE), SEQUENTIAL)
+
+MUMPS_LIB =
+MUMPS_INCLUDE =
+
+PETSC_LIB =
+PETSC_INCLUDE =
+
+else
+
+MUMPS_LIB = -L$(mumpsdir)/lib \
+          -L$(scalapackdir)/lib \
+	-ldmumps -lmumps_common \
+	-lpord -lscalapack
+MUMPS_INCLUDE = -I$(mumpsdir)/include
+
+#PETSC_LIB = -L$(petscdir)/lib -lpetsc
+#PETSC_INCLUDE = -I$(petscdir)/../include
+
+OTHER_PARA_LIB =  -lparmetis -lmetis -lmpi -lmpicxx -lmpifort
+
+endif
+
+MACHINE_LINKLIBS  =
+
+MACHINE_NUMERICAL_LIBS  = $(RELIABILITY_LIBRARY) $(OPTIMIZATION_LIBRARY) \
+		-lm -lc -ldl -lgfortran -lgomp \
+		-lquadmath \
+		$(LAPACK_LIBRARY) \
+		-L/usr/lib/x86_64-linux-gnu/blas -lblas \
+		$(ARPACK_LIBRARY) \
+		$(SUPERLU_LIBRARY) \
+		$(UMFPACK_LIBRARY) \
+        $(DISTRIBUTED_SUPERLU_LIBRARY) \
+        $(METIS_LIBRARY) \
+		$(ITPACK_LIBRARY) \
+		$(AMD_LIBRARY) \
+		$(CSPARSE_LIBRARY) \
+		$(TRIANGLE_LIBRARY) \
+		$(TETGEN_LIBRARY) \
+		$(GRAPHIC_LIBRARY) \
+		#-L$(binpath)/anaconda3/lib -lpython3.7m \
+		# -lpng -lssl  -lgomp
+		# -L/usr/local/apps/cuda/cuda-7.5.18/lib64 -lcusolver -lcudart -lcusparse
+
+MACHINE_SPECIFIC_LIBS =
+
+PARALLEL_LIB = $(MUMPS_LIB) $(MPI_LIB) $(OTHER_PARA_LIB) $(PETSC_LIB)
+
+# %---------------------------------------------------------%
+# | SECTION 7: INCLUDE FILES                                |
+# |                                                         |
+# | The following macros specify include files needed for   |
+# | compilation.                                            |
+# %---------------------------------------------------------%
+MACHINE_INCLUDES        = -I/usr/include \
+			  -I/usr/local/include \
+			  -I/usr/include/cxx  \
+			  -I/usr/local/include/python3.8
+#			  -I/data2/Minjie/bin/python3.6/include/python3.6m
+#			  -I/scratch/bin/anaconda3-5.1.0/include/python3.6m
+#			  -I/usr/include/python2.7
+#			  -I/usr/local/apps/cuda/cuda-7.5.18/include
+
+
+# this file contains all the OpenSees/SRC includes
+include $(FE)/Makefile.incl
+
+TCL_INCLUDES = -I/usr/include/tcl8.6
+
+INCLUDES = $(TCL_INCLUDES) $(FE_INCLUDES) $(MACHINE_INCLUDES) $(SUPERLU_INCLUDES) $(MUMPS_INCLUDE) $(MPI_INCLUDE) $(PETSC_INCLUDE)

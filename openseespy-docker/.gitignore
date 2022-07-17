@@ -1,0 +1,5 @@
+openseespy-pip
+openseespylinux-pip
+opensees
+*.pyd
+*.so
