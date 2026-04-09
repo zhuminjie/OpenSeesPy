@@ -26,3 +26,9 @@ https://github.com/zhuminjie/OpenSeesPy/tree/openseespy/pip
 The pip install page is at
 
 https://pypi.org/project/openseespy/
+
+## Arch Linux / Manjaro
+
+The AUR package for Arch-based systems is at
+
+https://aur.archlinux.org/packages/python-openseespy
