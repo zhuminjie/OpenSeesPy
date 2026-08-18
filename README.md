@@ -1,4 +1,5 @@
-# OpenSeesPy Repository
+
+# OpenSees Source Code Repository [![CMake Build](https://github.com/OpenSees/OpenSees/actions/workflows/build_cmake.yml/badge.svg)](https://github.com/OpenSees/OpenSees/actions/workflows/build_cmake.yml)
 
 This git repository maintains the latest updates to OpenSees source code and version information to OpenSeesPy.
 
